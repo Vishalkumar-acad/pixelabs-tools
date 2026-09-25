@@ -2,7 +2,10 @@
    PixelAbs Tools — edge worker
    ------------------------------------------------------------
    1. Serves the static site (via the ASSETS binding).
-   2. Accepts ANONYMOUS error reports at POST /__log.
+   2. Maps "/" to /index.html (needed because html_handling is
+      "none", which disables Cloudflare's automatic root mapping
+      but keeps every .html URL redirect-free).
+   3. Accepts ANONYMOUS error reports at POST /__log.
 
    Privacy contract for error reports (this is the ONLY data the
    site ever sends home):
@@ -21,6 +24,14 @@ const MAX_EVENTS_PER_POST = 25;
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    /* Serve the homepage at "/" without any redirect.
+       html_handling is "none", so the root is not auto-mapped. */
+    if (request.method === "GET" && url.pathname === "/") {
+      if (env && env.ASSETS && typeof env.ASSETS.fetch === "function") {
+        return env.ASSETS.fetch(new Request(new URL("/index.html", url), request));
+      }
+    }
 
     if (request.method === "POST" && url.pathname === "/__log") {
       try {
