@@ -1,9 +1,11 @@
 /* PixelAbs Tools — service worker
    Cache-first for same-origin assets, so every tool works fully offline
-   after the first visit. Bump CACHE_VERSION to force a refresh. */
+   after the first visit. Hardened: a network failure can NEVER fail a
+   navigation — we always fall back to cache, then to a friendly response.
+   Bump CACHE_VERSION to force a refresh. */
 "use strict";
 
-var CACHE_VERSION = "pat-v1";
+var CACHE_VERSION = "pat-v2";
 
 var PRECACHE = [
   "/",
@@ -42,7 +44,13 @@ var PRECACHE = [
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE_VERSION)
-      .then(function (cache) { return cache.addAll(PRECACHE); })
+      .then(function (cache) {
+        /* addAll is all-or-nothing; add individually so one missing file
+           cannot break the whole install */
+        return Promise.all(PRECACHE.map(function (url) {
+          return cache.add(url).catch(function () { /* skip missing assets */ });
+        }));
+      })
       .then(function () { return self.skipWaiting(); })
   );
 });
@@ -65,23 +73,38 @@ self.addEventListener("fetch", function (event) {
   if (url.origin !== location.origin) return; /* never touch cross-origin */
 
   event.respondWith(
-    caches.match(request, { ignoreSearch: true }).then(function (cached) {
-      if (cached) {
-        /* Refresh in the background for next time */
-        fetch(request).then(function (response) {
-          if (response && response.ok) {
-            caches.open(CACHE_VERSION).then(function (cache) { cache.put(request, response); });
+    caches.match(request, { ignoreSearch: true })
+      .then(function (cached) {
+        /* Try the network; on failure fall back to cache */
+        var networkFetch = fetch(request).then(function (response) {
+          if (response && response.ok && response.type === "basic") {
+            var copy = response.clone();
+            caches.open(CACHE_VERSION)
+              .then(function (cache) { return cache.put(request, copy); })
+              .catch(function () { /* cache write failure is non-fatal */ });
           }
-        }).catch(function () { /* offline — cached copy is fine */ });
-        return cached;
-      }
-      return fetch(request).then(function (response) {
-        if (response && response.ok && response.type === "basic") {
-          var copy = response.clone();
-          caches.open(CACHE_VERSION).then(function (cache) { cache.put(request, copy); });
+          return response;
+        });
+
+        if (cached) {
+          /* Serve cache instantly; refresh in the background */
+          networkFetch.catch(function () { /* offline — cached copy is fine */ });
+          return cached;
         }
-        return response;
-      });
-    })
+        return networkFetch;
+      })
+      .catch(function () {
+        /* Absolute last resort: any cached copy, else a friendly page */
+        return caches.match(request).then(function (fallback) {
+          if (fallback) return fallback;
+          return new Response(
+            "<!DOCTYPE html><meta charset='utf-8'><body style='font-family:sans-serif;text-align:center;padding:40px'>" +
+            "<h2>You are offline</h2><p>This page is not cached yet. Reconnect and try again.</p></body>",
+            { status: 503, headers: { "Content-Type": "text/html" } }
+          );
+        }).catch(function () {
+          return new Response("Offline", { status: 503 });
+        });
+      })
   );
 });
