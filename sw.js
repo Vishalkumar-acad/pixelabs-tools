@@ -7,19 +7,25 @@
       site works at any host or sub-path (root domain, /repo/, etc.).
    2. A navigation request can NEVER hard-fail. Fallback chain:
       cache → network → cached homepage → friendly offline page.
-   3. Cached pages are refreshed in the background (stale-while-revalidate),
-      so updates arrive on the next visit — this is the cache-busting
-      strategy. Bump CACHE_VERSION to force an immediate refresh.
+   3. A redirected response is NEVER served to a navigation (Chrome
+      rejects those with ERR_FAILED). Redirected responses are re-fetched
+      at their final URL to produce a clean response instead.
+   4. Cached pages are refreshed in the background (stale-while-revalidate),
+      so updates arrive on the next visit. Bump CACHE_VERSION to force an
+      immediate refresh.
 
    ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v6";
+var CACHE_VERSION = "pat-v7";
 
 /* Scope-relative path helper — prefixes paths with the service worker's
-   scope WITHOUT using new URL() (which would discard the scope's sub-path
-   for leading-slash paths, breaking /repo/-style hosting). */
-var ROOT = self.registration.scope.replace(/\/?$/, "");
+   scope. (Avoids new URL(), which would discard the scope's sub-path for
+   leading-slash paths, breaking /repo/-style hosting.) */
+var ROOT = (function () {
+  var scope = self.registration.scope;
+  return scope.slice(-1) === "/" ? scope.slice(0, -1) : scope;
+})();
 function P(path) {
   return ROOT + path;
 }
@@ -48,6 +54,8 @@ var PRECACHE_REL = [
   "/assets/img/icon-192.png",
   "/assets/img/icon-512.png",
   "/manifest.json",
+  "/robots.txt",
+  "/sitemap.xml",
   "/tools/image-compressor.html",
   "/tools/image-converter.html",
   "/tools/image-resizer.html",
@@ -87,7 +95,7 @@ self.addEventListener("activate", function (event) {
 });
 
 /* Friendly last-resort page for failed navigations */
-function offlinePage(path) {
+function offlinePage() {
   var home = P("/");
   return new Response(
     "<!DOCTYPE html><meta charset='utf-8'>" +
@@ -106,11 +114,12 @@ function homepageFallback() {
   return caches.match(P("/"))
     .catch(function () { return null; })
     .then(function (cachedHome) {
-      if (cachedHome) return cachedHome;
+      if (cachedHome && !cachedHome.redirected) return cachedHome;
       return caches.match(P("/index.html"))
         .catch(function () { return null; })
         .then(function (cachedIndex) {
-          return cachedIndex || offlinePage();
+          if (cachedIndex && !cachedIndex.redirected) return cachedIndex;
+          return offlinePage();
         });
     });
 }
@@ -124,26 +133,43 @@ self.addEventListener("fetch", function (event) {
 
   var isNavigation = request.mode === "navigate";
 
+  function store(key, response) {
+    if (response && response.ok && response.type === "basic" && !response.redirected) {
+      var copy = response.clone();
+      caches.open(CACHE_VERSION)
+        .then(function (cache) { return cache.put(key, copy); })
+        .catch(function () { /* cache write failure is non-fatal */ });
+    }
+    return response;
+  }
+
+  /* Chrome refuses to serve a redirected response to a navigation
+     (ERR_FAILED). If we got one, re-fetch the FINAL url directly —
+     that returns a clean, non-redirected response. */
+  function unredirect(raw) {
+    if (!raw || !raw.redirected) return Promise.resolve(raw);
+    return fetch(raw.url).then(function (clean) {
+      if (clean && clean.ok) {
+        store(raw.url, clean.clone());
+      }
+      return clean;
+    });
+  }
+
   event.respondWith(
     caches.match(request, { ignoreSearch: true })
       .then(function (cached) {
-        /* Try the network; on failure fall back (never reject) */
-        var networkFetch = fetch(request).then(function (response) {
-          if (response && response.ok && response.type === "basic") {
-            var copy = response.clone();
-            caches.open(CACHE_VERSION)
-              .then(function (cache) { return cache.put(request, copy); })
-              .catch(function () { /* cache write failure is non-fatal */ });
-          }
-          return response;
-        });
-
-        if (cached) {
+        if (cached && !cached.redirected) {
           /* Serve cache instantly; refresh in the background (cache-busting) */
-          networkFetch.catch(function () { /* offline — cached copy is fine */ });
+          fetch(request)
+            .then(unredirect)
+            .then(function (fresh) { store(request.url, fresh); })
+            .catch(function () { /* offline — cached copy is fine */ });
           return cached;
         }
-        return networkFetch;
+        return fetch(request)
+          .then(unredirect)
+          .then(function (fresh) { return store(request.url, fresh); });
       })
       .catch(function (err) {
         /* Report the navigation failure anonymously (no user data —
