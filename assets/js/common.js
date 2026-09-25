@@ -108,7 +108,7 @@ function formatBytes(bytes) {
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/[<>"']/g, function (c) {
+  return String(s).replace(/[&<>"']/g, function (c) {
     return "&#".concat(c.charCodeAt(0), ";");
   });
 }
