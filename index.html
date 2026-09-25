@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelAbs Tools — Free Online Utilities. No Login. No Ads. No Uploads.</title>
+  <meta name="description" content="Fast, free, privacy-first web utilities. Compress images to an exact KB size, merge PDFs, convert formats, generate QR codes and more — 100% in your browser. No sign-up, no ads, no file uploads.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="assets/img/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="./">
+        <img src="assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+        <span class="beta">100% Local</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill" title="All processing happens inside your browser. Files never leave your device.">
+          <span class="dot"></span>
+          <span class="label">Files never leave your device</span>
+        </span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+      <section class="hero">
+        <h1>Free tools that <span class="grad">respect your privacy</span></h1>
+        <p class="sub">Every utility runs entirely inside your browser. Your files are never uploaded, never stored, and never seen by anyone but you.</p>
+        <div class="badges">
+          <span class="badge"><b>No</b> sign-up required</span>
+          <span class="badge"><b>No</b> ads, ever</span>
+          <span class="badge"><b>No</b> file uploads</span>
+          <span class="badge">Works <b>offline</b></span>
+        </div>
+      </section>
+
+      <h2 class="section-title">All tools <span class="count">10</span></h2>
+
+      <div class="tool-grid">
+
+        <a class="tool-card" href="tools/image-compressor.html">
+          <span class="go">→</span>
+          <div class="icon">🗜️</div>
+          <h3>Image Compressor</h3>
+          <p>Hit an exact target size (e.g. under 50 KB for online forms) using a smart binary-search algorithm.</p>
+        </a>
+
+        <a class="tool-card" href="tools/image-converter.html">
+          <span class="go">→</span>
+          <div class="icon">🔄</div>
+          <h3>Image Converter</h3>
+          <p>Convert between JPG, PNG and WEBP in bulk, right on your device.</p>
+        </a>
+
+        <a class="tool-card" href="tools/image-resizer.html">
+          <span class="go">→</span>
+          <div class="icon">📐</div>
+          <h3>Image Resizer</h3>
+          <p>Resize by pixel dimensions or presets — passport photos, Instagram, YouTube and more.</p>
+        </a>
+
+        <a class="tool-card" href="tools/pdf-merge.html">
+          <span class="go">→</span>
+          <div class="icon">📑</div>
+          <h3>PDF Merge</h3>
+          <p>Combine multiple PDFs into one document. Drag to arrange the order you want.</p>
+        </a>
+
+        <a class="tool-card" href="tools/pdf-split.html">
+          <span class="go">→</span>
+          <div class="icon">✂️</div>
+          <h3>PDF Split & Extract</h3>
+          <p>Extract page ranges (like 3–7) or split a PDF into individual pages.</p>
+        </a>
+
+        <a class="tool-card" href="tools/images-to-pdf.html">
+          <span class="go">→</span>
+          <div class="icon">🖼️</div>
+          <h3>Images to PDF</h3>
+          <p>Turn photos and scans into a single tidy PDF, with page-fit options.</p>
+        </a>
+
+        <a class="tool-card" href="tools/json-formatter.html">
+          <span class="go">→</span>
+          <div class="icon">{ }</div>
+          <h3>JSON Formatter</h3>
+          <p>Beautify, minify and validate JSON locally, with precise error messages.</p>
+        </a>
+
+        <a class="tool-card" href="tools/text-case.html">
+          <span class="go">→</span>
+          <div class="icon">Aa</div>
+          <h3>Text Case Converter</h3>
+          <p>UPPERCASE, lowercase, Title Case, camelCase, snake_case and more.</p>
+        </a>
+
+        <a class="tool-card" href="tools/base64.html">
+          <span class="go">→</span>
+          <div class="icon">🔐</div>
+          <h3>Base64 Encode / Decode</h3>
+          <p>UTF-8 safe text encoding, plus file-to-Base64 conversion.</p>
+        </a>
+
+        <a class="tool-card" href="tools/qr-code.html">
+          <span class="go">→</span>
+          <div class="icon">📱</div>
+          <h3>QR Code Generator</h3>
+          <p>Create crisp QR codes with custom colors and download as PNG.</p>
+        </a>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div>
+        <strong>PixelAbs Tools</strong> — free forever, ad-free, open source.<br>
+        <span class="saved-note" id="savings-note"></span>
+      </div>
+      <div class="links">
+        <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+        <span>© <span id="year"></span></span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="assets/js/common.js"></script>
+</body>
+</html>
