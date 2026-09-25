@@ -36,6 +36,14 @@ fetch "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" \
       "assets/vendor/qrcode.min.js" \
       "c541ef06327885a8415bca8df6071e14189b4855336def4f36db54bde8484f36"
 
+fetch "https://unpkg.com/pdfjs-dist@3.11.174/legacy/build/pdf.min.js" \
+      "assets/vendor/pdf.min.js" \
+      "978fd1b2d134a98e98966186a97777bebf87d8e770dadab1ece3687e21a5aa6c"
+
+fetch "https://unpkg.com/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js" \
+      "assets/vendor/pdf.worker.min.js" \
+      "38cde5311957b86bc3669f93e7d2566de333a90055ed6635bef60d9bf00e96f2"
+
 mkdir -p assets/fonts
 fetch "https://unpkg.com/@fontsource-variable/inter@5.2.5/files/inter-latin-wght-normal.woff2" \
       "assets/fonts/InterVariable.woff2" \

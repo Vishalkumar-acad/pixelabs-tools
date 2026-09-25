@@ -1,0 +1,255 @@
+/* ============================================================
+   PixelAbs Tools — PDF Compressor
+   Rebuilds each PDF page as an optimized image inside a new
+   document (pdf.js renders, pdf-lib assembles). 100% client-side.
+   ============================================================ */
+"use strict";
+
+(function () {
+
+  var LEVELS = {
+    high:   { scale: 2.0, quality: 0.85 },
+    medium: { scale: 1.4, quality: 0.72 },
+    low:    { scale: 1.0, quality: 0.55 }
+  };
+
+  /* Point pdf.js at its vendored worker (relative to this page). */
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      new URL("../assets/vendor/pdf.worker.min.js", location.href).toString();
+  }
+
+  /* ---------- DOM ---------- */
+  var dropzoneEl = document.getElementById("dropzone");
+  var levelSel = document.getElementById("level");
+  var runBtn = document.getElementById("compress-btn");
+  var clearBtn = document.getElementById("clear-btn");
+  var msgEl = document.getElementById("msg");
+  var progressWrap = document.getElementById("progress-wrap");
+  var progressBar = document.getElementById("progress-bar");
+  var resultsPanel = document.getElementById("results-panel");
+  var summaryEl = document.getElementById("summary");
+  var resultsEl = document.getElementById("results");
+  var zipBtn = document.getElementById("zip-btn");
+
+  var files = [];
+  var outputs = []; /* { name, bytes } */
+  var busy = false;
+
+  function showMsg(text, kind) {
+    msgEl.textContent = text;
+    msgEl.className = "msg " + (kind || "info");
+  }
+
+  function updateButtons() {
+    runBtn.disabled = files.length === 0 || busy;
+    clearBtn.disabled = files.length === 0 || busy;
+  }
+
+  function clearAll() {
+    files = [];
+    outputs = [];
+    resultsPanel.classList.add("hidden");
+    progressWrap.classList.add("hidden");
+    progressBar.style.width = "0%";
+    msgEl.className = "msg";
+    updateButtons();
+  }
+
+  function setFiles(list) {
+    files = list.slice();
+    outputs = [];
+    resultsPanel.classList.add("hidden");
+    if (files.length) {
+      showMsg(files.length + (files.length === 1 ? " PDF ready." : " PDFs ready.") + " Choose a level and press Compress.", "info");
+    }
+    updateButtons();
+  }
+
+  /* ---------- Core: compress one PDF ----------
+     Renders every page with pdf.js at the chosen scale, re-encodes
+     each page as a JPEG at the chosen quality, and assembles a new
+     document with pdf-lib. Returns the new PDF bytes. */
+  async function compressFile(file, level, onProgress) {
+    var buf = await readFileAsArrayBuffer(file);
+    var src = await window.pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+    var numPages = src.numPages;
+    var out = await window.PDFLib.PDFDocument.create();
+
+    for (var p = 1; p <= numPages; p++) {
+      var page = await src.getPage(p);
+      var viewport = page.getViewport({ scale: level.scale });
+      var canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.floor(viewport.width));
+      canvas.height = Math.max(1, Math.floor(viewport.height));
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+      var dataUrl = canvas.toDataURL("image/jpeg", level.quality);
+      var img = await out.embedJpg(dataUrl);
+      var p2 = out.addPage([canvas.width, canvas.height]);
+      p2.drawImage(img, { x: 0, y: 0, width: canvas.width, height: canvas.height });
+      if (onProgress) onProgress();
+    }
+
+    src.destroy();
+    return out.save();
+  }
+
+  /* ---------- Run all ---------- */
+  function run() {
+    if (busy) return;
+    if (!window.pdfjsLib || !window.PDFLib) {
+      missingLib(window.pdfjsLib ? "pdf-lib" : "pdf.js");
+      return;
+    }
+    busy = true;
+    updateButtons();
+    outputs = [];
+    resultsEl.innerHTML = "";
+    resultsPanel.classList.add("hidden");
+    progressWrap.classList.remove("hidden");
+    showMsg("Compressing…", "info");
+
+    var level = LEVELS[levelSel.value];
+
+    /* First pass: count pages so the progress bar is accurate. */
+    var countChain = Promise.resolve();
+    var totalPages = 0;
+    files.forEach(function (f) {
+      countChain = countChain.then(function () {
+        return readFileAsArrayBuffer(f).then(function (buf) {
+          return window.pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise.then(function (doc) {
+            totalPages += doc.numPages;
+            doc.destroy();
+          });
+        });
+      });
+    });
+
+    countChain.then(function () {
+      var done = 0;
+      var chain = Promise.resolve();
+      files.forEach(function (f) {
+        chain = chain.then(function () {
+          return compressFile(f, level, function () {
+            done++;
+            progressBar.style.width = Math.round((done / totalPages) * 100) + "%";
+          }).then(function (bytes) {
+            outputs.push({ name: baseName(f.name) + "-compressed.pdf", bytes: bytes });
+          }).catch(function (err) {
+            outputs.push({ name: baseName(f.name) + "-compressed.pdf", error: String((err && err.message) || err) });
+          });
+        });
+      });
+
+      return chain;
+    }).then(function () {
+      progressWrap.classList.add("hidden");
+      busy = false;
+      updateButtons();
+
+      var okCount = 0;
+      var inBytes = 0;
+      var outBytes = 0;
+      var bad = [];
+
+      outputs.forEach(function (o, i) {
+        if (o.error) {
+          bad.push(files[i].name);
+          return;
+        }
+        okCount++;
+        inBytes += files[i].size;
+        outBytes += o.bytes.length;
+      });
+
+      if (okCount === 0) {
+        showMsg("Compression failed: " + (bad[0] || "unknown error"), "err");
+        return;
+      }
+      if (bad.length) {
+        showMsg("Done, but these files failed: " + bad.join(", "), "err");
+      } else {
+        showMsg("Done! " + okCount + (okCount === 1 ? " PDF" : " PDFs") + " compressed.", "ok");
+      }
+
+      if (inBytes > outBytes) {
+        Savings.add(inBytes - outBytes);
+      }
+
+      var pct = inBytes > 0 ? Math.round((1 - outBytes / inBytes) * 100) : 0;
+      summaryEl.innerHTML =
+        "<div class='stat'><div class='v'>" + formatBytes(inBytes) + "</div><div class='k'>Original</div></div>" +
+        "<div class='stat good'><div class='v'>" + formatBytes(outBytes) + "</div><div class='k'>Compressed</div></div>" +
+        "<div class='stat'><div class='v'>-" + pct + "%</div><div class='k'>Saved</div></div>";
+
+      resultsEl.innerHTML = "";
+      outputs.forEach(function (o, i) {
+        var row = document.createElement("div");
+        row.className = "file-row done";
+        var orig = files[i].size;
+        var inner;
+        if (o.error) {
+          inner = "<span class='meta'><span class='name'>" + escapeHtml(o.name) + "</span>" +
+                  "<span class='size'><span class='delta-bad'>Failed</span></span></span>";
+        } else {
+          var delta = orig >= o.bytes.length ? "-" + formatBytes(orig - o.bytes.length) : "+" + formatBytes(o.bytes.length - orig);
+          var cls = orig >= o.bytes.length ? "delta-good" : "delta-bad";
+          inner = "<span class='meta'><span class='name'>" + escapeHtml(o.name) + "</span>" +
+                  "<span class='size'>" + formatBytes(orig) + " → " + formatBytes(o.bytes.length) +
+                  " <span class='" + cls + "'>(" + delta + ")</span></span></span>" +
+                  "<span class='controls'><button title='Download' data-dl='" + i + "'>⬇</button></span>";
+        }
+        row.innerHTML = inner;
+        resultsEl.appendChild(row);
+      });
+
+      Array.prototype.forEach.call(resultsEl.querySelectorAll("button[data-dl]"), function (btn) {
+        btn.addEventListener("click", function () {
+          var o = outputs[Number(btn.getAttribute("data-dl"))];
+          if (o && o.bytes) downloadBlob(new Blob([o.bytes], { type: "application/pdf" }), o.name);
+        });
+      });
+
+      resultsPanel.classList.remove("hidden");
+    }).catch(function (err) {
+      busy = false;
+      updateButtons();
+      progressWrap.classList.add("hidden");
+      showMsg("Compression failed: " + String((err && err.message) || err), "err");
+    });
+  }
+
+  zipBtn.addEventListener("click", function () {
+    var good = outputs.filter(function (o) { return o.bytes; });
+    if (!good.length) return;
+    if (good.length === 1) {
+      downloadBlob(new Blob([good[0].bytes], { type: "application/pdf" }), good[0].name);
+      return;
+    }
+    var zip = new JSZip();
+    good.forEach(function (o) { zip.file(o.name, o.bytes); });
+    zip.generateAsync({ type: "blob" }).then(function (blob) {
+      downloadBlob(blob, "pixelabs-pdfs.zip");
+    });
+  });
+
+  /* ---------- Wire up ---------- */
+  makeDropzone({
+    el: dropzoneEl,
+    accept: "application/pdf",
+    multiple: true,
+    onFiles: setFiles
+  });
+
+  runBtn.addEventListener("click", run);
+  clearBtn.addEventListener("click", clearAll);
+
+  /* E2E test hook (also handy for power users in the console). */
+  window.__pdfCompress = function (file, levelKey) {
+    return compressFile(file, LEVELS[levelKey] || LEVELS.medium, null);
+  };
+
+})();
