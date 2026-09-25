@@ -26,10 +26,12 @@ export default {
     const url = new URL(request.url);
 
     /* Serve the homepage at "/" without any redirect.
-       html_handling is "none", so the root is not auto-mapped. */
+       html_handling is "none", so the root is not auto-mapped.
+       NOTE: pass a plain URL string — constructing a Request from a
+       navigation request (mode "navigate") throws a TypeError. */
     if (request.method === "GET" && url.pathname === "/") {
       if (env && env.ASSETS && typeof env.ASSETS.fetch === "function") {
-        return env.ASSETS.fetch(new Request(new URL("/index.html", url), request));
+        return env.ASSETS.fetch(new URL("/index.html", url).toString());
       }
     }
 
