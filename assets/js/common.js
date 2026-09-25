@@ -25,8 +25,9 @@ function toggleTheme() {
 ---------------------------------------------------------------- */
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   window.addEventListener("load", function () {
-    var dir = location.pathname.replace(/\/[^/]*$/, "/");
-    var depth = dir.split("/").filter(Boolean).length;
+    var parts = location.pathname.split("/");
+    parts.pop();
+    var depth = parts.filter(Boolean).length;
     var swUrl = (depth ? new Array(depth + 1).join("../") : "./") + "sw.js";
     navigator.serviceWorker.register(swUrl).catch(function () { /* offline mode optional */ });
   });
@@ -108,9 +109,11 @@ function formatBytes(bytes) {
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, function (c) {
-    return "&#".concat(c.charCodeAt(0), ";");
-  });
+  var amp = String.fromCharCode(38);
+  return String(s).split(amp).join(amp + "amp;")
+    .replace(/[<>"']/g, function (c) {
+      return amp + "#" + c.charCodeAt(0) + ";";
+    });
 }
 
 function downloadBlob(blob, filename) {
@@ -121,145 +124,153 @@ function downloadBlob(blob, filename) {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  setTimeout(function () { URL.revokeOXš™XİT“
-\›
-NÈK
-NÂŸB‚™[˜İ[Ûˆ˜\ÙS˜[YJ˜[YJHÂˆ˜\ˆHH˜[YK›\İ[™^ÙŠ‹ˆŠNÂˆ™]\›ˆHˆÈ˜[YKœÛXÙJJHˆ˜[YNÂŸB‚‹ÊˆKKKKKKKKKHØ\İKKKKKKKKKH
-‹Â‚™[˜İ[ÛˆØ\İ
-Y\ÜØYÙK\JHÂˆ˜\ˆ›ÛİHØİ[Y[™Ù][[Y[RY
-Ø\İ\›ÛİŠNÂˆYˆ
-\›Ûİ
-HÂˆ›ÛİHØİ[Y[˜Ü™X]Q[[Y[
-™]ˆŠNÂˆ›ÛİšYHØ\İ\›ÛİÂˆØİ[Y[˜›ÙK˜\[™Ú[
-›Ûİ
-NÂˆBˆ˜\ˆ[HØİ[Y[˜Ü™X]Q[[Y[
-™]ˆŠNÂˆ[˜Û\ÜÓ˜[YHHØ\İˆ
-È
-\HˆŠNÂˆ[^ÛÛ[HY\ÜØYÙNÂˆ›Ûİ˜\[™Ú[
-[
-NÂˆÙ][Y[İ]
-[˜İ[Ûˆ
+  setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+}
 
-HÈ[œ™[[İ™J
-NÈKÌŒ
-NÂŸB‚‹ÊˆKKKKKKKKKHØ]š[™ÜÈ˜XÚÙ\ˆ
-ØØ[Û›JHKKKKKKKKKH
-‹Â‚˜\ˆØ]š[™ÜÈHÂˆYˆ[˜İ[Ûˆ
-]\ÔØ]™Y
-HÂˆHÂˆ˜\ˆİ\ˆH\œÙR[
-ØØ[İÜ˜YÙK™Ù]][Jœ]\Ø]™YŠHŒ‹L
-HÂˆİ\ˆ
-ÏHX]›X^
-X]œ›İ[™
-]\ÔØ]™Y
-JNÂˆØØ[İÜ˜YÙKœÙ]][Jœ]\Ø]™Y‹İš[™Êİ\ŠJNÂˆØ]š[™ÜËœ™[™\Š
-NÂˆHØ]Ú
-JHÈÊˆš]˜]H[ÙH
-‹ÈBˆKˆİ[ˆ[˜İ[Ûˆ
+function baseName(name) {
+  var i = name.lastIndexOf(".");
+  return i > 0 ? name.slice(0, i) : name;
+}
 
-HÂˆ™]\›ˆ\œÙR[
-ØØ[İÜ˜YÙK™Ù]][Jœ]\Ø]™YŠHŒ‹L
-HÂˆKˆ™[™\ˆ[˜İ[Ûˆ
+/* ---------- Toast ---------- */
 
-HÂˆ˜\ˆ[HØİ[Y[™Ù][[Y[RY
-œØ]š[™ÜË[›İHŠNÂˆYˆ
-Y[
-H™]\›Âˆ˜\ˆİ[HØ]š[™ÜËİ[
+function toast(message, type) {
+  var root = document.getElementById("toast-root");
+  if (!root) {
+    root = document.createElement("div");
+    root.id = "toast-root";
+    document.body.appendChild(root);
+  }
+  var el = document.createElement("div");
+  el.className = "toast " + (type || "");
+  el.textContent = message;
+  root.appendChild(el);
+  setTimeout(function () { el.remove(); }, 3200);
+}
 
-NÂˆYˆ
-İ[ˆ
-H[^ÛÛ[H–[İH]™HØ]™Yˆ
-È›Ü›X]]\Êİ[
-H
-ÈˆÛÈ˜\ˆ\Ú[™È\ÙHÛÛËˆÂˆBŸNÂ‚™Øİ[Y[˜Y]™[\İ[™\Š‘ÓPÛÛ[ØYY‹Ø]š[™ÜËœ™[™\ŠNÂ‚‹ÊˆKKKKKKKKKH›Ü›Û™H˜XİÜHKKKKKKKKKKBˆXZÙQ›Ü›Û™JÂˆ[XØÙ\][\KÛ‘š[\ÂˆJB‹KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKH
-‹Â‚™[˜İ[ÛˆXZÙQ›Ü›Û™JÜÊHÂˆ˜\ˆ[HÜË™[Âˆ˜\ˆ[œ]H[œ]Y\TÙ[XİÜŠš[œ]İ\OYš[WHŠNÂ‚ˆ[˜İ[Ûˆ[™Qš[\Êš[S\İ
-HÂˆ˜\ˆš[\ÈH\œ˜^Kœ›İİ\KœÛXÙK˜Ø[
-š[S\İ×JNÂˆYˆ
-[ÜË›][\JHš[\ÈHš[\ËœÛXÙJJNÂˆYˆ
-š[\Ë›[™İ
-HÜË›Û‘š[\Êš[\ÊNÂˆB‚ˆ[˜Y]™[\İ[™\Š˜ÛXÚÈ‹[˜İ[Ûˆ
-JHÂˆYˆ
-K\™Ù]OOH[œ]
-H™]\›Âˆ[œ]˜ÛXÚÊ
-NÂˆJNÂˆ[œ]˜Y]™[\İ[™\Š˜Ú[™ÙH‹[˜İ[Ûˆ
+/* ---------- Savings tracker (local only) ---------- */
 
-HÂˆ[™Qš[\Ê[œ]™š[\ÊNÂˆ[œ]˜[YHHˆÂˆJNÂˆÈ™˜YÙ[\ˆ‹™˜YÛİ™\ˆ—K™›Ü‘XXÚ
-[˜İ[Ûˆ
-]ŠHÂˆ[˜Y]™[\İ[™\Š]‹[˜İ[Ûˆ
-JHÈKœ™]™[Y˜][
+var Savings = {
+  add: function (bytesSaved) {
+    try {
+      var cur = parseInt(localStorage.getItem("pat-saved") || "0", 10) || 0;
+      cur += Math.max(0, Math.round(bytesSaved));
+      localStorage.setItem("pat-saved", String(cur));
+      Savings.render();
+    } catch (e) { /* private mode */ }
+  },
+  total: function () {
+    return parseInt(localStorage.getItem("pat-saved") || "0", 10) || 0;
+  },
+  render: function () {
+    var el = document.getElementById("savings-note");
+    if (!el) return;
+    var total = Savings.total();
+    if (total > 0) el.textContent = "You have saved " + formatBytes(total) + " so far using these tools.";
+  }
+};
 
-NÈ[˜Û\ÜÓ\İ˜Y
-™˜YÛİ™\ˆŠNÈJNÂˆJNÂˆÈ™˜YÛX]™H‹™›Ü—K™›Ü‘XXÚ
-[˜İ[Ûˆ
-]ŠHÂˆ[˜Y]™[\İ[™\Š]‹[˜İ[Ûˆ
-JHÈKœ™]™[Y˜][
+document.addEventListener("DOMContentLoaded", Savings.render);
 
-NÈ[˜Û\ÜÓ\İœ™[[İ™J™˜YÛİ™\ˆŠNÈJNÂˆJNÂˆ[˜Y]™[\İ[™\Š™›Ü‹[˜İ[Ûˆ
-JHÂˆYˆ
-K™]U˜[œÙ™\ˆ	‰ˆK™]U˜[œÙ™\‹™š[\ÊH[™Qš[\ÊK™]U˜[œÙ™\‹™š[\ÊNÂˆJNÂ‚ˆÊˆ\İHİ\Üˆİ›
-Õˆ[XYÙ\Èœ›ÛHÛ\›Ø\™
-‹ÂˆYˆ
-ÜËœ\İHOOH˜[ÙJHÂˆØİ[Y[˜Y]™[\İ[™\Šœ\İH‹[˜İ[Ûˆ
-JHÂˆYˆ
-K\™Ù]	‰ˆÒS”UVT‘PKË\İ
-K\™Ù]YÓ˜[YJH	‰ˆK\™Ù]\HOOH™š[HŠH™]\›Âˆ˜\ˆ][\ÈHK˜Û\›Ø\™]H	‰ˆK˜Û\›Ø\™]Kš][\ÎÂˆYˆ
-Z][\ÊH™]\›Âˆ˜\ˆš[\ÈH×NÂˆ›Üˆ
-˜\ˆHHÈH][\Ë›[™İÈJÊÊHÂˆYˆ
-][\ÖÚWKšÚ[™OOH™š[HŠHÂˆ˜\ˆˆH][\ÖÚWK™Ù]\Ñš[J
-NÂˆYˆ
-ŠHš[\Ëœ\Ú
-ŠNÂˆBˆBˆYˆ
-š[\Ë›[™İ
-HÂˆKœ™]™[Y˜][
+/* ---------- Dropzone factory ----------
+   makeDropzone({
+     el, accept, multiple, onFiles
+   })
+------------------------------------------------ */
 
-NÂˆ[™Q›Üš[\œÊš[\ËÜÊNÂˆBˆJNÂˆB‚ˆ[˜İ[Ûˆ[™Q›Üš[\œÊš[\ËÊHÂˆYˆ
-Ë˜XØÙ\
-HÂˆ˜\ˆÚÈH™]È™YÑ^
-Ë˜XØÙ\œ™\XÙJÖËŠŠÏ×‰ßJ
-_×WKÙË—		ˆŠKšHŠNÂˆš[\ÈHš[\Ë™š[\Š[˜İ[Ûˆ
-ŠHÈ™]\›ˆÚË\İ
-‹\JHÚË\İ
-‹›˜[YJNÈJNÂˆBˆYˆ
-š[\Ë›[™İ
-HË›Û‘š[\ÊË›][\HÈš[\Èˆš[\ËœÛXÙJJJNÂˆB‚ˆ™]\›ˆÈ[œ]ˆ[œ]NÂŸB‚‹ÊˆKKKKKKKKKHZ\ØÈ[\œÈKKKKKKKKKH
-‹Â‚‹ÊˆœšY[™H˜[›™\ˆÚ[ˆH™[™Ü™YXœ˜\H\È›İ™Y[ˆ™]ÚYY]
-‹Â™[˜İ[ÛˆZ\ÜÚ[™ÓXŠX“˜[YJHÂˆ˜\ˆXYHØİ[Y[œ]Y\TÙ[XİÜŠ‹ÛÛZXYŠHØİ[Y[˜›ÙNÂˆXYš[œÙ\Y˜XÙ[S
-˜Y\™[™‹ˆ]ˆÛ\ÜÏIÜ[™[\ÙÈ\œ‰Èİ[OIÙ\Ü^N˜›ØÚÉÏ¸¦¨;î#ÈHˆˆ
-ÈX“˜[YH
-ÂˆØˆXœ˜\H\È›İØYYˆ[ˆÛÙO˜˜\ÚZ[œÚØÛÙOˆÛ˜ÙH
-ÙYH‘PQQJHˆ
-ÂˆÈİÛ›ØYH™[™Ü™YXœ˜\šY\Ë[ˆ™[ØY\ÈYÙKÙ]ˆŠNÂŸB‚™[˜İ[Ûˆ™XYš[P\Ğ\œ˜^PY™™\Šš[JHÂˆ™]\›ˆ™]È›ÛZ\ÙJ[˜İ[Ûˆ
-™\ÛÛ™K™Z™Xİ
-HÂˆ˜\ˆˆH™]Èš[T™XY\Š
-NÂˆ‹›Û›ØYH[˜İ[Ûˆ
+function makeDropzone(opts) {
+  var el = opts.el;
+  var input = el.querySelector("input[type=file]");
 
-HÈ™\ÛÛ™J‹œ™\İ[
-NÈNÂˆ‹›Û™\œ›ÜˆH[˜İ[Ûˆ
+  function handleFiles(fileList) {
+    var files = Array.prototype.slice.call(fileList || []);
+    if (!opts.multiple) files = files.slice(0, 1);
+    if (files.length) opts.onFiles(files);
+  }
 
-HÈ™Z™Xİ
-™]È\œ›ÜŠÛİ[›İ™XYˆ
-Èš[K›˜[YJJNÈNÂˆ‹œ™XY\Ğ\œ˜^PY™™\Šš[JNÂˆJNÂŸB‚™[˜İ[Ûˆ™XYš[P\Ñ]UT“
-š[JHÂˆ™]\›ˆ™]È›ÛZ\ÙJ[˜İ[Ûˆ
-™\ÛÛ™K™Z™Xİ
-HÂÂˆ˜\ˆˆH™]Èš[T™XY\Š
-NÂˆ‹›Û›ØYH[˜İ[Ûˆ
+  el.addEventListener("click", function (e) {
+    if (e.target === input) return;
+    input.click();
+  });
+  input.addEventListener("change", function () {
+    handleFiles(input.files);
+    input.value = "";
+  });
+  ["dragenter", "dragover"].forEach(function (ev) {
+    el.addEventListener(ev, function (e) { e.preventDefault(); el.classList.add("dragover"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    el.addEventListener(ev, function (e) { e.preventDefault(); el.classList.remove("dragover"); });
+  });
+  el.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+  });
 
-HÈ™\ÛÛ™J‹œ™\İ[
-NÈNÂˆ‹›Û™\œ›ÜˆH[˜İ[Ûˆ
+  /* Paste support: Ctrl+V images from clipboard */
+  if (opts.paste !== false) {
+    document.addEventListener("paste", function (e) {
+      if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName) && e.target.type !== "file") return;
+      var items = e.clipboardData && e.clipboardData.items;
+      if (!items) return;
+      var files = [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].kind === "file") {
+          var f = items[i].getAsFile();
+          if (f) files.push(f);
+        }
+      }
+      if (files.length) {
+        e.preventDefault();
+        handleDropFilters(files, opts);
+      }
+    });
+  }
 
-HÈ™Z™Xİ
-™]È\œ›ÜŠÛİ[›İ™XYˆ
-Èš[K›˜[YJJNÈNÂˆ‹œ™XY\Ñ]UT“
-š[JNÂˆJNÂŸB‚‹Êˆ›Ûİ\ˆYX\ˆ
-Èİ]\È[X™[
-‹Â™Øİ[Y[˜Y]™[\İ[™\Š‘ÓPÛÛ[ØYY‹[˜İ[Ûˆ
+  function handleDropFilters(files, o) {
+    if (o.accept) {
+      var ok = new RegExp(o.accept.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      files = files.filter(function (f) { return ok.test(f.type) || ok.test(f.name); });
+    }
+    if (files.length) o.onFiles(o.multiple ? files : files.slice(0, 1));
+  }
 
-HÂˆ˜\ˆHHØİ[Y[™Ù][[Y[RY
-YX\ˆŠNÂˆYˆ
-JHK^ÛÛ[H™]È]J
-K™Ù][YX\Š
-NÂˆØİ[Y[œ]Y\TÙ[XİÜ[
-‹œš]˜XŞK\[›X™[ŠK™›Ü‘XXÚ
-[˜İ[Ûˆ
-[
-HÂˆ[^ÛÛ[HŒL	HÛY[TÚYH[™Ú[™HXİ]™HÂˆJNÂŸJNÂ
+  return { input: input };
+}
+
+/* ---------- Misc helpers ---------- */
+
+/* Friendly banner when a vendored library has not been fetched yet */
+function missingLib(libName) {
+  var head = document.querySelector(".tool-head") || document.body;
+  head.insertAdjacentHTML("afterend",
+    "<div class='panel msg err' style='display:block'>âš ï¸ The <b>" + libName +
+    "</b> library is not loaded. Run <code>bash build.sh</code> once (see README) " +
+    "to download the vendored libraries, then reload this page.</div>");
+}
+
+function readFileAsArrayBuffer(file) {
+  return new Promise(function (resolve, reject) {
+    var r = new FileReader();
+    r.onload = function () { resolve(r.result); };
+    r.onerror = function () { reject(new Error("Could not read " + file.name)); };
+    r.readAsArrayBuffer(file);
+  });
+}
+
+function readFileAsDataURL(file) {
+  return new Promise(function (resolve, reject) {
+    var r = new FileReader();
+    r.onload = function () { resolve(r.result); };
+    r.onerror = function () { reject(new Error("Could not read " + file.name)); };
+    r.readAsDataURL(file);
+  });
+}
+
+/* Footer year + status pill label */
+document.addEventListener("DOMContentLoaded", function () {
+  var y = document.getElementById("year");
+  if (y) y.textContent = new Date().getFullYear();
+  document.querySelectorAll(".privacy-pill .label").forEach(function (el) {
+    el.textContent = "100% Client-Side Engine Active";
+  });
+});
