@@ -47,6 +47,15 @@ export default {
       return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
     }
 
+    /* Guard: if the ASSETS binding is somehow missing, fail clearly
+       instead of throwing a TypeError (which becomes a 504). */
+    if (!env || !env.ASSETS || typeof env.ASSETS.fetch !== "function") {
+      return new Response(
+        "Assets binding unavailable - redeploy the Worker (see wrangler.jsonc: assets.binding = ASSETS)",
+        { status: 503, headers: { "Content-Type": "text/plain" } }
+      );
+    }
+
     return env.ASSETS.fetch(request);
   }
 };
