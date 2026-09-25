@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base64 Encoder & Decoder | PixelAbs Tools</title>
+  <meta name="description" content="UTF-8 safe Base64 encoding and decoding for text, plus file-to-Base64 conversion. Runs completely in your browser.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">🔐</span> Base64 Encode / Decode</h1>
+        <p class="desc">UTF-8 safe Base64 encoding and decoding for text, plus file-to-Base64 conversion. Runs completely in your browser.</p>
+      </div>
+
+      <div class="text-io">
+        <div>
+          <label class="field">Plain text</label>
+          <textarea id="plain" placeholder="Type text to encode…" spellcheck="false"></textarea>
+          <div class="btn-row mt">
+            <button class="btn btn-primary btn-sm" id="encode-btn">Encode → Base64</button>
+            <button class="btn btn-ghost btn-sm" id="clear-btn">Clear both</button>
+          </div>
+        </div>
+        <div>
+          <label class="field">Base64</label>
+          <textarea id="b64" placeholder="Paste Base64 to decode…" spellcheck="false"></textarea>
+          <div class="btn-row mt">
+            <button class="btn btn-primary btn-sm" id="decode-btn">Decode → Text</button>
+            <button class="btn btn-secondary btn-sm" id="swap-btn">Swap ⇄</button>
+          </div>
+        </div>
+      </div>
+      <div class="msg" id="msg"></div>
+
+      <div class="panel mt">
+        <h2>File → Base64</h2>
+        <div class="dropzone" id="file-dropzone" style="padding: 26px;">
+          <input type="file" id="file-input" class="hidden">
+          <span class="dz-emoji">📄</span>
+          <div class="dz-title">Drop any file to get its <b>Base64 string</b></div>
+          <div class="dz-sub">Nothing is uploaded — the file is read directly by your browser</div>
+        </div>
+        <div class="output-box hidden mt" id="file-output" style="min-height: 100px; max-height: 260px;"></div>
+        <div class="btn-row mt">
+          <button class="btn btn-secondary btn-sm hidden" id="copy-file-btn">Copy Base64</button>
+          <button class="btn btn-secondary btn-sm hidden" id="download-dataurl-btn">Download data URL (.txt)</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div><strong>PixelAbs Tools</strong> — free forever, ad-free, open source.</div>
+      <div class="links">
+        <a href="../index.html">All tools</a>
+        <span>© <span id="year"></span></span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/base64.js"></script>
+</body>
+</html>

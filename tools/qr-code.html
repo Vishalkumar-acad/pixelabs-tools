@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator — Free, No Login | PixelAbs Tools</title>
+  <meta name="description" content="Create crisp, high-resolution QR codes with custom colors and error correction. Generated locally — nothing is sent anywhere.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">📱</span> QR Code Generator</h1>
+        <p class="desc">Create crisp, high-resolution QR codes with custom colors and error correction. Generated locally — nothing is sent anywhere.</p>
+      </div>
+
+      <div class="panel">
+        <h2>QR content</h2>
+        <div class="option">
+          <label class="field">Text or URL</label>
+          <textarea id="text" style="min-height: 90px; font-family: var(--font);" placeholder="https://example.com — or any text"></textarea>
+        </div>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Size</label>
+            <select id="size">
+              <option value="200">200 × 200</option>
+              <option value="300" selected>300 × 300</option>
+              <option value="500">500 × 500</option>
+              <option value="800">800 × 800</option>
+            </select>
+          </div>
+          <div class="option">
+            <label class="field">Foreground color</label>
+            <input type="color" id="fg" value="#131a2a">
+          </div>
+          <div class="option">
+            <label class="field">Background color</label>
+            <input type="color" id="bg" value="#ffffff">
+          </div>
+          <div class="option">
+            <label class="field">Error correction</label>
+            <select id="ecl">
+              <option value="L">L — 7% recovery</option>
+              <option value="M" selected>M — 15% recovery</option>
+              <option value="Q">Q — 25% recovery</option>
+              <option value="H">H — 30% recovery</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="gen-btn">Generate QR code</button>
+        </div>
+      </div>
+
+      <div class="panel center hidden" id="qr-panel">
+        <div id="qr-holder" style="display: inline-block; background: #fff; padding: 14px; border-radius: 12px; border: 1px solid var(--border);"></div>
+        <div class="btn-row mt" style="justify-content: center;">
+          <button class="btn btn-primary" id="download-btn">Download PNG</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div><strong>PixelAbs Tools</strong> — free forever, ad-free, open source.</div>
+      <div class="links">
+        <a href="../index.html">All tools</a>
+        <span>© <span id="year"></span></span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/vendor/qrcode.min.js"></script>
+  <script src="../assets/js/tools/qr-code.js"></script>
+</body>
+</html>

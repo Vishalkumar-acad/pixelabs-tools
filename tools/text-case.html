@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Case Converter — UPPER, lower, Title, camelCase | PixelAbs Tools</title>
+  <meta name="description" content="Convert text between UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case and kebab-case — locally.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">Aa</span> Text Case Converter</h1>
+        <p class="desc">Convert text between UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case and kebab-case — locally.</p>
+      </div>
+
+      <div class="text-io">
+        <div>
+          <label class="field">Your text</label>
+          <textarea id="input" placeholder="Type or paste text…" spellcheck="false"></textarea>
+          <div class="muted mt" id="stats">0 characters · 0 words · 0 lines</div>
+          <div class="btn-row mt">
+            <button class="btn btn-secondary btn-sm" data-case="upper">UPPERCASE</button>
+            <button class="btn btn-secondary btn-sm" data-case="lower">lowercase</button>
+            <button class="btn btn-secondary btn-sm" data-case="title">Title Case</button>
+            <button class="btn btn-secondary btn-sm" data-case="sentence">Sentence case</button>
+            <button class="btn btn-secondary btn-sm" data-case="camel">camelCase</button>
+            <button class="btn btn-secondary btn-sm" data-case="pascal">PascalCase</button>
+            <button class="btn btn-secondary btn-sm" data-case="snake">snake_case</button>
+            <button class="btn btn-secondary btn-sm" data-case="kebab">kebab-case</button>
+          </div>
+        </div>
+        <div>
+          <label class="field">Result</label>
+          <div class="output-box" id="output">Converted text will appear here.</div>
+          <div class="btn-row mt">
+            <button class="btn btn-primary btn-sm" id="copy-btn">Copy result</button>
+            <button class="btn btn-ghost btn-sm" id="clear-btn">Clear</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div><strong>PixelAbs Tools</strong> — free forever, ad-free, open source.</div>
+      <div class="links">
+        <a href="../index.html">All tools</a>
+        <span>© <span id="year"></span></span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/text-case.js"></script>
+</body>
+</html>
