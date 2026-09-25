@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Resizer — Passport, Social Media Presets | PixelAbs Tools</title>
+  <meta name="description" content="Resize images to exact pixel dimensions with presets for passport photos, signatures, and social media — 100% in your browser.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">📐</span> Image Resizer</h1>
+        <p class="desc">Resize images to exact pixel dimensions with presets for passport photos, signatures, and social media — 100% in your browser.</p>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="file-input" accept="image/*" class="hidden">
+        <span class="dz-emoji">📐</span>
+        <div class="dz-title">Drop an image here or <b>browse</b></div>
+        <div class="dz-sub">JPG · PNG · WEBP — single image, live preview</div>
+      </div>
+
+      <div class="panel mt hidden" id="editor">
+        <h2>Resize</h2>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Preset</label>
+            <select id="preset">
+              <option value="">Custom size</option>
+              <optgroup label="Documents (India)">
+                <option value="413x531">Passport photo (35×45mm @ 300dpi)</option>
+                <option value="413x177">Signature (35×15mm @ 300dpi)</option>
+                <option value="1063x1417">A4 @ 128dpi</option>
+                <option value="2480x3508">A4 @ 300dpi</option>
+              </optgroup>
+              <optgroup label="Social media">
+                <option value="1080x1080">Instagram post (square)</option>
+                <option value="1080x1350">Instagram portrait</option>
+                <option value="1080x1920">Story / Reel (9:16)</option>
+                <option value="1200x630">Link preview (OG image)</option>
+              </optgroup>
+              <optgroup label="Video">
+                <option value="1280x720">YouTube thumbnail (HD)</option>
+                <option value="1920x1080">Full HD</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="option">
+            <label class="field">Width (px)</label>
+            <input type="number" id="w" min="1">
+          </div>
+          <div class="option">
+            <label class="field">Height (px)</label>
+            <input type="number" id="h" min="1">
+          </div>
+          <div class="option" style="justify-content:flex-end;">
+            <label class="check"><input type="checkbox" id="lock" checked> Lock aspect ratio</label>
+          </div>
+          <div class="option">
+            <label class="field">Output format</label>
+            <select id="format">
+              <option value="">Keep original</option>
+              <option value="jpeg">JPG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WEBP</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="apply-btn">Resize image</button>
+        </div>
+      </div>
+
+      <div class="panel mt hidden" id="preview-panel">
+        <h2>Preview & download</h2>
+        <div class="result-summary" id="summary"></div>
+        <img class="result-preview" id="preview" alt="Resized preview">
+        <div class="btn-row mt">
+          <button class="btn btn-primary" id="download-btn">Download resized image</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div><strong>PixelAbs Tools</strong> — free forever, ad-free, open source.</div>
+      <div class="links">
+        <a href="../index.html">All tools</a>
+        <span>© <span id="year"></span></span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/image-resizer.js"></script>
+</body>
+</html>

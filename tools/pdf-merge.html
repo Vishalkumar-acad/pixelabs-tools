@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Merge — Combine PDF Files Online | PixelAbs Tools</title>
+  <meta name="description" content="Combine multiple PDF files into a single document, in the exact order you choose. Files stay on your device.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">📑</span> PDF Merge</h1>
+        <p class="desc">Combine multiple PDF files into a single document, in the exact order you choose. Files stay on your device.</p>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="file-input" accept="application/pdf,.pdf" multiple class="hidden">
+        <span class="dz-emoji">📑</span>
+        <div class="dz-title">Drop PDF files here or <b>browse</b></div>
+        <div class="dz-sub">Two or more PDFs — arrange the order below</div>
+      </div>
+
+      <div class="panel mt">
+        <h2>Documents <span class="muted" style="font-weight:400">(in merge order — use ↑ ↓ to arrange)</span></h2>
+        <div class="file-list" id="file-list"><div class="muted" id="empty-hint">No PDFs added yet.</div></div>
+        <div class="btn-row mt">
+          <button class="btn btn-primary" id="merge-btn" disabled>Merge PDFs</button>
+          <button class="btn btn-secondary btn-sm" id="clear-btn" disabled>Clear all</button>
+        </div>
+        <div class="msg" id="msg"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div><strong>PixelAbs Tools</strong> — free forever, ad-free, open source.</div>
+      <div class="links">
+        <a href="../index.html">All tools</a>
+        <span>© <span id="year"></span></span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/vendor/pdf-lib.min.js"></script>
+  <script src="../assets/js/tools/pdf-merge.js"></script>
+</body>
+</html>

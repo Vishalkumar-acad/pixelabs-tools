@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Compressor — Exact KB Target | PixelAbs Tools</title>
+  <meta name="description" content="Compress JPG, PNG and WEBP images to an exact target file size (like under 50 KB) — 100% in your browser. No uploads, no login, no ads.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">🗜️</span> Image Compressor</h1>
+        <p class="desc">Drop your images and pick an exact target size — the smart algorithm automatically finds the best quality that fits under your limit. Perfect for government forms, exam applications and email attachments.</p>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="file-input" accept="image/*" multiple class="hidden">
+        <span class="dz-emoji">📤</span>
+        <div class="dz-title">Drop images here, <b>browse</b>, or paste with Ctrl&nbsp;+&nbsp;V</div>
+        <div class="dz-sub">JPG · PNG · WEBP — processed on your device, batch supported</div>
+      </div>
+
+      <div class="panel mt">
+        <h2>Settings</h2>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Compression mode</label>
+            <select id="mode">
+              <option value="target">Target file size (recommended)</option>
+              <option value="quality">Manual quality</option>
+            </select>
+          </div>
+          <div class="option" id="opt-target">
+            <label class="field">Target size per image</label>
+            <div style="display:flex; gap:8px;">
+              <input type="number" id="target-kb" value="50" min="1" step="1" style="flex:1">
+              <select id="target-unit" style="width:90px">
+                <option value="1024">KB</option>
+                <option value="1">Bytes</option>
+                <option value="1048576">MB</option>
+              </select>
+            </div>
+          </div>
+          <div class="option hidden" id="opt-quality">
+            <label class="field">Quality: <span id="quality-val">80%</span></label>
+            <input type="range" id="quality" min="5" max="100" value="80">
+          </div>
+          <div class="option">
+            <label class="field">Output format</label>
+            <select id="format">
+              <option value="jpeg">JPG (best compatibility)</option>
+              <option value="webp">WEBP (best compression)</option>
+            </select>
+          </div>
+          <div class="option">
+            <label class="field">Max dimension (px, optional)</label>
+            <input type="number" id="max-dim" placeholder="e.g. 1920" min="16">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="compress-btn" disabled>Compress images</button>
+          <button class="btn btn-secondary btn-sm" id="clear-btn" disabled>Clear all</button>
+        </div>
+        <div class="progress-track mt hidden" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+        <div class="msg" id="msg"></div>
+      </div>
+
+      <div class="panel hidden" id="results-panel">
+        <h2>Results</h2>
+        <div class="result-summary" id="summary"></div>
+        <div class="file-list mt" id="results"></div>
+        <div class="btn-row mt">
+          <button class="btn btn-primary" id="zip-btn">Download all (ZIP)</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div><strong>PixelAbs Tools</strong> — free forever, ad-free, open source.</div>
+      <div class="links">
+        <a href="../index.html">All tools</a>
+        <span>© <span id="year"></span></span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/vendor/jszip.min.js"></script>
+  <script src="../assets/js/tools/image-compressor.js"></script>
+</body>
+</html>
