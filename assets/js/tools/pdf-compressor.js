@@ -97,6 +97,22 @@
     return out.save();
   }
 
+  /* Try the chosen level; if the result is not smaller, retry at the
+     lowest level; if it still can't beat the original, keep the original
+     file untouched (digitally-created PDFs are often already optimal). */
+  function tryCompress(file, level, onProgress) {
+    var outName = baseName(file.name) + "-compressed.pdf";
+    return compressFile(file, level, onProgress).then(function (bytes) {
+      if (bytes.length < file.size) return { name: outName, bytes: bytes };
+      return compressFile(file, LEVELS.low, onProgress).then(function (bytes2) {
+        if (bytes2.length < file.size) return { name: outName, bytes: bytes2 };
+        return readFileAsArrayBuffer(file).then(function (orig) {
+          return { name: file.name, bytes: new Uint8Array(orig), kept: true };
+        });
+      });
+    });
+  }
+
   /* ---------- Run all ---------- */
   function run() {
     if (busy) return;
@@ -133,11 +149,12 @@
       var chain = Promise.resolve();
       files.forEach(function (f) {
         chain = chain.then(function () {
-          return compressFile(f, level, function () {
+          return tryCompress(f, level, function () {
             done++;
-            progressBar.style.width = Math.round((done / totalPages) * 100) + "%";
-          }).then(function (bytes) {
-            outputs.push({ name: baseName(f.name) + "-compressed.pdf", bytes: bytes });
+            var pctDone = Math.min(100, Math.round((done / totalPages) * 100));
+            progressBar.style.width = pctDone + "%";
+          }).then(function (res) {
+            outputs.push(res);
           }).catch(function (err) {
             outputs.push({ name: baseName(f.name) + "-compressed.pdf", error: String((err && err.message) || err) });
           });
@@ -172,7 +189,11 @@
       if (bad.length) {
         showMsg("Done, but these files failed: " + bad.join(", "), "err");
       } else {
-        showMsg("Done! " + okCount + (okCount === 1 ? " PDF" : " PDFs") + " compressed.", "ok");
+        var keptCount = 0;
+        outputs.forEach(function (o) { if (o.kept) keptCount++; });
+        var m = "Done! " + okCount + (okCount === 1 ? " PDF" : " PDFs") + " compressed.";
+        if (keptCount) m += " " + keptCount + (keptCount === 1 ? " was" : " were") + " already optimal (original kept).";
+        showMsg(m, "ok");
       }
 
       if (inBytes > outBytes) {
@@ -194,6 +215,10 @@
         if (o.error) {
           inner = "<span class='meta'><span class='name'>" + escapeHtml(o.name) + "</span>" +
                   "<span class='size'><span class='delta-bad'>Failed</span></span></span>";
+        } else if (o.kept) {
+          inner = "<span class='meta'><span class='name'>" + escapeHtml(o.name) + "</span>" +
+                  "<span class='size'>" + formatBytes(orig) + " <span class='delta-good'>(already optimal — kept)</span></span></span>" +
+                  "<span class='controls'><button title='Download' data-dl='" + i + "'>⬇</button></span>";
         } else {
           var delta = orig >= o.bytes.length ? "-" + formatBytes(orig - o.bytes.length) : "+" + formatBytes(o.bytes.length - orig);
           var cls = orig >= o.bytes.length ? "delta-good" : "delta-bad";
@@ -250,6 +275,9 @@
   /* E2E test hook (also handy for power users in the console). */
   window.__pdfCompress = function (file, levelKey) {
     return compressFile(file, LEVELS[levelKey] || LEVELS.medium, null);
+  };
+  window.__pdfTryCompress = function (file, levelKey) {
+    return tryCompress(file, LEVELS[levelKey] || LEVELS.medium, null);
   };
 
 })();
