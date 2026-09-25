@@ -25,7 +25,7 @@ function toggleTheme() {
 ---------------------------------------------------------------- */
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   window.addEventListener("load", function () {
-    var dir = location.pathname.replace(/\/[^/]*$/, "/");
+    var dir = location.pathname.replace(/\ /[^/]*$/, "/");
     var depth = dir.split("/").filter(Boolean).length;
     var swUrl = (depth ? new Array(depth + 1).join("../") : "./") + "sw.js";
     navigator.serviceWorker.register(swUrl).catch(function () { /* offline mode optional */ });
@@ -50,6 +50,50 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
     }
   });
 }
+
+/* ---------- Anonymous error reporting ----------
+   The ONLY thing this site ever sends home: an error message,
+   the page path, and a timestamp. No user identifiers, no
+   cookies, no file content. Queued locally and flushed when
+   online — so even failures on a dead network are captured. */
+(function () {
+  var KEY = "pat-errq";
+  var MAX_QUEUE = 20;
+  var captured = 0;
+
+  function record(msg) {
+    if (captured >= 5) return; /* max 5 errors per page view */
+    captured++;
+    try {
+      var q = JSON.parse(localStorage.getItem(KEY) || "[]");
+      q.push({ m: String(msg).slice(0, 200), u: location.pathname, t: Date.now() });
+      if (q.length > MAX_QUEUE) q = q.slice(-MAX_QUEUE);
+      localStorage.setItem(KEY, JSON.stringify(q));
+    } catch (e) { /* private mode — drop silently */ }
+  }
+
+  window.addEventListener("error", function (ev) {
+    record(ev.message || "unknown error");
+  });
+  window.addEventListener("unhandledrejection", function (ev) {
+    var r = ev && ev.reason;
+    record((r && r.message) || "unhandled rejection");
+  });
+
+  function flush() {
+    try {
+      var q = JSON.parse(localStorage.getItem(KEY) || "[]");
+      if (!q.length) return;
+      if (navigator.sendBeacon && navigator.sendBeacon("/__log", JSON.stringify(q))) {
+        localStorage.setItem(KEY, "[]");
+      }
+    } catch (e) { /* never block the page */ }
+  }
+
+  window.addEventListener("load", function () { setTimeout(flush, 2500); });
+  window.addEventListener("pagehide", flush);
+  window.addEventListener("online", flush);
+})();
 
 /* ---------- Utilities ---------- */
 

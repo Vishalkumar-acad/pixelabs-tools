@@ -14,7 +14,7 @@
    ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v5";
+var CACHE_VERSION = "pat-v6";
 
 /* Scope-relative path helper — prefixes paths with the service worker's
    scope WITHOUT using new URL() (which would discard the scope's sub-path
@@ -145,7 +145,18 @@ self.addEventListener("fetch", function (event) {
         }
         return networkFetch;
       })
-      .catch(function () {
+      .catch(function (err) {
+        /* Report the navigation failure anonymously (no user data —
+           just the failed page path + error). Fire and forget. */
+        try {
+          fetch(P("/__log"), {
+            method: "POST",
+            keepalive: true,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify([{ m: ("nav-fail: " + err).slice(0, 200), u: url.pathname, t: Date.now() }])
+          }).catch(function () { /* network down — beacon dies, fine */ });
+        } catch (e) { /* never block the fallback */ }
+
         /* Everything failed — for navigations fall back to the cached
            homepage, then the friendly offline page. No network errors. */
         if (isNavigation) return homepageFallback();
