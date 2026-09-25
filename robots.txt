@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /__log
+
+Sitemap: https://tools.pixelabs.in/sitemap.xml
