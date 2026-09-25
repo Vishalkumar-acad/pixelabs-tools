@@ -5,7 +5,7 @@
    Bump CACHE_VERSION to force a refresh. */
 "use strict";
 
-var CACHE_VERSION = "pat-v2";
+var CACHE_VERSION = "pat-v3";
 
 var PRECACHE = [
   "/",
@@ -26,6 +26,7 @@ var PRECACHE = [
   "/assets/vendor/pdf-lib.min.js",
   "/assets/vendor/jszip.min.js",
   "/assets/vendor/qrcode.min.js",
+  "/assets/fonts/InterVariable.woff2",
   "/assets/img/icon-192.png",
   "/assets/img/icon-512.png",
   "/manifest.json",

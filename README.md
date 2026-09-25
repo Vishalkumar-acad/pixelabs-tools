@@ -36,10 +36,10 @@ A privacy-first suite of everyday web tools that run **100% inside your browser*
 - [JSZip](https://stuk.github.io/jszip/) — bulk ZIP downloads
 - [qrcodejs](https://github.com/davidshimjs/qrcodejs) — QR generation
 
-These three libraries are **vendored at build time** (`build.sh` downloads pinned, sha256-verified copies into `assets/vendor/`), so the deployed site serves everything from its own origin — no CDN requests, ever.
+These libraries (plus the Inter variable font) are **vendored at build time** (`build.sh` downloads pinned, sha256-verified copies into `assets/vendor/` and `assets/fonts/`), so the deployed site serves everything from its own origin — no CDN requests, ever.
 - **Web Workers + OffscreenCanvas** for non-blocking image compression
 - **PWA** — `manifest.json` + service worker (`sw.js`)
-- Zero runtime dependencies on external CDNs — all libraries are served from this repo
+- Zero runtime dependencies on external CDNs — all assets are served from this repo
 
 ## Project structure
 
@@ -50,12 +50,13 @@ These three libraries are **vendored at build time** (`build.sh` downloads pinne
 ├── sw.js                       # service worker (offline support)
 ├── _headers                    # Cloudflare Pages security headers
 ├── assets/
-│   ├── css/style.css           # design system (dark/light themes)
+│   ├── css/style.css           # design system (glassmorphism, dark/light themes)
 │   ├── js/
 │   │   ├── common.js           # theme, dropzones, toasts, helpers
 │   │   ├── compress-worker.js  # Web Worker: target-size compression
 │   │   └── tools/*.js          # one file per tool
 │   ├── vendor/                 # pdf-lib, jszip, qrcode (fetched by build.sh)
+│   ├── fonts/                  # Inter variable font (fetched by build.sh)
 │   └── img/                    # icons
 └── tools/                      # one page per tool
 ```
@@ -71,7 +72,7 @@ These three libraries are **vendored at build time** (`build.sh` downloads pinne
    - **Build output directory:** `/`
 5. Click **Save and Deploy** — you'll get a free `https://<project>.pages.dev` URL with unlimited bandwidth and a global CDN.
 
-The build command fetches the three vendored JavaScript libraries (pinned versions, checksum-verified) so the live site is fully self-hosted. Every push to the main branch auto-deploys.
+The build command fetches the three vendored JavaScript libraries plus the Inter variable font (pinned versions, checksum-verified) so the live site is fully self-hosted with zero third-party requests. Every push to the main branch auto-deploys.
 
 ### Custom domain (optional)
 

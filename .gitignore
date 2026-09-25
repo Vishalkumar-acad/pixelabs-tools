@@ -3,5 +3,6 @@ Thumbs.db
 node_modules/
 *.log
 
-# Vendor libraries are fetched at build time (see build.sh)
+# Vendor libraries and fonts are fetched at build time (see build.sh)
 assets/vendor/*.js
+assets/fonts/*.woff2

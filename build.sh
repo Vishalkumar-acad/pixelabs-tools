@@ -36,4 +36,9 @@ fetch "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" \
       "assets/vendor/qrcode.min.js" \
       "c541ef06327885a8415bca8df6071e14189b4855336def4f36db54bde8484f36"
 
+mkdir -p assets/fonts
+fetch "https://unpkg.com/@fontsource-variable/inter@5.2.5/files/inter-latin-wght-normal.woff2" \
+      "assets/fonts/InterVariable.woff2" \
+      "f052ee44c3728dfd23aba8a4567150bc314d23903026fbb6ad089422c2df56af"
+
 echo "Vendor libraries ready."
