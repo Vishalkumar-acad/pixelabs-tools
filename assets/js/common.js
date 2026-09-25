@@ -16,10 +16,38 @@ function toggleTheme() {
   localStorage.setItem("pat-theme", dark ? "dark" : "light");
 }
 
-/* ---------- Service worker (PWA / offline) ---------- */
-if ("serviceWorker" in navigator && location.protocol === "https:" && location.pathname === "/") {
+/* ---------- Service worker (PWA / offline) ----------
+   Registered with a RELATIVE path computed from the current page, so it
+   works at any host or sub-path:
+     "/"                     -> "./sw.js"
+     "/tools/x.html"         -> "../sw.js"
+     "/repo/tools/x.html"   -> "../../sw.js"  (e.g. GitHub Pages project sites)
+---------------------------------------------------------------- */
+if ("serviceWorker" in navigator && location.protocol === "https:") {
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("/sw.js").catch(function () { /* offline mode optional */ });
+    var dir = location.pathname.replace(/\/[^/]*$/, "/");
+    var depth = dir.split("/").filter(Boolean).length;
+    var swUrl = (depth ? new Array(depth + 1).join("../") : "./") + "sw.js";
+    navigator.serviceWorker.register(swUrl).catch(function () { /* offline mode optional */ });
+  });
+
+  /* When a NEW service worker version takes control of this page, reload
+     once so the user gets the fresh assets immediately (cache-busting).
+     Skipped on first-ever registration (no previous controller). */
+  var hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (!hadController) return;
+    if (window.__patSwRefreshed) return;
+    window.__patSwRefreshed = true;
+    window.location.reload();
+  });
+
+  /* Back/forward cache (bfcache): when the page is restored from the
+     navigation cache, refresh anything that may have gone stale. */
+  window.addEventListener("pageshow", function (event) {
+    if (event.persisted && typeof Savings !== "undefined" && Savings.render) {
+      Savings.render();
+    }
   });
 }
 

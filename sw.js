@@ -1,13 +1,31 @@
 /* PixelAbs Tools — service worker
-   Cache-first for same-origin assets, so every tool works fully offline
-   after the first visit. Hardened: a network failure can NEVER fail a
-   navigation — we always fall back to cache, then to a friendly response.
-   Bump CACHE_VERSION to force a refresh. */
+   Cache-first for same-origin assets so every tool works fully offline
+   after the first visit.
+
+   Design guarantees:
+   1. All paths are resolved RELATIVE to the service worker's scope, so the
+      site works at any host or sub-path (root domain, /repo/, etc.).
+   2. A navigation request can NEVER hard-fail. Fallback chain:
+      cache → network → cached homepage → friendly offline page.
+   3. Cached pages are refreshed in the background (stale-while-revalidate),
+      so updates arrive on the next visit — this is the cache-busting
+      strategy. Bump CACHE_VERSION to force an immediate refresh.
+
+   ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v3";
+var CACHE_VERSION = "pat-v4";
 
-var PRECACHE = [
+/* Scope-relative path helper — prefixes paths with the service worker's
+   scope WITHOUT using new URL() (which would discard the scope's sub-path
+   for leading-slash paths, breaking /repo/-style hosting). */
+var ROOT = self.registration.scope.replace(/\/?$/, "");
+function P(path) {
+  return ROOT + path;
+}
+
+/* Precache manifest uses SCOPE-RELATIVE paths only (no absolute host paths). */
+var PRECACHE_REL = [
   "/",
   "/index.html",
   "/assets/css/style.css",
@@ -42,12 +60,14 @@ var PRECACHE = [
   "/tools/qr-code.html"
 ];
 
+var PRECACHE = PRECACHE_REL.map(function (p) { return P(p); });
+
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE_VERSION)
       .then(function (cache) {
-        /* addAll is all-or-nothing; add individually so one missing file
-           cannot break the whole install */
+        /* Add files individually so one transient failure cannot
+           break the whole install (addAll is all-or-nothing). */
         return Promise.all(PRECACHE.map(function (url) {
           return cache.add(url).catch(function () { /* skip missing assets */ });
         }));
@@ -66,6 +86,35 @@ self.addEventListener("activate", function (event) {
   );
 });
 
+/* Friendly last-resort page for failed navigations */
+function offlinePage(path) {
+  var home = P("/");
+  return new Response(
+    "<!DOCTYPE html><meta charset='utf-8'>" +
+    "<meta name='viewport' content='width=device-width, initial-scale=1'>" +
+    "<body style='font-family:system-ui,sans-serif;text-align:center;padding:48px 24px;background:#0a0d15;color:#e8ebf4'>" +
+    "<h2 style='margin:0 0 8px'>You're offline</h2>" +
+    "<p style='color:#98a1b5;margin:0 0 24px'>This page isn't cached yet, but the rest of the tools are.</p>" +
+    "<a href='" + home + "' style='display:inline-block;background:linear-gradient(90deg,#6366f1,#8b5cf6);color:#fff;" +
+    "padding:12px 22px;border-radius:11px;text-decoration:none;font-weight:600'>Go to homepage</a></body>",
+    { status: 503, headers: { "Content-Type": "text/html" } }
+  );
+}
+
+/* Cached homepage fallback for failed navigations */
+function homepageFallback() {
+  return caches.match(P("/"))
+    .catch(function () { return null; })
+    .then(function (cachedHome) {
+      if (cachedHome) return cachedHome;
+      return caches.match(P("/index.html"))
+        .catch(function () { return null; })
+        .then(function (cachedIndex) {
+          return cachedIndex || offlinePage();
+        });
+    });
+}
+
 self.addEventListener("fetch", function (event) {
   var request = event.request;
   if (request.method !== "GET") return;
@@ -73,10 +122,12 @@ self.addEventListener("fetch", function (event) {
   var url = new URL(request.url);
   if (url.origin !== location.origin) return; /* never touch cross-origin */
 
+  var isNavigation = request.mode === "navigate";
+
   event.respondWith(
     caches.match(request, { ignoreSearch: true })
       .then(function (cached) {
-        /* Try the network; on failure fall back to cache */
+        /* Try the network; on failure fall back (never reject) */
         var networkFetch = fetch(request).then(function (response) {
           if (response && response.ok && response.type === "basic") {
             var copy = response.clone();
@@ -88,24 +139,17 @@ self.addEventListener("fetch", function (event) {
         });
 
         if (cached) {
-          /* Serve cache instantly; refresh in the background */
+          /* Serve cache instantly; refresh in the background (cache-busting) */
           networkFetch.catch(function () { /* offline — cached copy is fine */ });
           return cached;
         }
         return networkFetch;
       })
       .catch(function () {
-        /* Absolute last resort: any cached copy, else a friendly page */
-        return caches.match(request).then(function (fallback) {
-          if (fallback) return fallback;
-          return new Response(
-            "<!DOCTYPE html><meta charset='utf-8'><body style='font-family:sans-serif;text-align:center;padding:40px'>" +
-            "<h2>You are offline</h2><p>This page is not cached yet. Reconnect and try again.</p></body>",
-            { status: 503, headers: { "Content-Type": "text/html" } }
-          );
-        }).catch(function () {
-          return new Response("Offline", { status: 503 });
-        });
+        /* Everything failed — for navigations fall back to the cached
+           homepage, then the friendly offline page. No network errors. */
+        if (isNavigation) return homepageFallback();
+        return offlinePage();
       })
   );
 });
