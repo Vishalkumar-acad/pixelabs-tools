@@ -18,7 +18,6 @@ A privacy-first suite of everyday web tools that run **100% inside your browser*
 | Aa **Text Case Converter** | UPPER, lower, Title, Sentence, camelCase, PascalCase, snake_case, kebab-case |
 | 🔐 **Base64 Encoder/Decoder** | UTF-8 safe text conversion + file-to-Base64 |
 | 📱 **QR Code Generator** | Custom colors, sizes and error-correction levels, PNG download |
-| 🔗 **URL Shortener** | Turn long links into short, shareable links (with a QR code) — stored in our own database, no accounts |
 
 ## Why it's different
 
