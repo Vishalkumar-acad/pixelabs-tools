@@ -290,6 +290,25 @@ function readFileAsDataURL(file) {
   });
 }
 
+/* ---------- Email obfuscation ----------
+   Cloudflare's zone-level email obfuscation does not apply to pages
+   served by a Worker (this site), so we decode our own: any element
+   with data-email holds a hex-encoded address; this swaps in the real
+   mailto link. Plain-HTML harvesters only see the encoded form. */
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll("[data-email]").forEach(function (el) {
+    var hex = el.getAttribute("data-email") || "";
+    var addr = "";
+    for (var i = 0; i + 1 < hex.length; i += 2) {
+      addr += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    }
+    if (!addr || addr.indexOf("@") < 0) return;
+    el.setAttribute("href", "mailto:" + addr);
+    /* only swap the visible label if it is the placeholder form */
+    if (el.textContent.indexOf(" [at] ") > -1) el.textContent = addr;
+  });
+});
+
 /* Footer year + status pill label + legal links */
 document.addEventListener("DOMContentLoaded", function () {
   var y = document.getElementById("year");
