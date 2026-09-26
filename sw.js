@@ -17,7 +17,7 @@
    ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v21";
+var CACHE_VERSION = "pat-v22";
 
 /* Scope-relative path helper — prefixes paths with the service worker's
    scope. (Avoids new URL(), which would discard the scope's sub-path for
@@ -51,6 +51,7 @@ var PRECACHE_REL = [
   "/assets/js/tools/text-case.js",
   "/assets/js/tools/base64.js",
   "/assets/js/tools/qr-code.js",
+  "/assets/js/tools/url-shortener.js",
   "/assets/vendor/pdf.min.js",
   "/assets/vendor/pdf.worker.min.js",
   "/assets/vendor/pdf-lib.min.js",
@@ -72,7 +73,8 @@ var PRECACHE_REL = [
   "/tools/pdf-compressor.html",
   "/tools/text-case.html",
   "/tools/base64.html",
-  "/tools/qr-code.html"
+  "/tools/qr-code.html",
+  "/tools/url-shortener.html"
 ];
 
 var PRECACHE = PRECACHE_REL.map(function (p) { return P(p); });
