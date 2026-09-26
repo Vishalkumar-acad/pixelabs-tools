@@ -20,8 +20,22 @@
 
   var lastBlob = null;
   var busy = false;
+  var rawFile = null;
 
   makeDropzone({ el: els.dropzone, accept: "video", onFiles: function (files) { load(files[0]); } });
+  /* ---- Local / Cloud toggle ---- */
+  var procEl = document.getElementById("proc");
+  var procNote = document.getElementById("proc-note");
+  function isCloud() { return procEl && procEl.value === "cloud"; }
+  function updateProcNote() {
+    if (!procNote) return;
+    procNote.textContent = isCloud()
+      ? "Cloud mode: the file is uploaded to our free processing server (Render), processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
+      : "How it works (local): everything runs on your device — nothing ever leaves it. Works offline too.";
+  }
+  if (procEl) procEl.addEventListener("change", updateProcNote);
+  updateProcNote();
+
 
   function showMsg(text, kind) {
     els.msg.textContent = text;
@@ -30,6 +44,7 @@
 
   function load(file) {
     if (!file) return;
+    rawFile = file;
     els.video.src = URL.createObjectURL(file);
     els.video.onloadedmetadata = function () {
       var dur = Math.min(15, els.video.duration || 15);
@@ -54,6 +69,7 @@
   els.make.addEventListener("click", function () {
     if (busy) return;
     var start = Math.max(0, parseFloat(els.start.value) || 0);
+    if (isCloud() && rawFile) { cloudGif(); return; }
     var end = Math.min(els.video.duration || 15, parseFloat(els.end.value) || 5);
     if (end <= start) { showMsg("End time must be after start time.", "err"); return; }
     if (end - start > 15) { end = start + 15; showMsg("Capped to 15 seconds.", "info"); }
@@ -116,6 +132,37 @@
     }
     addNext();
   });
+
+  function cloudGif() {
+    var start = Math.max(0, parseFloat(els.start.value) || 0);
+    var end = Math.min(els.video.duration || 15, parseFloat(els.end.value) || 5);
+    if (end <= start) { showMsg("End time must be after start time.", "err"); return; }
+    if (end - start > 30) { end = start + 30; }
+    var width = parseInt(els.width.value, 10);
+    var fps = parseInt(els.fps.value, 10);
+    busy = true;
+    els.make.disabled = true;
+    var stop = CloudTools.trackProcessing(showMsg, "your video");
+    CloudTools.post("/video/gif", {
+      file: rawFile, start: start.toFixed(3), end: end.toFixed(3),
+      width: width, fps: fps
+    }).then(function (res) {
+      stop();
+      lastBlob = new Blob([res.bytes], { type: "image/gif" });
+      if (els.img.src) URL.revokeObjectURL(els.img.src);
+      els.img.src = URL.createObjectURL(lastBlob);
+      els.result.classList.remove("hidden");
+      els.result.scrollIntoView({ behavior: "smooth", block: "start" });
+      showMsg("Done! GIF ready from the server (" + formatBytes(lastBlob.size) + ", " + Math.round(end - start) + "s).", "ok");
+      busy = false;
+      els.make.disabled = false;
+    }).catch(function () {
+      stop();
+      busy = false;
+      els.make.disabled = false;
+      showMsg("Cloud processing failed — switch 'Processing' to Local and try again.", "err");
+    });
+  }
 
   els.download.addEventListener("click", function () {
     if (lastBlob) downloadBlob(lastBlob, "animation.gif");

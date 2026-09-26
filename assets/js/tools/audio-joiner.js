@@ -13,10 +13,23 @@
   };
 
   var ctx = null;
-  var files = []; /* { name, buffer, id } */
+  var files = []; /* { name, buffer, file, id } */
   var uid = 0;
 
   makeDropzone({ el: els.dropzone, accept: "audio", multiple: true, onFiles: addFiles });
+  /* ---- Local / Cloud toggle ---- */
+  var procEl = document.getElementById("proc");
+  var procNote = document.getElementById("proc-note");
+  function isCloud() { return procEl && procEl.value === "cloud"; }
+  function updateProcNote() {
+    if (!procNote) return;
+    procNote.textContent = isCloud()
+      ? "Cloud mode: the file is uploaded to our free processing server (Render), processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
+      : "How it works (local): everything runs on your device — nothing ever leaves it. Works offline too.";
+  }
+  if (procEl) procEl.addEventListener("change", updateProcNote);
+  updateProcNote();
+
 
   function showMsg(text, kind) {
     els.msg.textContent = text;
@@ -29,7 +42,7 @@
     var jobs = list.map(function (f) {
       return readFileAsArrayBuffer(f).then(function (ab) {
         return ctx.decodeAudioData(ab).then(function (buf) {
-          files.push({ name: f.name, buffer: buf, id: ++uid });
+          files.push({ name: f.name, buffer: buf, file: f, id: ++uid });
         }).catch(function () {
           showMsg("Skipped " + f.name + " — could not decode it.", "err");
         });
@@ -71,6 +84,29 @@
 
   els.join.addEventListener("click", function () {
     if (files.length < 2) { showMsg("Add at least two audio files first.", "err"); return; }
+    if (isCloud()) { cloudJoin(); return; }
+    localJoin();
+  });
+
+  function cloudJoin() {
+    var gap = Math.max(0, Math.min(10, parseFloat(els.gap.value) || 0));
+    var stop = CloudTools.trackProcessing(showMsg, files.length + " files");
+    CloudTools.post("/audio/join", {
+      files: files.map(function (f) { return f.file; }),
+      gap: gap
+    }).then(function (res) {
+      stop();
+      var blob = new Blob([res.bytes], { type: "audio/mpeg" });
+      downloadBlob(blob, "joined.mp3");
+      showMsg("Done! " + files.length + " files joined on the server into MP3 (" + formatBytes(blob.size) + ").", "ok");
+    }).catch(function () {
+      stop();
+      showMsg("Cloud processing failed — falling back to local WAV join.", "err");
+      localJoin();
+    });
+  }
+
+  function localJoin() {
     showMsg("Joining " + files.length + " files…", "busy");
 
     var gap = Math.max(0, Math.min(10, parseFloat(els.gap.value) || 0));
@@ -100,6 +136,6 @@
     } catch (e) {
       showMsg("Export failed — try removing some files.", "err");
     }
-  });
+  }
 
 })();
