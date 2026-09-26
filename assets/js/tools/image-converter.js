@@ -60,6 +60,7 @@
   });
 
   els.clearBtn.addEventListener("click", function () {
+    files.forEach(function (item) { if (item.url) URL.revokeObjectURL(item.url); });
     files = [];
     results = [];
     renderFiles();
@@ -90,7 +91,8 @@
       row.className = "file-row";
       var thumb = document.createElement("img");
       thumb.className = "thumb";
-      thumb.src = URL.createObjectURL(item.file);
+      if (!item.url) item.url = URL.createObjectURL(item.file);
+      thumb.src = item.url;
       var meta = document.createElement("div");
       meta.className = "meta";
       meta.innerHTML = "<div class='name'>" + escapeHtml(item.file.name) + "</div>" +
@@ -101,6 +103,7 @@
       del.title = "Remove";
       del.textContent = "✕";
       del.addEventListener("click", function () {
+        if (item.url) URL.revokeObjectURL(item.url);
         files = files.filter(function (x) { return x.id !== item.id; });
         renderFiles();
       });
