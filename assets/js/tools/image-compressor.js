@@ -14,10 +14,20 @@
     accept: "image/",
     multiple: true,
     onFiles: function (list) {
+      var heic = 0;
       list.forEach(function (f) {
-        if (f.type.indexOf("image/") === 0) files.push({ file: f, id: ++uid });
+        if (f.type.indexOf("image/") === 0) {
+          files.push({ file: f, id: ++uid });
+          var t = f.type.toLowerCase();
+          var n = f.name.toLowerCase();
+          if (t.indexOf("heic") > -1 || t.indexOf("heif") > -1 || n.indexOf(".heic") > -1 || n.indexOf(".heif") > -1) heic++;
+        }
       });
       renderFiles();
+      if (heic && els.proc.value === "local") {
+        showMsg(heic + " added file" + (heic > 1 ? "s are" : " is") +
+          " an iPhone (HEIC) photo — browsers cannot open HEIC locally. Switch 'Processing' to Cloud to compress " + (heic > 1 ? "them" : "it") + ".", "info");
+      }
     }
   });
 
@@ -301,7 +311,9 @@
     var failed = res.length - ok.length;
 
     if (!ok.length) {
-      showMsg("All files failed to compress.", "err");
+      showMsg("All files failed to compress: " + failReason(res[0] && res[0].error), "err");
+      els.results.innerHTML = "";
+      renderFailed(res);
       return;
     }
 
@@ -346,11 +358,40 @@
       els.results.appendChild(row);
     });
 
+    renderFailed(res.filter(function (r) { return r.error; }));
     els.resultsPanel.classList.remove("hidden");
     els.zipBtn.style.display = ok.length > 1 ? "" : "none";
     showMsg("Done! " + ok.length + " image" + (ok.length > 1 ? "s" : "") + " compressed. " +
-      (failed ? failed + " file(s) could not be processed." : ""), failed ? "info" : "ok");
+      (failed ? failed + " file(s) could not be processed (" + failReason(res.filter(function (r) { return r.error; })[0] && res.filter(function (r) { return r.error; })[0].error) + ")." : ""), failed ? "info" : "ok");
     els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* Human-readable reason for a failed file, with a Cloud hint when
+     the browser simply cannot decode the format (HEIC photos etc.). */
+  function failReason(err) {
+    var msg = String(err || "unknown error");
+    var low = msg.toLowerCase();
+    if (low.indexOf("decode") > -1 || low.indexOf("heic") > -1 || low.indexOf("heif") > -1) {
+      return msg + " — this file type cannot be opened by your browser (e.g. an iPhone HEIC photo). Switch 'Processing' to Cloud and try again";
+    }
+    return msg;
+  }
+
+  /* List the files that could not be processed, with their reason. */
+  function renderFailed(failedRes) {
+    if (!failedRes || !failedRes.length) return;
+    els.results.innerHTML = els.results.innerHTML || "";
+    failedRes.forEach(function (r) {
+      var row = document.createElement("div");
+      row.className = "file-row";
+      var meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = "<div class='name'>" + escapeHtml(r.name || "file") + " <span class='delta-bad'>failed</span></div>" +
+        "<div class='size'>" + escapeHtml(failReason(r.error)) + "</div>";
+      row.appendChild(meta);
+      els.results.appendChild(row);
+    });
+    els.resultsPanel.classList.remove("hidden");
   }
 
   function stat(v, k, good) {
