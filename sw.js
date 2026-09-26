@@ -9,15 +9,20 @@
       cache → network → cached homepage → friendly offline page.
    3. A redirected response is NEVER served to a navigation (Chrome
       rejects those with ERR_FAILED). Redirected responses are re-fetched
-      at their final URL to produce a clean response instead.
-   4. Cached pages are refreshed in the background (stale-while-revalidate),
+      at their final URL to produce a clean response instead — EXCEPT
+      cross-origin redirects (e.g. short links), which are handed back
+      as-is because re-fetching them would fail CORS.
+   4. Short-link URLs (/s/CODE) are NEVER intercepted at all: the edge
+      worker answers with a 302 to the target site, and that redirect
+      must reach the browser untouched.
+   5. Cached pages are refreshed in the background (stale-while-revalidate),
       so updates arrive on the next visit. Bump CACHE_VERSION to force an
       immediate refresh.
 
    ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v22";
+var CACHE_VERSION = "pat-v23";
 
 /* Scope-relative path helper — prefixes paths with the service worker's
    scope. (Avoids new URL(), which would discard the scope's sub-path for
@@ -140,6 +145,14 @@ self.addEventListener("fetch", function (event) {
   var url = new URL(request.url);
   if (url.origin !== location.origin) return; /* never touch cross-origin */
 
+  /* Short-link redirects (/s/CODE) MUST go straight to the network.
+     The edge worker answers with a 302 to the target site, and a
+     response that has followed a redirect can never be served back to
+     a navigation (Chrome refuses with ERR_FAILED). Intercepting these
+     URLs is what broke short links for installed-site visitors —
+     so they are never intercepted. */
+  if (url.pathname.indexOf("/s/") === 0) return;
+
   var isNavigation = request.mode === "navigate";
 
   function store(key, response) {
@@ -157,6 +170,13 @@ self.addEventListener("fetch", function (event) {
      that returns a clean, non-redirected response. */
   function unredirect(raw) {
     if (!raw || !raw.redirected) return Promise.resolve(raw);
+    /* A CROSS-ORIGIN redirect (e.g. a short link pointing at another
+       site) must be handed back as-is: re-fetching the final URL from
+       here would fail CORS, and a followed response is the only copy
+       of the target page we have. */
+    try {
+      if (new URL(raw.url).origin !== location.origin) return Promise.resolve(raw);
+    } catch (err) { return Promise.resolve(raw); }
     return fetch(raw.url).then(function (clean) {
       if (clean && clean.ok) {
         store(raw.url, clean.clone());
