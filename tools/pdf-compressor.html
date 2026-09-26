@@ -45,6 +45,13 @@
         <h2>Settings</h2>
         <div class="options-grid">
           <div class="option">
+            <label class="field">Processing</label>
+            <select id="mode">
+              <option value="local" selected>Local — private (default)</option>
+              <option value="cloud">Cloud — better compression</option>
+            </select>
+          </div>
+          <div class="option">
             <label class="field">Compression level</label>
             <select id="level">
               <option value="medium" selected>Balanced (recommended)</option>
@@ -53,7 +60,7 @@
             </select>
           </div>
         </div>
-        <p class="muted" style="margin:0 0 14px">How it works: pages are re-rendered as optimized images inside a rebuilt PDF — all on your device. Scanned/photo PDFs shrink the most. If a PDF is already well-optimized (typical for digital documents), the tool automatically keeps your original instead of making it bigger.</p>
+        <p class="muted" style="margin:0 0 14px" id="how-note"></p>
         <div class="btn-row">
           <button class="btn btn-primary" id="compress-btn" disabled>Compress PDFs</button>
           <button class="btn btn-secondary btn-sm" id="clear-btn" disabled>Clear all</button>

@@ -13,6 +13,10 @@
     low:    { scale: 1.0, quality: 0.55 }
   };
 
+  /* Cloud endpoint (Hugging Face Space running Ghostscript).
+     Empty = cloud not configured yet; the UI falls back to local. */
+  var SPACE_URL = "";
+
   /* Point pdf.js at its vendored worker (relative to this page). */
   if (window.pdfjsLib) {
     window.pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -22,6 +26,8 @@
   /* ---------- DOM ---------- */
   var dropzoneEl = document.getElementById("dropzone");
   var levelSel = document.getElementById("level");
+  var modeSel = document.getElementById("mode");
+  var noteEl = document.getElementById("how-note");
   var runBtn = document.getElementById("compress-btn");
   var clearBtn = document.getElementById("clear-btn");
   var msgEl = document.getElementById("msg");
@@ -113,11 +119,61 @@
     });
   }
 
+  /* ---------- Cloud path ---------- */
+  function cloudCompressOnce(file, levelKey, onUpload) {
+    return new Promise(function (resolve, reject) {
+      var fd = new FormData();
+      fd.append("file", file, file.name);
+      fd.append("level", levelKey);
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", SPACE_URL + "/compress");
+      xhr.responseType = "arraybuffer";
+      xhr.timeout = 180000;
+      if (xhr.upload && onUpload) {
+        xhr.upload.onprogress = function (e) {
+          if (e.lengthComputable) onUpload(Math.round((e.loaded / e.total) * 100));
+        };
+      }
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          resolve({ bytes: new Uint8Array(xhr.response), kept: xhr.getResponseHeader("X-Kept") === "1" });
+        } else {
+          reject(new Error("server error " + xhr.status));
+        }
+      };
+      xhr.onerror = function () { reject(new Error("network error")); };
+      xhr.ontimeout = function () { reject(new Error("timeout")); };
+      xhr.send(fd);
+    });
+  }
+
+  /* The free Space sleeps when idle — a 5xx usually means it is
+     waking up, so retry a few times before falling back. */
+  function cloudCompress(file, levelKey, onUpload, onWake) {
+    var attempt = 0;
+    function go() {
+      attempt++;
+      return cloudCompressOnce(file, levelKey, onUpload).catch(function (err) {
+        var m = String((err && err.message) || err);
+        if (attempt < 4 && (m.indexOf("server error 5") === 0 || m.indexOf("network") === 0)) {
+          if (onWake) onWake(attempt);
+          return new Promise(function (r) { setTimeout(r, 4000); }).then(go);
+        }
+        throw err;
+      });
+    }
+    return go();
+  }
+
   /* ---------- Run all ---------- */
   function run() {
     if (busy) return;
     if (!window.pdfjsLib || !window.PDFLib) {
       missingLib(window.pdfjsLib ? "pdf-lib" : "pdf.js");
+      return;
+    }
+    if (modeSel.value === "cloud" && !SPACE_URL) {
+      showMsg("Cloud processing is not connected yet — please use Local for now.", "err");
       return;
     }
     busy = true;
@@ -149,6 +205,29 @@
       var chain = Promise.resolve();
       files.forEach(function (f) {
         chain = chain.then(function () {
+          if (modeSel.value === "cloud") {
+            showMsg("Uploading " + f.name + " to the cloud server…", "info");
+            return cloudCompress(f, levelSel.value, function (pct) {
+              showMsg("Uploading " + f.name + "… " + pct + "%", "info");
+            }, function (attempt) {
+              showMsg("Cloud server is waking up (try " + attempt + " of 3) — the first request after idle can take up to a minute.", "info");
+            }).then(function (res) {
+              outputs.push({
+                name: res.kept ? f.name : baseName(f.name) + "-compressed.pdf",
+                bytes: res.bytes,
+                kept: res.kept
+              });
+            }).catch(function (err) {
+              showMsg("Cloud unavailable (" + String((err && err.message) || err) + ") — using local processing instead.", "info");
+              return tryCompress(f, level, function () {
+                done++;
+                var pctDone = Math.min(100, Math.round((done / totalPages) * 100));
+                progressBar.style.width = pctDone + "%";
+              }).then(function (res2) {
+                outputs.push(res2);
+              });
+            });
+          }
           return tryCompress(f, level, function () {
             done++;
             var pctDone = Math.min(100, Math.round((done / totalPages) * 100));
@@ -269,6 +348,17 @@
     onFiles: setFiles
   });
 
+  function updateNote() {
+    if (!noteEl) return;
+    if (modeSel.value === "cloud") {
+      noteEl.textContent = "Cloud mode: your file is uploaded to our free compression server (Hugging Face Space), processed with Ghostscript, and deleted immediately — nothing is stored or logged. If the server is unavailable, the tool falls back to local processing automatically.";
+    } else {
+      noteEl.textContent = "How it works (local): pages are re-rendered as optimized images inside a rebuilt PDF — all on your device, nothing ever leaves it. Scanned/photo PDFs shrink the most; if a PDF is already well-optimized the tool keeps your original.";
+    }
+  }
+  if (modeSel) modeSel.addEventListener("change", updateNote);
+  updateNote();
+
   runBtn.addEventListener("click", run);
   clearBtn.addEventListener("click", clearAll);
 
@@ -279,5 +369,9 @@
   window.__pdfTryCompress = function (file, levelKey) {
     return tryCompress(file, LEVELS[levelKey] || LEVELS.medium, null);
   };
+  window.__pdfCloud = function (file, levelKey) {
+    return cloudCompress(file, levelKey, null, null);
+  };
+  window.__setSpaceUrl = function (u) { SPACE_URL = u; };
 
 })();
