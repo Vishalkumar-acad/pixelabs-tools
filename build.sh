@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------
 # PixelAbs Tools — vendor library fetcher
-# Downloads the three JavaScript libraries the tools depend on
+# Downloads the JavaScript libraries the tools depend on
 # (pinned versions, sha256-verified) into assets/vendor/.
 #
 # Run once before local development, and as the Cloudflare Pages
@@ -43,6 +43,18 @@ fetch "https://unpkg.com/pdfjs-dist@3.11.174/legacy/build/pdf.min.js" \
 fetch "https://unpkg.com/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js" \
       "assets/vendor/pdf.worker.min.js" \
       "38cde5311957b86bc3669f93e7d2566de333a90055ed6635bef60d9bf00e96f2"
+
+fetch "https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" \
+      "assets/vendor/papaparse.min.js" \
+      "b8e870c5d2b29772f10c9fa9a693c8b896aac8540ed6701e3cc6304c683febdb"
+
+fetch "https://cdn.jsdelivr.net/gh/jnordberg/gif.js@master/dist/gif.js" \
+      "assets/vendor/gif.js" \
+      "a8b111071bb3b123c302e6182c01d6b3550f93a4b627398b07c46875d84090bb"
+
+fetch "https://cdn.jsdelivr.net/gh/jnordberg/gif.js@master/dist/gif.worker.js" \
+      "assets/vendor/gif.worker.js" \
+      "ca9e3048557ec05d619e18b83403cd3669c88939e5fa2d6034ce7625d445970d"
 
 mkdir -p assets/fonts
 fetch "https://unpkg.com/@fontsource-variable/inter@5.2.5/files/inter-latin-wght-normal.woff2" \
