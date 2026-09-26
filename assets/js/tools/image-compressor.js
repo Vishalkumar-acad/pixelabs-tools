@@ -258,7 +258,8 @@
               size: res.bytes.length,
               originalSize: f.size,
               width: d.w,
-              height: d.h
+              height: d.h,
+              resized: !!res.resized
             });
           });
         }).catch(function (err) {
@@ -327,11 +328,14 @@
       meta.className = "meta";
       var ext = EXT[r.blob.type] || "jpg";
       var pct = r.originalSize ? Math.round(100 - (r.size / r.originalSize) * 100) : 0;
+      var wasResized = r.resized || (r.origWidth && (r.origWidth !== r.width || r.origHeight !== r.height));
       meta.innerHTML =
         "<div class='name'>" + escapeHtml(baseName(r.name)) + "." + ext + "</div>" +
         "<div class='size'>" + formatBytes(r.originalSize) + " → <b>" + formatBytes(r.size) + "</b>" +
         (pct > 0 ? " <span class='delta-good'>−" + pct + "%</span>" : "") +
-        " · " + r.width + "×" + r.height + "</div>";
+        " · " + r.width + "×" + r.height +
+        (wasResized ? " · <span title='Slightly reduced to keep the image sharp at this size'>auto-resized</span>" : "") +
+        "</div>";
       var dl = document.createElement("button");
       dl.className = "btn btn-secondary btn-sm";
       dl.textContent = "Download";
