@@ -43,6 +43,14 @@
 
       <div class="panel hidden" id="editor-panel">
         <h2>Cut your audio</h2>
+        <div class="option">
+          <label class="field">Processing</label>
+          <select id="proc">
+            <option value="local" selected>Local — private (default)</option>
+            <option value="cloud">Cloud — file is uploaded</option>
+          </select>
+          <p class="muted" id="proc-note" style="font-size:.8rem; margin-top:8px;"></p>
+        </div>
         <canvas id="wave" style="width:100%; height:120px; border-radius:10px; border:1px solid var(--border); background:var(--bg); touch-action:none; cursor:crosshair;"></canvas>
         <p class="muted" style="font-size:.8rem; margin:8px 0 0;">Drag on the waveform to select the part you want to keep. Drag again to change the selection.</p>
         <div class="options-grid">
@@ -85,6 +93,7 @@
 
   <div id="toast-root"></div>
   <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/cloud.js"></script>
   <script src="../assets/js/wav-encoder.js"></script>
   <script src="../assets/js/tools/audio-trimmer.js"></script>
 </body>

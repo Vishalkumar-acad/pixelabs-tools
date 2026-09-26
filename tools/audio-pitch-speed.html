@@ -43,6 +43,14 @@
 
       <div class="panel hidden" id="editor-panel">
         <h2>Change the sound</h2>
+        <div class="option">
+          <label class="field">Processing</label>
+          <select id="proc">
+            <option value="local" selected>Local — private (default)</option>
+            <option value="cloud">Cloud — file is uploaded</option>
+          </select>
+          <p class="muted" id="proc-note" style="font-size:.8rem; margin-top:8px;"></p>
+        </div>
         <div class="options-grid">
           <div class="option">
             <label class="field">Mode</label>
@@ -85,6 +93,7 @@
 
   <div id="toast-root"></div>
   <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/cloud.js"></script>
   <script src="../assets/js/wav-encoder.js"></script>
   <script src="../assets/js/tools/audio-pitch-speed.js"></script>
 </body>
