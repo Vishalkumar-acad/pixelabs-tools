@@ -257,7 +257,15 @@
     els.progressWrap.classList.add("hidden");
 
     var ok = res.filter(function (r) { return !r.error; });
-    if (!ok.length) { showMsg("All conversions failed.", "err"); return; }
+    if (!ok.length) {
+      var msg = String((res[0] && res[0].error) || "unknown error");
+      var low = msg.toLowerCase();
+      if (low.indexOf("decode") > -1 || low.indexOf("heic") > -1 || low.indexOf("heif") > -1) {
+        msg += " — this file type cannot be opened by your browser (e.g. an iPhone HEIC photo). Switch 'Processing' to Cloud and try again";
+      }
+      showMsg("All conversions failed: " + msg, "err");
+      return;
+    }
 
     els.results.innerHTML = "";
     ok.forEach(function (r) {
