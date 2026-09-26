@@ -128,6 +128,7 @@
     }
 
     src.destroy();
+    showMsg("Building the final PDF…", "info");
     return out.save();
   }
 
@@ -138,6 +139,7 @@
     var outName = baseName(file.name) + "-compressed.pdf";
     return compressFile(file, level, onProgress).then(function (bytes) {
       if (bytes.length < file.size) return { name: outName, bytes: bytes };
+      showMsg("First pass was larger than the original — retrying at the smallest-file level…", "info");
       return compressFile(file, LEVELS.low, onProgress).then(function (bytes2) {
         if (bytes2.length < file.size) return { name: outName, bytes: bytes2 };
         return readFileAsArrayBuffer(file).then(function (orig) {
