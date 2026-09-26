@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XML ↔ JSON Converter — Free, No Login | PixelAbs Tools</title>
+  <meta name="description" content="Convert XML data to clean JSON and back with one click — paste or drop a file. Runs entirely in your browser.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">🧩</span> XML ↔ JSON Converter</h1>
+        <p class="desc">Convert XML data to clean JSON and back with one click — paste or drop a file. Runs entirely in your browser.</p>
+      </div>
+
+      <div class="panel">
+        <h2>XML → JSON</h2>
+        <div class="option">
+          <label class="field">Paste XML, or drop an .xml file on this box</label>
+          <textarea id="xml-in" style="min-height:130px; font-family:var(--mono); font-size:.85rem;" placeholder="<note><to>Akhilesh</to><from>Priya</from></note>"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="x2j-btn">Convert to JSON</button>
+        </div>
+        <div class="option hidden" id="x2j-wrap">
+          <label class="field">JSON output</label>
+          <textarea id="x2j-out" readonly style="min-height:130px; font-family:var(--mono); font-size:.85rem;"></textarea>
+          <div class="btn-row mt">
+            <button class="btn btn-secondary" id="copy-x2j-btn">Copy</button>
+            <button class="btn btn-secondary" id="dl-x2j-btn">Download .json</button>
+          </div>
+        </div>
+        <div class="msg" id="msg1"></div>
+      </div>
+
+      <div class="panel">
+        <h2>JSON → XML</h2>
+        <div class="option">
+          <label class="field">Paste JSON (uses "@" for attributes, "#text" for text)</label>
+          <textarea id="json-in" style="min-height:130px; font-family:var(--mono); font-size:.85rem;" placeholder="Paste JSON here — use @ for attributes and #text for text"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="j2x-btn">Convert to XML</button>
+        </div>
+        <div class="option hidden" id="j2x-wrap">
+          <label class="field">XML output</label>
+          <textarea id="j2x-out" readonly style="min-height:130px; font-family:var(--mono); font-size:.85rem;"></textarea>
+          <div class="btn-row mt">
+            <button class="btn btn-secondary" id="copy-j2x-btn">Copy</button>
+            <button class="btn btn-secondary" id="dl-j2x-btn">Download .xml</button>
+          </div>
+        </div>
+        <div class="msg" id="msg2"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="../index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="../index.html">All tools</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/xml-json.js"></script>
+</body>
+</html>
