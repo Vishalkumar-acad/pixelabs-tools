@@ -7,13 +7,15 @@
   var results = [];
   var uid = 0;
 
+  var EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+
   var dropzone = makeDropzone({
     el: document.getElementById("dropzone"),
     accept: "image/",
     multiple: true,
     onFiles: function (list) {
       list.forEach(function (f) {
-        if (/^image\//.test(f.type)) files.push({ file: f, id: ++uid });
+        if (f.type.indexOf("image/") === 0) files.push({ file: f, id: ++uid });
       });
       renderFiles();
     }
@@ -38,7 +40,9 @@
     format: document.getElementById("format"),
     targetKb: document.getElementById("target-kb"),
     targetUnit: document.getElementById("target-unit"),
-    maxDim: document.getElementById("max-dim")
+    maxDim: document.getElementById("max-dim"),
+    proc: document.getElementById("proc"),
+    procNote: document.getElementById("proc-note")
   };
 
   els.mode.addEventListener("change", function () {
@@ -46,6 +50,17 @@
     els.targetOpt.classList.toggle("hidden", !target);
     els.qualityOpt.classList.toggle("hidden", target);
   });
+
+  function updateProcNote() {
+    if (!els.procNote) return;
+    if (els.proc.value === "cloud") {
+      els.procNote.textContent = "Cloud mode: images are uploaded to our free processing server (Render), compressed with optimized libraries, and deleted immediately — nothing is stored. HEIC (iPhone) photos are also supported. If the server is busy, the tool falls back to local processing automatically.";
+    } else {
+      els.procNote.textContent = "How it works (local): compression runs entirely on your device — nothing ever leaves it. Works offline too.";
+    }
+  }
+  if (els.proc) els.proc.addEventListener("change", updateProcNote);
+  updateProcNote();
 
   els.quality.addEventListener("input", function () {
     els.qualityVal.textContent = els.quality.value + "%";
@@ -110,6 +125,7 @@
   els.compressBtn.addEventListener("click", run);
   function run() {
     if (!files.length) return;
+    if (els.proc.value === "cloud") { runCloud(); return; }
     if (!("Worker" in window)) {
       showMsg("Your browser does not support Web Workers — compression will run on the main thread and may briefly freeze the page.", "info");
     }
@@ -156,6 +172,117 @@
     worker.postMessage(payload);
   }
 
+  /* Run a local worker batch for a subset of files (cloud fallback). */
+  function runLocalBatch(indices) {
+    return new Promise(function (resolve) {
+      var payload = {
+        type: "compress-batch",
+        mime: { jpeg: "image/jpeg", webp: "image/webp" }[els.format.value],
+        quality: parseInt(els.quality.value, 10) / 100,
+        maxDim: parseInt(els.maxDim.value, 10) || 0,
+        targetBytes: 0,
+        files: indices.map(function (i) {
+          return { file: files[i].file, name: files[i].file.name, index: files[i].id };
+        })
+      };
+      if (els.mode.value === "target") {
+        var amount = parseFloat(els.targetKb.value);
+        payload.targetBytes = amount ? Math.round(amount * parseInt(els.targetUnit.value, 10)) : 0;
+      }
+      var worker = new Worker("../assets/js/compress-worker.js");
+      worker.onmessage = function (e) {
+        if (e.data.type === "done") { worker.terminate(); resolve(e.data.results); }
+      };
+      worker.onerror = function () {
+        worker.terminate();
+        resolve(indices.map(function () { return { error: "local retry failed" }; }));
+      };
+      worker.postMessage(payload);
+    });
+  }
+
+  /* Cloud path: every image is uploaded to the server for processing. */
+  function runCloud() {
+    els.compressBtn.disabled = true;
+    els.progressWrap.classList.remove("hidden");
+    els.progressBar.style.width = "4%";
+    els.resultsPanel.classList.add("hidden");
+
+    var mode = els.mode.value;
+    var targetKb = 0;
+    if (mode === "target") {
+      var amount = parseFloat(els.targetKb.value);
+      if (!amount || amount <= 0) {
+        showMsg("Enter a valid target size.", "err");
+        els.compressBtn.disabled = false;
+        els.progressWrap.classList.add("hidden");
+        return;
+      }
+      targetKb = Math.max(1, Math.round(amount * parseInt(els.targetUnit.value, 10) / 1024));
+    }
+    var fmtKey = els.format.value === "webp" ? "webp" : "jpg";
+    var qualityPct = parseInt(els.quality.value, 10);
+    var maxDim = parseInt(els.maxDim.value, 10) || 0;
+
+    var out = [];
+    var chain = Promise.resolve();
+    files.forEach(function (item) {
+      chain = chain.then(function () {
+        var f = item.file;
+        showMsg("Uploading " + f.name + " to the cloud server…", "info");
+        return window.CloudTools.post("/image/compress", {
+          file: f,
+          level: "medium",
+          target_kb: targetKb,
+          quality: mode === "quality" ? qualityPct : 0,
+          max_dim: maxDim,
+          format: fmtKey
+        }, function (pct) {
+          showMsg("Uploading " + f.name + "… " + pct + "%", "info");
+        }, function (attempt) {
+          showMsg("Cloud server is waking up (try " + attempt + " of 3) — the first request after idle can take up to a minute.", "info");
+        }).then(function (res) {
+          var type = res.kept ? (res.type || "image/jpeg") : (fmtKey === "webp" ? "image/webp" : "image/jpeg");
+          return window.CloudTools.toBlob(res.bytes, type).then(function (d) {
+            out.push({
+              name: f.name,
+              blob: d.blob,
+              size: res.bytes.length,
+              originalSize: f.size,
+              width: d.w,
+              height: d.h
+            });
+          });
+        }).catch(function (err) {
+          out.push({ name: f.name, error: String((err && err.message) || err) });
+        }).then(function () {
+          els.progressBar.style.width = Math.round((out.length / files.length) * 96) + "%";
+        });
+      });
+    });
+
+    chain.then(function () {
+      var failedIdx = [];
+      out.forEach(function (r, i) { if (r.error) failedIdx.push(i); });
+      var fix = failedIdx.length
+        ? runLocalBatch(failedIdx).then(function (localRes) {
+            failedIdx.forEach(function (idx, k) {
+              if (localRes[k] && !localRes[k].error) out[idx] = localRes[k];
+            });
+            if (failedIdx.length === files.length) {
+              showMsg("Cloud was unavailable — all files were processed locally instead.", "info");
+            }
+          })
+        : Promise.resolve();
+      return fix.then(function () {
+        var totalSaved = 0;
+        out.forEach(function (r) { if (!r.error) totalSaved += Math.max(0, r.originalSize - r.size); });
+        els.progressBar.style.width = "100%";
+        finish(out, totalSaved);
+      });
+    });
+  }
+
   function finish(res, totalSaved) {
     results = res;
     els.compressBtn.disabled = false;
@@ -188,7 +315,7 @@
       thumb.src = URL.createObjectURL(r.blob);
       var meta = document.createElement("div");
       meta.className = "meta";
-      var ext = r.blob.type === "image/webp" ? "webp" : "jpg";
+      var ext = EXT[r.blob.type] || "jpg";
       var pct = r.originalSize ? Math.round(100 - (r.size / r.originalSize) * 100) : 0;
       meta.innerHTML =
         "<div class='name'>" + escapeHtml(baseName(r.name)) + "." + ext + "</div>" +
@@ -222,7 +349,7 @@
     if (typeof JSZip === "undefined") { toast("JSZip library not loaded — run bash build.sh (see README).", "err"); return; }
     var zip = new JSZip();
     ok.forEach(function (r) {
-      var ext = r.blob.type === "image/webp" ? "webp" : "jpg";
+      var ext = EXT[r.blob.type] || "jpg";
       zip.file(baseName(r.name) + "." + ext, r.blob);
     });
     els.zipBtn.disabled = true;
