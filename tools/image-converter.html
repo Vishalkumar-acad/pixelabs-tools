@@ -45,6 +45,13 @@
         <h2>Settings</h2>
         <div class="options-grid">
           <div class="option">
+            <label class="field">Processing</label>
+            <select id="proc">
+              <option value="local" selected>Local — private (default)</option>
+              <option value="cloud">Cloud — HEIC support</option>
+            </select>
+          </div>
+          <div class="option">
             <label class="field">Convert to</label>
             <select id="format">
               <option value="jpeg">JPG — best compatibility</option>
@@ -61,6 +68,7 @@
             <input type="number" id="max-dim" placeholder="e.g. 1920" min="16">
           </div>
         </div>
+        <p class="muted" style="margin:0 0 14px" id="proc-note"></p>
         <div class="btn-row">
           <button class="btn btn-primary" id="convert-btn" disabled>Convert images</button>
           <button class="btn btn-secondary btn-sm" id="clear-btn" disabled>Clear all</button>
@@ -100,6 +108,7 @@
   <div id="toast-root"></div>
   <script src="../assets/js/common.js"></script>
   <script src="../assets/vendor/jszip.min.js"></script>
+  <script src="../assets/js/cloud.js"></script>
   <script src="../assets/js/tools/image-converter.js"></script>
 </body>
 </html>

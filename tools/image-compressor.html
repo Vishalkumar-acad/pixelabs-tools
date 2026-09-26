@@ -44,6 +44,13 @@
         <h2>Settings</h2>
         <div class="options-grid">
           <div class="option">
+            <label class="field">Processing</label>
+            <select id="proc">
+              <option value="local" selected>Local — private (default)</option>
+              <option value="cloud">Cloud — file is uploaded</option>
+            </select>
+          </div>
+          <div class="option">
             <label class="field">Compression mode</label>
             <select id="mode">
               <option value="target">Target file size (recommended)</option>
@@ -77,6 +84,7 @@
             <input type="number" id="max-dim" placeholder="e.g. 1920" min="16">
           </div>
         </div>
+        <p class="muted" style="margin:0 0 14px" id="proc-note"></p>
         <div class="btn-row">
           <button class="btn btn-primary" id="compress-btn" disabled>Compress images</button>
           <button class="btn btn-secondary btn-sm" id="clear-btn" disabled>Clear all</button>
@@ -117,6 +125,7 @@
   <div id="toast-root"></div>
   <script src="../assets/js/common.js"></script>
   <script src="../assets/vendor/jszip.min.js"></script>
+  <script src="../assets/js/cloud.js"></script>
   <script src="../assets/js/tools/image-compressor.js"></script>
 </body>
 </html>
