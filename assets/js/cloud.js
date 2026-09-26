@@ -9,8 +9,9 @@
 window.CloudTools = (function () {
 
   var api = {
-    /* Live property — tests (or future code) can override this. */
-    URL: "https://pixelabs-api-e0u3.onrender.com"
+    /* Same-origin edge functions (the Cloudflare Worker proxies
+       these to the processing server — see worker.js). */
+    URL: "/api"
   };
 
   /* One POST attempt. fields: plain object of string/number/File. */
