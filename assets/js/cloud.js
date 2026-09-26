@@ -38,6 +38,7 @@ window.CloudTools = (function () {
           resolve({
             bytes: new Uint8Array(xhr.response),
             kept: xhr.getResponseHeader("X-Kept") === "1",
+            resized: xhr.getResponseHeader("X-Resized") === "1",
             type: xhr.getResponseHeader("Content-Type")
           });
         } else {
