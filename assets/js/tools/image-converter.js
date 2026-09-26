@@ -195,6 +195,7 @@
     files.forEach(function (item) {
       chain = chain.then(function () {
         var f = item.file;
+        var stopProc = null;
         showMsg("Uploading " + f.name + " to the cloud server…", "info");
         return window.CloudTools.post("/image/convert", {
           file: f,
@@ -204,8 +205,12 @@
         }, function (pct) {
           showMsg("Uploading " + f.name + "… " + pct + "%", "info");
         }, function (attempt) {
+          if (stopProc) { stopProc(); stopProc = null; }
           showMsg("Cloud server is waking up (try " + attempt + " of 3) — the first request after idle can take up to a minute.", "info");
+        }, function () {
+          if (!stopProc) stopProc = window.CloudTools.trackProcessing(showMsg, f.name, els.msg);
         }).then(function (res) {
+          if (stopProc) { stopProc(); stopProc = null; }
           var type = res.type || { jpg: "image/jpeg", png: "image/png", webp: "image/webp" }[fmtKey];
           return window.CloudTools.toBlob(res.bytes, type).then(function (d) {
             out.push({
@@ -218,6 +223,7 @@
             });
           });
         }).catch(function (err) {
+          if (stopProc) { stopProc(); stopProc = null; }
           out.push({ name: f.name, error: String((err && err.message) || err) });
         }).then(function () {
           els.progressBar.style.width = Math.round((out.length / files.length) * 96) + "%";

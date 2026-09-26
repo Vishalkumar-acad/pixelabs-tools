@@ -229,6 +229,7 @@
     files.forEach(function (item) {
       chain = chain.then(function () {
         var f = item.file;
+        var stopProc = null;
         showMsg("Uploading " + f.name + " to the cloud server…", "info");
         return window.CloudTools.post("/image/compress", {
           file: f,
@@ -240,8 +241,12 @@
         }, function (pct) {
           showMsg("Uploading " + f.name + "… " + pct + "%", "info");
         }, function (attempt) {
+          if (stopProc) { stopProc(); stopProc = null; }
           showMsg("Cloud server is waking up (try " + attempt + " of 3) — the first request after idle can take up to a minute.", "info");
+        }, function () {
+          if (!stopProc) stopProc = window.CloudTools.trackProcessing(showMsg, f.name, els.msg);
         }).then(function (res) {
+          if (stopProc) { stopProc(); stopProc = null; }
           var type = res.kept ? (res.type || "image/jpeg") : (fmtKey === "webp" ? "image/webp" : "image/jpeg");
           return window.CloudTools.toBlob(res.bytes, type).then(function (d) {
             out.push({
@@ -254,6 +259,7 @@
             });
           });
         }).catch(function (err) {
+          if (stopProc) { stopProc(); stopProc = null; }
           out.push({ name: f.name, error: String((err && err.message) || err) });
         }).then(function () {
           els.progressBar.style.width = Math.round((out.length / files.length) * 96) + "%";
@@ -304,7 +310,7 @@
       stat(formatBytes(totalBefore), "Before") +
       stat(formatBytes(totalAfter), "After") +
       stat("−" + formatBytes(Math.max(0, totalBefore - totalAfter)), "Total saved", true) +
-      stat(ok.length + (failed ? " <span style='color:var(--danger)'>(" + failed + " failed)</span>" : ""), "Images");
+      stat(ok.length + (failed ? " <span style='color:var(--danger)'>" + failed + " failed)</span>" : ""), "Images");
 
     els.results.innerHTML = "";
     ok.forEach(function (r) {
