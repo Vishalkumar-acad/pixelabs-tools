@@ -28,6 +28,20 @@
     onFiles: function (list) { load(list[0]); }
   });
 
+  /* ---- Local / Cloud toggle ---- */
+  var procEl = document.getElementById("proc");
+  var procNote = document.getElementById("proc-note");
+  function isCloud() { return procEl && procEl.value === "cloud"; }
+  function updateProcNote() {
+    if (!procNote) return;
+    procNote.textContent = isCloud()
+      ? "Cloud mode: the file is uploaded to our free processing server (Render), processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
+      : "How it works (local): everything runs on your device — nothing ever leaves it. Works offline too.";
+  }
+  if (procEl) procEl.addEventListener("change", updateProcNote);
+  updateProcNote();
+
+
   els.mode.addEventListener("change", function () {
     var extract = els.mode.value === "extract";
     els.rangeWrap.style.visibility = extract ? "visible" : "hidden";
@@ -86,6 +100,30 @@
 
   els.runBtn.addEventListener("click", async function () {
     if (!state.file) return;
+    if (isCloud() && els.mode.value === "extract") { cloudExtract(); return; }
+    localRun();
+  });
+
+  function cloudExtract() {
+    els.runBtn.disabled = true;
+    var stop = CloudTools.trackProcessing(showMsg, "your PDF");
+    CloudTools.post("/pdf/split", {
+      file: state.file, pages: els.range.value || "all"
+    }, function (pct) { showMsg("Uploading… " + pct + "%", "info"); }).then(function (res) {
+      stop();
+      var blob = new Blob([res.bytes], { type: "application/pdf" });
+      downloadBlob(blob, baseName(state.file.name) + "-extract.pdf");
+      showMsg("Done! Extracted on the server (" + formatBytes(blob.size) + ").", "ok");
+      els.runBtn.disabled = false;
+    }).catch(function () {
+      stop();
+      showMsg("Cloud extraction failed — falling back to local processing.", "err");
+      localRun();
+    });
+  }
+
+  async function localRun() {
+    if (!state.file) return;
     els.runBtn.disabled = true;
 
     try {
@@ -121,7 +159,7 @@
       showMsg(err.message || String(err), "err");
     }
     els.runBtn.disabled = false;
-  });
+  }
 
   function showMsg(text, kind) {
     els.msg.textContent = text;

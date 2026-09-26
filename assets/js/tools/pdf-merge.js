@@ -31,6 +31,20 @@
     }
   });
 
+  /* ---- Local / Cloud toggle ---- */
+  var procEl = document.getElementById("proc");
+  var procNote = document.getElementById("proc-note");
+  function isCloud() { return procEl && procEl.value === "cloud"; }
+  function updateProcNote() {
+    if (!procNote) return;
+    procNote.textContent = isCloud()
+      ? "Cloud mode: the file is uploaded to our free processing server (Render), processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
+      : "How it works (local): everything runs on your device — nothing ever leaves it. Works offline too.";
+  }
+  if (procEl) procEl.addEventListener("change", updateProcNote);
+  updateProcNote();
+
+
   els.clearBtn.addEventListener("click", function () {
     files = [];
     render();
@@ -83,6 +97,31 @@
 
   els.mergeBtn.addEventListener("click", async function () {
     if (files.length < 2) return;
+    if (isCloud()) { cloudMerge(); return; }
+    localMerge();
+  });
+
+  function cloudMerge() {
+    els.mergeBtn.disabled = true;
+    var stop = CloudTools.trackProcessing(showMsg, files.length + " PDFs");
+    CloudTools.post("/pdf/merge", {
+      files: files.map(function (f) { return f.file; })
+    }, function (pct) { showMsg("Uploading… " + pct + "%", "info"); }).then(function (res) {
+      stop();
+      var blob = new Blob([res.bytes], { type: "application/pdf" });
+      downloadBlob(blob, "merged.pdf");
+      showMsg("Done! merged.pdf (" + formatBytes(blob.size) + ") created on the server from " + files.length + " documents.", "ok");
+      toast("merged.pdf downloaded", "ok");
+      els.mergeBtn.disabled = false;
+    }).catch(function () {
+      stop();
+      showMsg("Cloud merge failed — falling back to local processing.", "err");
+      localMerge();
+    });
+  }
+
+  async function localMerge() {
+    if (files.length < 2) return;
     els.mergeBtn.disabled = true;
     showMsg("Merging " + files.length + " PDFs…", "info");
 
@@ -104,7 +143,7 @@
       showMsg("Merge failed: " + (err.message || String(err)), "err");
     }
     els.mergeBtn.disabled = false;
-  });
+  }
 
   function showMsg(text, kind) {
     els.msg.textContent = text;

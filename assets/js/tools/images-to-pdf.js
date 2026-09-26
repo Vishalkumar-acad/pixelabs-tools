@@ -40,6 +40,20 @@
     }
   });
 
+  /* ---- Local / Cloud toggle ---- */
+  var procEl = document.getElementById("proc");
+  var procNote = document.getElementById("proc-note");
+  function isCloud() { return procEl && procEl.value === "cloud"; }
+  function updateProcNote() {
+    if (!procNote) return;
+    procNote.textContent = isCloud()
+      ? "Cloud mode: the file is uploaded to our free processing server (Render), processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
+      : "How it works (local): everything runs on your device — nothing ever leaves it. Works offline too.";
+  }
+  if (procEl) procEl.addEventListener("change", updateProcNote);
+  updateProcNote();
+
+
   els.clearBtn.addEventListener("click", function () {
     files = [];
     render();
@@ -92,6 +106,35 @@
 
   els.createBtn.addEventListener("click", async function () {
     if (!files.length) return;
+    if (isCloud()) { cloudCreate(); return; }
+    localCreate();
+  });
+
+  function cloudCreate() {
+    els.createBtn.disabled = true;
+    var pageSize = els.pageSize.value;
+    var serverPageSize = pageSize === "letter" ? "letter" : (pageSize === "fit" ? "fit" : "a4");
+    var stop = CloudTools.trackProcessing(showMsg, files.length + " images");
+    CloudTools.post("/pdf/from-images", {
+      files: files.map(function (f) { return f.file; }),
+      page_size: serverPageSize,
+      fit: "contain"
+    }, function (pct) { showMsg("Uploading… " + pct + "%", "info"); }).then(function (res) {
+      stop();
+      var blob = new Blob([res.bytes], { type: "application/pdf" });
+      downloadBlob(blob, "images.pdf");
+      showMsg("Done! PDF created on the server (" + formatBytes(blob.size) + ", " + files.length + " pages)." +
+        (pageSize === "a4l" ? " Note: cloud mode uses A4 portrait." : ""), "ok");
+      els.createBtn.disabled = false;
+    }).catch(function () {
+      stop();
+      showMsg("Cloud PDF creation failed — falling back to local processing.", "err");
+      localCreate();
+    });
+  }
+
+  async function localCreate() {
+    if (!files.length) return;
     els.createBtn.disabled = true;
     showMsg("Building PDF…", "info");
 
@@ -140,7 +183,7 @@
       showMsg("Could not create PDF: " + (err.message || String(err)), "err");
     }
     els.createBtn.disabled = false;
-  });
+  }
 
   /* Convert WEBP (or anything) to PNG via canvas, then embed */
   async function embedViaCanvas(pdf, file) {

@@ -26,6 +26,19 @@
     multiple: false,
     onFiles: function (list) { load(list[0]); }
   });
+  /* ---- Local / Cloud toggle ---- */
+  var procEl = document.getElementById("proc");
+  var procNote = document.getElementById("proc-note");
+  function isCloud() { return procEl && procEl.value === "cloud"; }
+  function updateProcNote() {
+    if (!procNote) return;
+    procNote.textContent = isCloud()
+      ? "Cloud mode: the file is uploaded to our free processing server (Render), processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
+      : "How it works (local): everything runs on your device — nothing ever leaves it. Works offline too.";
+  }
+  if (procEl) procEl.addEventListener("change", updateProcNote);
+  updateProcNote();
+
 
   function load(file) {
     if (!/^image\//.test(file.type)) { toast("That file is not an image.", "err"); return; }
@@ -77,6 +90,8 @@
       return;
     }
 
+    if (isCloud() && state.file) { cloudResize(w, h); return; }
+
     var mime = els.format.value || (state.file.type === "image/png" ? "image/png" : "image/jpeg");
     if (els.format.value === "") {
       /* keep original type when supported by canvas export */
@@ -109,6 +124,41 @@
       els.previewPanel.scrollIntoView({ behavior: "smooth", block: "start" });
     }, mime, 0.92);
   });
+
+  function cloudResize(w, h) {
+    els.applyBtn.disabled = true;
+    var fmt = els.format.value || "jpg";
+    var stop = CloudTools.trackProcessing(function () {}, "your image");
+    showStatus("Uploading to the cloud server…");
+    CloudTools.post("/image/resize", {
+      file: state.file, width: w, height: h, format: fmt
+    }, function (pct) { showStatus("Uploading… " + pct + "%"); }).then(function (res) {
+      stop();
+      var blob = new Blob([res.bytes], { type: res.type || "image/jpeg" });
+      state.blob = blob;
+      state.ext = fmt || "jpg";
+      els.preview.src = URL.createObjectURL(blob);
+      els.summary.innerHTML =
+        stat(w + " × " + h, "New size") +
+        stat(state.w + " × " + state.h, "Original") +
+        stat(formatBytes(blob.size), "File size");
+      els.previewPanel.classList.remove("hidden");
+      els.previewPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      showStatus("");
+    }).catch(function () {
+      stop();
+      toast("Cloud resize failed — using local processing.", "err");
+      els.applyBtn.click();
+    });
+    els.applyBtn.disabled = false;
+
+    function showStatus(t) {
+      var el = document.getElementById("msg");
+      if (!el) return;
+      if (t) { el.textContent = t; el.className = "msg busy"; }
+      else { el.className = "msg"; }
+    }
+  }
 
   els.downloadBtn.addEventListener("click", function () {
     if (state.blob) downloadBlob(state.blob, baseName(state.name) + "-" + els.w.value + "x" + els.h.value + "." + state.ext);
