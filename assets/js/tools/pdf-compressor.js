@@ -15,7 +15,7 @@
 
   /* Cloud endpoint (Hugging Face Space running Ghostscript).
      Empty = cloud not configured yet; the UI falls back to local. */
-  var SPACE_URL = "https://pixelabs-api.onrender.com";
+  var SPACE_URL = "https://pixelabs-api-e0u3.onrender.com";
 
   /* Point pdf.js at its vendored worker (relative to this page). */
   if (window.pdfjsLib) {
