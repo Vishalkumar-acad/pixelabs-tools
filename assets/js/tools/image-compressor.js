@@ -306,11 +306,12 @@
     var totalBefore = ok.reduce(function (a, r) { return a + r.originalSize; }, 0);
     var totalAfter = ok.reduce(function (a, r) { return a + r.size; }, 0);
 
+    var failBadge = failed ? " <span class='delta-bad'>" + failed + " failed</span>" : "";
     els.summary.innerHTML =
       stat(formatBytes(totalBefore), "Before") +
       stat(formatBytes(totalAfter), "After") +
       stat("−" + formatBytes(Math.max(0, totalBefore - totalAfter)), "Total saved", true) +
-      stat(ok.length + (failed ? " <span style='color:var(--danger)'>" + failed + " failed)</span>" : ""), "Images");
+      stat(ok.length + failBadge, "Images");
 
     els.results.innerHTML = "";
     ok.forEach(function (r) {
