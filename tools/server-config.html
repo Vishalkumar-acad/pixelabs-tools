@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirect & Config Generator — Free, No Login | PixelAbs Tools</title>
+  <meta name="description" content="Generate Nginx or .htaccess code for 301 redirects, HTTPS enforcement, www domains, gzip and static-file caching — just fill a small form.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">⚙️</span> Redirect & Config Generator</h1>
+        <p class="desc">Generate Nginx or .htaccess code for 301 redirects, HTTPS enforcement, www domains, gzip and static-file caching — just fill a small form.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Settings</h2>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Your domain</label>
+            <input type="text" id="domain" placeholder="example.com" spellcheck="false">
+          </div>
+          <div class="option">
+            <label class="field">Server type</label>
+            <select id="server">
+              <option value="nginx" selected>Nginx</option>
+              <option value="apache">Apache (.htaccess)</option>
+            </select>
+          </div>
+          <div class="option">
+            <label class="field">Canonical host</label>
+            <select id="www">
+              <option value="none" selected>example.com (no www)</option>
+              <option value="www">www.example.com</option>
+              <option value="skip">Leave as it is</option>
+            </select>
+          </div>
+        </div>
+
+        <h2 style="margin-top:18px">301 redirects</h2>
+        <div id="redirects"></div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="add-btn">+ Add another redirect</button>
+        </div>
+
+        <h2 style="margin-top:18px">Extras</h2>
+        <div class="option"><label style="font-weight:400"><input type="checkbox" id="opt-https" checked> Force HTTPS everywhere</label></div>
+        <div class="option"><label style="font-weight:400"><input type="checkbox" id="opt-gzip" checked> Enable gzip compression</label></div>
+        <div class="option"><label style="font-weight:400"><input type="checkbox" id="opt-cache" checked> Cache static files (images, CSS, JS) for 30 days</label></div>
+        <div class="option"><label style="font-weight:400"><input type="checkbox" id="opt-headers" checked> Add security headers (X-Frame-Options etc.)</label></div>
+
+        <div class="btn-row mt">
+          <button class="btn btn-primary" id="gen-btn">Generate config</button>
+        </div>
+      </div>
+
+      <div class="panel hidden" id="out-panel">
+        <h2 id="out-title">Config</h2>
+        <textarea id="out" readonly style="min-height:280px; font-family:var(--mono); font-size:.82rem;"></textarea>
+        <div class="btn-row mt">
+          <button class="btn btn-primary" id="copy-btn">Copy config</button>
+          <button class="btn btn-secondary" id="dl-btn">Download file</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="../index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="../index.html">All tools</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/server-config.js"></script>
+</body>
+</html>
