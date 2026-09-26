@@ -65,9 +65,10 @@ const BACKEND_PATHS = [
    The anon key below is PUBLIC BY DESIGN (Supabase publishable key):
    the table itself is RLS-locked and only two SECURITY DEFINER
    functions are callable — get_url(code) and create_short_url(url).
-   No secret credentials ship in this file. */
-const SUPABASE_URL = "https://jydvotfwvhealwwceiel.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5ZHZvdGZ3dmhlYWx3d2NlaWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTk0OTYsImV4cCI6MjEwMzgzNTQ5Nn0.YyxM2ueYgyKAR2MlL28KFUT94m3iwgApfTe7CBJdtGA";
+   No secret credentials ship in this file.
+   Dedicated project: "pixelabs-shortener" (ap-south-1, Mumbai). */
+const SUPABASE_URL = "https://cttxkvehmvjlrpovkuox.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dHhrdmVobXZqbHJwb3ZrdW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0MjY5ODAsImV4cCI6MjEwNjAwMjk4MH0.lV1JARLmQd7-uASH_04GCRodW9S85XE5DbGCFFKEETU";
 const URL_CREATE_LIMIT_PER_HOUR = 20;
 let shortCreates = {}; /* best-effort per-isolate rate limiting */
 
