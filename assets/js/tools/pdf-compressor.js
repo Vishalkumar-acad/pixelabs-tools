@@ -76,6 +76,21 @@
      Renders every page with pdf.js at the chosen scale, re-encodes
      each page as a JPEG at the chosen quality, and assembles a new
      document with pdf-lib. Returns the new PDF bytes. */
+  /* Cap each page to ~2.2 megapixels — big scanned pages at full
+     scale can exhaust mobile canvas memory and stall the render. */
+  var MAX_PAGE_PIXELS = 2200000;
+
+  /* Reject if a single step never settles (mobile canvas context
+     loss can leave a pdf.js render pending forever). */
+  function withTimeout(promise, ms, what) {
+    return Promise.race([
+      promise,
+      new Promise(function (resolve, reject) {
+        setTimeout(function () { reject(new Error(what + " timed out")); }, ms);
+      })
+    ]);
+  }
+
   async function compressFile(file, level, onProgress) {
     var buf = await readFileAsArrayBuffer(file);
     var src = await window.pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
@@ -84,19 +99,32 @@
 
     for (var p = 1; p <= numPages; p++) {
       var page = await src.getPage(p);
-      var viewport = page.getViewport({ scale: level.scale });
+      var base = page.getViewport({ scale: 1 });
+      var scale = level.scale;
+      var px = base.width * scale * base.height * scale;
+      if (px > MAX_PAGE_PIXELS) scale = scale * Math.sqrt(MAX_PAGE_PIXELS / px);
+      var viewport = page.getViewport({ scale: scale });
       var canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.floor(viewport.width));
       canvas.height = Math.max(1, Math.floor(viewport.height));
       var ctx = canvas.getContext("2d");
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-      var dataUrl = canvas.toDataURL("image/jpeg", level.quality);
-      var img = await out.embedJpg(dataUrl);
+      await withTimeout(page.render({ canvasContext: ctx, viewport: viewport }).promise, 60000, "page " + p);
+      var blob = await new Promise(function (resolve, reject) {
+        canvas.toBlob(function (b) {
+          if (b) resolve(b); else reject(new Error("page " + p + " could not be encoded"));
+        }, "image/jpeg", level.quality);
+      });
+      var imgBytes = new Uint8Array(await blob.arrayBuffer());
+      var img = await out.embedJpg(imgBytes);
       var p2 = out.addPage([canvas.width, canvas.height]);
       p2.drawImage(img, { x: 0, y: 0, width: canvas.width, height: canvas.height });
+      canvas.width = 0;
+      canvas.height = 0;
+      try { page.cleanup(); } catch (e) {}
       if (onProgress) onProgress();
+      await new Promise(function (r) { setTimeout(r, 0); });
     }
 
     src.destroy();
@@ -195,7 +223,8 @@
     resultsEl.innerHTML = "";
     resultsPanel.classList.add("hidden");
     progressWrap.classList.remove("hidden");
-    showMsg("Compressing…", "info");
+    var anyBig = files.some(function (f) { return f.size > 3145728; });
+    showMsg(anyBig && modeSel.value !== "cloud" ? "Compressing… (tip: Cloud mode is faster for large PDFs)" : "Compressing…", "info");
 
     var level = LEVELS[levelSel.value];
 
@@ -242,6 +271,7 @@
                 done++;
                 var pctDone = Math.min(100, Math.round((done / totalPages) * 100));
                 progressBar.style.width = pctDone + "%";
+                showMsg("Compressing locally… page " + Math.min(done, totalPages) + " of " + totalPages, "info");
               }).then(function (res2) {
                 outputs.push(res2);
               });
@@ -251,6 +281,7 @@
             done++;
             var pctDone = Math.min(100, Math.round((done / totalPages) * 100));
             progressBar.style.width = pctDone + "%";
+            showMsg("Compressing… page " + Math.min(done, totalPages) + " of " + totalPages, "info");
           }).then(function (res) {
             outputs.push(res);
           }).catch(function (err) {
@@ -285,7 +316,7 @@
         return;
       }
       if (bad.length) {
-        showMsg("Done, but these files failed: " + bad.join(", "), "err");
+        showMsg("Done, but these files failed: " + bad.join(", ") + " — try Cloud mode for these (it handles big PDFs better).", "err");
       } else {
         var keptCount = 0;
         outputs.forEach(function (o) { if (o.kept) keptCount++; });
