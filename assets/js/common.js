@@ -10,6 +10,20 @@
   if (stored === "dark" || (!stored && prefersDark)) document.documentElement.classList.add("dark");
 })();
 
+/* ---------- Device tier ----------
+   On low-memory / few-core devices (typical budget Android phones),
+   drop the expensive glass-blur effects by adding .low-power to <html>.
+   The design stays the same, the compositing cost disappears. */
+(function () {
+  try {
+    var mem = navigator.deviceMemory || 0;
+    var cores = navigator.hardwareConcurrency || 0;
+    if ((mem && mem <= 2) || (cores && cores <= 2)) {
+      document.documentElement.classList.add("low-power");
+    }
+  } catch (e) { /* never block the page */ }
+})();
+
 function toggleTheme() {
   const root = document.documentElement;
   const dark = root.classList.toggle("dark");
