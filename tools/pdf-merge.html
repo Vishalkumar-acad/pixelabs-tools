@@ -43,6 +43,14 @@
 
       <div class="panel mt">
         <h2>Documents <span class="muted" style="font-weight:400">(in merge order — use ↑ ↓ to arrange)</span></h2>
+        <div class="option">
+          <label class="field">Processing</label>
+          <select id="proc">
+            <option value="local" selected>Local — private (default)</option>
+            <option value="cloud">Cloud — file is uploaded</option>
+          </select>
+          <p class="muted" id="proc-note" style="font-size:.8rem; margin-top:8px;"></p>
+        </div>
         <div class="file-list" id="file-list"><div class="muted" id="empty-hint">No PDFs added yet.</div></div>
         <div class="btn-row mt">
           <button class="btn btn-primary" id="merge-btn" disabled>Merge PDFs</button>
@@ -73,6 +81,7 @@
 
   <div id="toast-root"></div>
   <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/cloud.js"></script>
   <script src="../assets/vendor/pdf-lib.min.js"></script>
   <script src="../assets/js/tools/pdf-merge.js"></script>
 </body>
