@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gradient Generator — Free, No Login | PixelAbs Tools</title>
+  <meta name="description" content="Design modern linear or mesh gradients with a live preview, then copy the CSS or Tailwind code — or download a PNG.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">🎨</span> Gradient Generator</h1>
+        <p class="desc">Design modern linear or mesh gradients with a live preview, then copy the CSS or Tailwind code — or download a PNG.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Design</h2>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Style</label>
+            <select id="mode">
+              <option value="linear" selected>Linear</option>
+              <option value="mesh">Mesh (blurry blobs)</option>
+            </select>
+          </div>
+          <div class="option" id="angle-wrap">
+            <label class="field">Angle: <b id="angle-val">90°</b></label>
+            <input type="range" id="angle" min="0" max="360" value="90" style="width:100%">
+          </div>
+        </div>
+        <div id="stops"></div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="add-stop">+ Add color</button>
+          <button class="btn btn-secondary" id="del-stop">− Remove color</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Live preview</h2>
+        <div id="preview" style="height:220px; border-radius:14px; border:1px solid var(--border);"></div>
+        <div class="btn-row mt">
+          <button class="btn btn-primary" id="copy-css">Copy CSS</button>
+          <button class="btn btn-secondary" id="copy-tw">Copy Tailwind</button>
+          <button class="btn btn-secondary" id="dl-png">Download PNG</button>
+        </div>
+        <div class="option hidden" id="code-wrap" style="margin-top:12px">
+          <label class="field" id="code-label">CSS</label>
+          <textarea id="code" readonly style="min-height:70px; font-family:var(--mono); font-size:.8rem;"></textarea>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="../index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="../index.html">All tools</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/gradient-generator.js"></script>
+</body>
+</html>

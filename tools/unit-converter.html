@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Unit Converter — Free, No Login | PixelAbs Tools</title>
+  <meta name="description" content="Convert between bits, bytes, KB, MB, GB, TB and per-second bandwidth units — with the exact 1024 vs 1000 difference.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">💾</span> Data Unit Converter</h1>
+        <p class="desc">Convert between bits, bytes, KB, MB, GB, TB and per-second bandwidth units — with the exact 1024 vs 1000 difference.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Convert</h2>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Value</label>
+            <input type="number" id="val" value="1" min="0" step="any">
+          </div>
+          <div class="option">
+            <label class="field">From unit</label>
+            <select id="unit"></select>
+          </div>
+          <div class="option">
+            <label class="field">Scale</label>
+            <select id="scale">
+              <option value="1024" selected>Binary (1 KB = 1024 B)</option>
+              <option value="1000">Decimal (1 kB = 1000 B)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Results</h2>
+        <div id="results"></div>
+        <h2 style="margin-top:20px">Download time estimate</h2>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Connection speed</label>
+            <select id="speed">
+              <option value="1">1 Mbps (2G-ish)</option>
+              <option value="5">5 Mbps</option>
+              <option value="10">10 Mbps</option>
+              <option value="25" selected>25 Mbps (4G)</option>
+              <option value="50">50 Mbps</option>
+              <option value="100">100 Mbps (broadband)</option>
+            </select>
+          </div>
+        </div>
+        <div class="msg info" id="time-est" style="display:block; margin-top:10px;"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="../index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="../index.html">All tools</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/unit-converter.js"></script>
+</body>
+</html>

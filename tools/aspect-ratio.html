@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aspect Ratio Calculator — Free, No Login | PixelAbs Tools</title>
+  <meta name="description" content="Working with 16:9, 4:3, 9:16 or a custom ratio? Enter one side and get the exact other side — plus a size table.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">📏</span> Aspect Ratio Calculator</h1>
+        <p class="desc">Working with 16:9, 4:3, 9:16 or a custom ratio? Enter one side and get the exact other side — plus a size table.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Ratio</h2>
+        <div class="btn-row" id="presets">
+          <button class="btn btn-secondary" data-w="16" data-h="9">16:9</button>
+          <button class="btn btn-secondary" data-w="4" data-h="3">4:3</button>
+          <button class="btn btn-secondary" data-w="1" data-h="1">1:1</button>
+          <button class="btn btn-secondary" data-w="9" data-h="16">9:16</button>
+          <button class="btn btn-secondary" data-w="21" data-h="9">21:9</button>
+          <button class="btn btn-secondary" data-w="2.39" data-h="1">2.39:1</button>
+          <button class="btn btn-secondary" data-w="3" data-h="4">3:4 (passport)</button>
+        </div>
+        <div class="options-grid" style="margin-top:12px">
+          <div class="option">
+            <label class="field">Ratio width</label>
+            <input type="number" id="rw" value="16" min="0.1" step="0.01">
+          </div>
+          <div class="option">
+            <label class="field">Ratio height</label>
+            <input type="number" id="rh" value="9" min="0.1" step="0.01">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Calculate</h2>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Known side</label>
+            <select id="side">
+              <option value="w" selected>I know the width</option>
+              <option value="h">I know the height</option>
+            </select>
+          </div>
+          <div class="option">
+            <label class="field">Pixels</label>
+            <input type="number" id="px" value="1920" min="1">
+          </div>
+        </div>
+        <div class="msg ok" id="result" style="display:block; font-size:1.15rem; margin-top:14px;"></div>
+        <h2 style="margin-top:20px">Common sizes for this ratio</h2>
+        <div id="sizes"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="../index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="../index.html">All tools</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/aspect-ratio.js"></script>
+</body>
+</html>

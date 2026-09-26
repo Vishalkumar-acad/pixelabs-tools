@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Font Pairing Helper — Free, No Login | PixelAbs Tools</title>
+  <meta name="description" content="Pick a heading + body font combo that just works, preview it live, and copy the ready-made Google Fonts embed code.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">🔤</span> Font Pairing Helper</h1>
+        <p class="desc">Pick a heading + body font combo that just works, preview it live, and copy the ready-made Google Fonts embed code.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Choose a pairing</h2>
+        <div class="option">
+          <label class="field">Font pairing</label>
+          <select id="pair"></select>
+        </div>
+        <div class="msg info" style="display:block; margin-top:10px;">The preview below uses locally available look-alike fonts (offline-friendly). The copied embed code loads the real Google Fonts.</div>
+      </div>
+
+      <div class="panel">
+        <h2>Live preview</h2>
+        <div id="preview" style="padding:10px 4px;">
+          <h3 id="p-head" style="margin:0 0 10px; font-size:1.8rem; letter-spacing:-.02em;">The quick brown fox jumps</h3>
+          <p id="p-body" style="margin:0; line-height:1.65; font-size:1rem;">Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump! सपने में आया भारत — 0123456789.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Embed code</h2>
+        <textarea id="code" readonly style="min-height:110px; font-family:var(--mono); font-size:.8rem;"></textarea>
+        <div class="btn-row mt">
+          <button class="btn btn-primary" id="copy-btn">Copy embed code</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="../index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="../index.html">All tools</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/font-pairing.js"></script>
+</body>
+</html>
