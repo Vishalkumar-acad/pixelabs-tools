@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service | PixelAbs Tools</title>
+  <meta name="description" content="Terms of Service for PixelAbs Tools — free browser-based utilities for images, PDFs and text.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="assets/img/icon-192.png">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="index.html">
+        <img src="assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="index.html">← All tools</a>
+        <h1><span class="icon">📜</span> Terms of Service</h1>
+        <p class="desc">Effective date: 26 September 2026 &middot; Applies to tools.pixelabs.in</p>
+      </div>
+
+      <div class="panel">
+        <h2>1. Acceptance</h2>
+        <p>By using PixelAbs Tools ("the Service") you agree to these Terms. If you do not agree, please do not use the Service. The Service is provided free of charge by PixelAbs ("we", "us").</p>
+      </div>
+
+      <div class="panel">
+        <h2>2. What the Service is</h2>
+        <p>PixelAbs Tools is a collection of free utility tools (image compression and conversion, PDF compression, merging and splitting, text and developer utilities). By default every tool runs entirely inside your browser on your own device. Some tools additionally offer an optional Cloud mode that sends your file to a small processing server for better results; Cloud mode is always clearly marked and never enabled without your explicit choice.</p>
+      </div>
+
+      <div class="panel">
+        <h2>3. Your files and content</h2>
+        <p>You keep all rights to every file you process with the Service. We claim no ownership over your files, and your files are never stored, kept, shared or used by us — not in Local mode (where files never leave your device at all) and not in Cloud mode (where files are processed in memory and immediately deleted). We do not train anything on your content, and we do not look at it.</p>
+      </div>
+
+      <div class="panel">
+        <h2>4. Fair use</h2>
+        <ul>
+          <li>Use the Service only for lawful purposes and only for files you have the right to process.</li>
+          <li>Do not attempt to abuse, overload or circumvent the Service or its processing servers (for example by automating mass requests or bypassing the 50 MB per-file limit).</li>
+          <li>We may apply reasonable rate limits, and may adjust or discontinue any tool at any time, to keep the Service free and available for everyone.</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h2>5. Cloud mode</h2>
+        <p>If you choose Cloud mode, your file is transmitted over HTTPS to our processing server, processed in memory, and deleted immediately. Transmission is protected, but if a document is so sensitive that you do not want it transmitted anywhere at all, keep the tool in Local mode — that is always the default and processes nothing off your device.</p>
+      </div>
+
+      <div class="panel">
+        <h2>6. No warranty</h2>
+        <p>The Service is provided "as is" and "as available", without warranties of any kind, express or implied. While we work hard to keep the tools accurate and safe, we cannot promise they are error-free or that a particular result will meet your needs. <b>Always verify important output</b> (for example, check a compressed or merged PDF before relying on it).</p>
+      </div>
+
+      <div class="panel">
+        <h2>7. Limitation of liability</h2>
+        <p>To the maximum extent permitted by law, PixelAbs shall not be liable for any indirect, incidental, special or consequential damages, or any loss of data, profits or business arising from your use of the Service. Since the Service never stores your files, always keep your own originals.</p>
+      </div>
+
+      <div class="panel">
+        <h2>8. Availability and changes</h2>
+        <p>The Service is a free, hobby-scale project. Tools, limits and features may change or be discontinued at any time without notice. We may update these Terms from time to time; the date at the top of this page will change when we do.</p>
+      </div>
+
+      <div class="panel">
+        <h2>9. Governing law</h2>
+        <p>These Terms are governed by the laws of India, with courts in India having exclusive jurisdiction.</p>
+      </div>
+
+      <div class="panel">
+        <h2>10. Contact</h2>
+        <p>Questions about these Terms? Email <a href="mailto:hello@pixelabs.in">hello@pixelabs.in</a>. Also see our <a href="privacy.html">Privacy Policy</a>.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="index.html">All tools</a>
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="assets/js/common.js"></script>
+</body>
+</html>
