@@ -17,6 +17,10 @@
         POST /api/pdf/merge          -> merge PDFs
         POST /api/pdf/split          -> split PDF
         POST /api/pdf/from-images    -> images to PDF
+        POST /api/audio/trim         -> trim audio (MP3, ffmpeg)
+        POST /api/audio/speed        -> change speed/pitch (MP3, ffmpeg)
+        POST /api/audio/join         -> join audio files (MP3, ffmpeg)
+        POST /api/video/gif          -> video to GIF (ffmpeg)
         GET  /api/health             -> backend health check
         GET  /api                    -> tiny service info
 
@@ -51,6 +55,10 @@ const BACKEND_PATHS = [
   "/pdf/merge",
   "/pdf/split",
   "/pdf/from-images",
+  "/audio/trim",
+  "/audio/speed",
+  "/audio/join",
+  "/video/gif",
   "/health"
 ];
 
@@ -137,7 +145,11 @@ export default {
           "/api/image/resize",
           "/api/pdf/merge",
           "/api/pdf/split",
-          "/api/pdf/from-images"
+          "/api/pdf/from-images",
+          "/api/audio/trim",
+          "/api/audio/speed",
+          "/api/audio/join",
+          "/api/video/gif"
         ]
       });
     }

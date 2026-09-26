@@ -14,12 +14,16 @@ window.CloudTools = (function () {
     URL: "/api"
   };
 
-  /* One POST attempt. fields: plain object of string/number/File. */
+  /* One POST attempt. fields: plain object of string/number/File
+     (or an array of Files — appended under the same field name). */
   function postOnce(path, fields, onUpload, onUploaded) {
     return new Promise(function (resolve, reject) {
       var fd = new FormData();
       Object.keys(fields).forEach(function (k) {
-        if (fields[k] !== undefined && fields[k] !== null) fd.append(k, fields[k]);
+        var v = fields[k];
+        if (v === undefined || v === null) return;
+        if (Array.isArray(v)) v.forEach(function (item) { fd.append(k, item); });
+        else fd.append(k, v);
       });
       var xhr = new XMLHttpRequest();
       xhr.open("POST", api.URL + path);
