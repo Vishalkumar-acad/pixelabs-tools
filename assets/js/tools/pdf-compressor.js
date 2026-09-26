@@ -13,9 +13,9 @@
     low:    { scale: 1.0, quality: 0.55 }
   };
 
-  /* Cloud endpoint (Render server running Ghostscript).
-     Empty = cloud not configured yet; the UI falls back to local. */
-  var SPACE_URL = "https://pixelabs-api-e0u3.onrender.com";
+  /* Cloud endpoint — same-origin edge functions (the Cloudflare
+     Worker proxies these to the processing server — see worker.js). */
+  var SPACE_URL = "/api";
 
   /* Point pdf.js at its vendored worker (relative to this page). */
   if (window.pdfjsLib) {
