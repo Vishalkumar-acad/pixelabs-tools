@@ -33,6 +33,12 @@
   <main>
     <div class="container">
 
+      <div class="tool-search" style="margin: 0 0 6px; position: relative;">
+        <input type="search" id="tool-search" placeholder="Search 29 tools… (e.g. pdf, audio, hash)" autocomplete="off"
+               style="width:100%; padding:14px 46px 14px 18px; border-radius:14px; border:1px solid var(--border); background:var(--card, #12151f); color:var(--text); font-size:1rem; outline:none;" aria-label="Search tools">
+        <span style="position:absolute; right:16px; top:50%; transform:translateY(-50%); color:var(--text-2); pointer-events:none;">⌕</span>
+      </div>
+
       <section class="hero">
         <h1>Free tools that <span class="grad">respect your privacy</span></h1>
         <p class="sub">Every utility runs entirely inside your browser. Your files are never uploaded, never stored, and never seen by anyone but you.</p>
@@ -44,8 +50,7 @@
         </div>
       </section>
 
-      <h2 class="section-title">All tools <span class="count">11</span></h2>
-
+      <h2 class="section-title">Images & PDF <span class="count">7</span></h2>
       <div class="tool-grid">
 
         <a class="tool-card" href="tools/image-compressor.html">
@@ -54,48 +59,75 @@
           <h3>Image Compressor</h3>
           <p>Hit an exact target size (e.g. under 50 KB for online forms) using a smart binary-search algorithm.</p>
         </a>
-
         <a class="tool-card" href="tools/image-converter.html">
           <span class="go">→</span>
           <div class="icon">🔄</div>
           <h3>Image Converter</h3>
           <p>Convert between JPG, PNG and WEBP in bulk, right on your device.</p>
         </a>
-
         <a class="tool-card" href="tools/image-resizer.html">
           <span class="go">→</span>
           <div class="icon">📐</div>
           <h3>Image Resizer</h3>
           <p>Resize by pixel dimensions or presets — passport photos, Instagram, YouTube and more.</p>
         </a>
-
         <a class="tool-card" href="tools/pdf-merge.html">
           <span class="go">→</span>
           <div class="icon">📑</div>
           <h3>PDF Merge</h3>
           <p>Combine multiple PDFs into one document. Drag to arrange the order you want.</p>
         </a>
-
         <a class="tool-card" href="tools/pdf-split.html">
           <span class="go">→</span>
           <div class="icon">✂️</div>
           <h3>PDF Split & Extract</h3>
           <p>Extract page ranges (like 3–7) or split a PDF into individual pages.</p>
         </a>
-
         <a class="tool-card" href="tools/images-to-pdf.html">
           <span class="go">→</span>
           <div class="icon">🖼️</div>
           <h3>Images to PDF</h3>
           <p>Turn photos and scans into a single tidy PDF, with page-fit options.</p>
         </a>
-
         <a class="tool-card" href="tools/pdf-compressor.html">
           <span class="go">→</span>
           <div class="icon">📋</div>
           <h3>PDF Compressor</h3>
           <p>Shrink PDF file size right in your browser with three quality levels — no uploads, no servers.</p>
         </a>
+      </div>
+
+      <h2 class="section-title">Audio & Video <span class="count">4</span></h2>
+      <div class="tool-grid">
+
+        <a class="tool-card" href="tools/audio-trimmer.html">
+          <span class="go">→</span>
+          <div class="icon">🎵</div>
+          <h3>Audio Trimmer</h3>
+          <p>Cut out the part you need from any song or recording — drag on the waveform and download.</p>
+        </a>
+        <a class="tool-card" href="tools/audio-pitch-speed.html">
+          <span class="go">→</span>
+          <div class="icon">🎚️</div>
+          <h3>Audio Speed & Pitch</h3>
+          <p>Speed up or slow down a song, or make a voice higher or lower — like a tape player.</p>
+        </a>
+        <a class="tool-card" href="tools/audio-joiner.html">
+          <span class="go">→</span>
+          <div class="icon">🎼</div>
+          <h3>Audio Joiner</h3>
+          <p>Join two or more songs or recordings into a single file, in any order.</p>
+        </a>
+        <a class="tool-card" href="tools/video-to-gif.html">
+          <span class="go">→</span>
+          <div class="icon">🎬</div>
+          <h3>Video to GIF</h3>
+          <p>Turn a short video clip into an animated GIF — pick the start, end, size and frame rate.</p>
+        </a>
+      </div>
+
+      <h2 class="section-title">Text & Data <span class="count">7</span></h2>
+      <div class="tool-grid">
 
         <a class="tool-card" href="tools/json-formatter.html">
           <span class="go">→</span>
@@ -103,20 +135,75 @@
           <h3>JSON Formatter</h3>
           <p>Beautify, minify and validate JSON locally, with precise error messages.</p>
         </a>
-
+        <a class="tool-card" href="tools/csv-json.html">
+          <span class="go">→</span>
+          <div class="icon">📊</div>
+          <h3>CSV ↔ JSON Converter</h3>
+          <p>Convert CSV / Excel data to clean JSON and back — paste or drop a file.</p>
+        </a>
+        <a class="tool-card" href="tools/xml-json.html">
+          <span class="go">→</span>
+          <div class="icon">🧩</div>
+          <h3>XML ↔ JSON Converter</h3>
+          <p>Convert XML data to JSON and back with one click.</p>
+        </a>
         <a class="tool-card" href="tools/text-case.html">
           <span class="go">→</span>
           <div class="icon">Aa</div>
           <h3>Text Case Converter</h3>
           <p>UPPERCASE, lowercase, Title Case, camelCase, snake_case and more.</p>
         </a>
-
         <a class="tool-card" href="tools/base64.html">
           <span class="go">→</span>
           <div class="icon">🔐</div>
           <h3>Base64 Encode / Decode</h3>
           <p>UTF-8 safe text encoding, plus file-to-Base64 conversion.</p>
         </a>
+        <a class="tool-card" href="tools/file-checker.html">
+          <span class="go">→</span>
+          <div class="icon">🔍</div>
+          <h3>File Type Checker</h3>
+          <p>Lost an extension? Read a file's real signature (magic bytes) to find its true format.</p>
+        </a>
+        <a class="tool-card" href="tools/hash-compare.html">
+          <span class="go">→</span>
+          <div class="icon">#️⃣</div>
+          <h3>File Hash Comparer</h3>
+          <p>Check whether two files are 100% identical — perfect after a download or backup.</p>
+        </a>
+      </div>
+
+      <h2 class="section-title">Developer <span class="count">4</span></h2>
+      <div class="tool-grid">
+
+        <a class="tool-card" href="tools/sql-formatter.html">
+          <span class="go">→</span>
+          <div class="icon">🗄️</div>
+          <h3>SQL Formatter</h3>
+          <p>Turn a messy one-line SQL query into clean, readable, indented code.</p>
+        </a>
+        <a class="tool-card" href="tools/curl-converter.html">
+          <span class="go">→</span>
+          <div class="icon">🖥️</div>
+          <h3>cURL Converter</h3>
+          <p>Paste a cURL command, get the same request as fetch(), Axios or Python requests.</p>
+        </a>
+        <a class="tool-card" href="tools/cron-tool.html">
+          <span class="go">→</span>
+          <div class="icon">⏰</div>
+          <h3>Cron Helper</h3>
+          <p>Understand any cron expression in plain English, with the next 5 run times.</p>
+        </a>
+        <a class="tool-card" href="tools/server-config.html">
+          <span class="go">→</span>
+          <div class="icon">⚙️</div>
+          <h3>Redirect Config Generator</h3>
+          <p>Generate Nginx or .htaccess code for 301 redirects, HTTPS, gzip and caching.</p>
+        </a>
+      </div>
+
+      <h2 class="section-title">Design <span class="count">4</span></h2>
+      <div class="tool-grid">
 
         <a class="tool-card" href="tools/qr-code.html">
           <span class="go">→</span>
@@ -124,6 +211,48 @@
           <h3>QR Code Generator</h3>
           <p>Create crisp QR codes with custom colors and download as PNG.</p>
         </a>
+        <a class="tool-card" href="tools/gradient-generator.html">
+          <span class="go">→</span>
+          <div class="icon">🎨</div>
+          <h3>Gradient Generator</h3>
+          <p>Design modern linear or mesh gradients and copy the CSS or Tailwind code.</p>
+        </a>
+        <a class="tool-card" href="tools/aspect-ratio.html">
+          <span class="go">→</span>
+          <div class="icon">📏</div>
+          <h3>Aspect Ratio Calculator</h3>
+          <p>Enter one side of 16:9, 9:16 or any ratio and get the exact other side.</p>
+        </a>
+        <a class="tool-card" href="tools/font-pairing.html">
+          <span class="go">→</span>
+          <div class="icon">🔤</div>
+          <h3>Font Pairing</h3>
+          <p>Pick a heading + body font combo that works, and copy the Google Fonts embed.</p>
+        </a>
+      </div>
+
+      <h2 class="section-title">Productivity <span class="count">3</span></h2>
+      <div class="tool-grid">
+
+        <a class="tool-card" href="tools/pomodoro.html">
+          <span class="go">→</span>
+          <div class="icon">🍅</div>
+          <h3>Pomodoro Focus Timer</h3>
+          <p>A clean 25-minute focus timer with breaks and a gentle sound alert.</p>
+        </a>
+        <a class="tool-card" href="tools/unit-converter.html">
+          <span class="go">→</span>
+          <div class="icon">💾</div>
+          <h3>Data Unit Converter</h3>
+          <p>Convert bits, bytes, KB, MB, GB and bandwidth units — with 1024 vs 1000.</p>
+        </a>
+        <a class="tool-card" href="tools/timezone.html">
+          <span class="go">→</span>
+          <div class="icon">🌍</div>
+          <h3>Timezone Converter</h3>
+          <p>Compare times across the world — live clocks plus a converter for any moment.</p>
+        </a>
+      </div>
 
       </div>
     </div>
@@ -150,6 +279,24 @@
             <li><a href="tools/text-case.html">Text Case Converter</a></li>
             <li><a href="tools/base64.html">Base64 Encode / Decode</a></li>
             <li><a href="tools/qr-code.html">QR Code Generator</a></li>
+            <li><a href="tools/audio-trimmer.html">Audio Trimmer</a></li>
+            <li><a href="tools/audio-pitch-speed.html">Audio Speed & Pitch</a></li>
+            <li><a href="tools/audio-joiner.html">Audio Joiner</a></li>
+            <li><a href="tools/video-to-gif.html">Video to GIF</a></li>
+            <li><a href="tools/csv-json.html">CSV / JSON Converter</a></li>
+            <li><a href="tools/xml-json.html">XML / JSON Converter</a></li>
+            <li><a href="tools/file-checker.html">File Type Checker</a></li>
+            <li><a href="tools/hash-compare.html">File Hash Comparer</a></li>
+            <li><a href="tools/sql-formatter.html">SQL Formatter</a></li>
+            <li><a href="tools/curl-converter.html">cURL Converter</a></li>
+            <li><a href="tools/cron-tool.html">Cron Helper</a></li>
+            <li><a href="tools/server-config.html">Redirect Config Generator</a></li>
+            <li><a href="tools/gradient-generator.html">Gradient Generator</a></li>
+            <li><a href="tools/aspect-ratio.html">Aspect Ratio Calculator</a></li>
+            <li><a href="tools/font-pairing.html">Font Pairing</a></li>
+            <li><a href="tools/pomodoro.html">Pomodoro Timer</a></li>
+            <li><a href="tools/unit-converter.html">Data Unit Converter</a></li>
+            <li><a href="tools/timezone.html">Timezone Converter</a></li>
           </ul>
         </nav>
         <nav class="footer-col" aria-label="Project">
@@ -173,5 +320,31 @@
 
   <div id="toast-root"></div>
   <script src="assets/js/common.js"></script>
+  <script>
+  (function () {
+    var input = document.getElementById("tool-search");
+    var cards = Array.prototype.slice.call(document.querySelectorAll(".tool-card"));
+    var sections = Array.prototype.slice.call(document.querySelectorAll(".section-title, .tool-grid"));
+    var empty = null;
+    input.addEventListener("input", function () {
+      var q = input.value.trim().toLowerCase();
+      var any = false;
+      cards.forEach(function (c) {
+        var hit = !q || c.textContent.toLowerCase().indexOf(q) > -1;
+        c.style.display = hit ? "" : "none";
+        if (hit) any = true;
+      });
+      sections.forEach(function (s) { s.style.display = ""; });
+      if (!empty) {
+        empty = document.createElement("p");
+        empty.className = "muted center";
+        empty.style.padding = "30px 0";
+        empty.textContent = "No tools match your search.";
+        document.querySelector(".tool-grid").parentNode.appendChild(empty);
+      }
+      empty.style.display = any ? "none" : "block";
+    });
+  })();
+  </script>
 </body>
 </html>
