@@ -110,10 +110,18 @@ function formatBytes(bytes) {
 
 function escapeHtml(s) {
   var amp = String.fromCharCode(38);
-  return String(s).split(amp).join(amp + "amp;")
-    .replace(/[<>"']/g, function (c) {
-      return amp + "#" + c.charCodeAt(0) + ";";
-    });
+  var map = {};
+  map[String.fromCharCode(60)] = amp + "lt;";
+  map[String.fromCharCode(62)] = amp + "gt;";
+  map[String.fromCharCode(34)] = amp + "quot;";
+  map[String.fromCharCode(39)] = amp + "#39;";
+  var str = String(s);
+  var out = "";
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charAt(i);
+    out += (c === amp) ? amp + "amp;" : (map[c] || c);
+  }
+  return out;
 }
 
 function downloadBlob(blob, filename) {
@@ -228,8 +236,10 @@ function makeDropzone(opts) {
 
   function handleDropFilters(files, o) {
     if (o.accept) {
-      var ok = new RegExp(o.accept.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-      files = files.filter(function (f) { return ok.test(f.type) || ok.test(f.name); });
+      var acc = String(o.accept).toLowerCase();
+      files = files.filter(function (f) {
+        return f.type.toLowerCase().indexOf(acc) > -1 || f.name.toLowerCase().indexOf(acc) > -1;
+      });
     }
     if (files.length) o.onFiles(o.multiple ? files : files.slice(0, 1));
   }
@@ -266,11 +276,33 @@ function readFileAsDataURL(file) {
   });
 }
 
-/* Footer year + status pill label */
+/* Footer year + status pill label + legal links */
 document.addEventListener("DOMContentLoaded", function () {
   var y = document.getElementById("year");
   if (y) y.textContent = new Date().getFullYear();
   document.querySelectorAll(".privacy-pill .label").forEach(function (el) {
     el.textContent = "100% Client-Side Engine Active";
   });
+
+  /* Terms & Privacy links in the slim footer (tool pages). Path-aware
+     so the site keeps working when hosted at a sub-path. */
+  var slim = document.querySelector(".footer-slim .links");
+  if (slim && !slim.querySelector('a[href*="terms.html"]')) {
+    var first = slim.querySelector("a");
+    var base = first && first.getAttribute("href").indexOf("..") === 0 ? "../" : "";
+    var terms = document.createElement("a");
+    terms.href = base + "terms.html";
+    terms.textContent = "Terms";
+    var privacy = document.createElement("a");
+    privacy.href = base + "privacy.html";
+    privacy.textContent = "Privacy";
+    var gh = slim.querySelector('a[href*="github.com"]');
+    if (gh) {
+      slim.insertBefore(terms, gh);
+      slim.insertBefore(privacy, gh);
+    } else {
+      slim.appendChild(terms);
+      slim.appendChild(privacy);
+    }
+  }
 });
