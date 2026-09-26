@@ -13,7 +13,7 @@
     low:    { scale: 1.0, quality: 0.55 }
   };
 
-  /* Cloud endpoint (Hugging Face Space running Ghostscript).
+  /* Cloud endpoint (Render server running Ghostscript).
      Empty = cloud not configured yet; the UI falls back to local. */
   var SPACE_URL = "https://pixelabs-api-e0u3.onrender.com";
 
@@ -120,7 +120,7 @@
   }
 
   /* ---------- Cloud path ---------- */
-  function cloudCompressOnce(file, levelKey, onUpload) {
+  function cloudCompressOnce(file, levelKey, onUpload, onUploaded) {
     return new Promise(function (resolve, reject) {
       var fd = new FormData();
       fd.append("file", file, file.name);
@@ -133,6 +133,9 @@
         xhr.upload.onprogress = function (e) {
           if (e.lengthComputable) onUpload(Math.round((e.loaded / e.total) * 100));
         };
+      }
+      if (xhr.upload && onUploaded) {
+        xhr.upload.onloadend = function () { onUploaded(); };
       }
       xhr.onload = function () {
         if (xhr.status === 200) {
@@ -147,13 +150,23 @@
     });
   }
 
+  /* Live "Processing..." status while the server compresses an
+     uploaded file, so the tool never looks stuck. Returns stop(). */
+  function startProcTimer(name) {
+    if (window.CloudTools && window.CloudTools.trackProcessing) {
+      return window.CloudTools.trackProcessing(showMsg, name, msgEl);
+    }
+    showMsg("Processing " + name + " on the cloud server…", "info");
+    return function () {};
+  }
+
   /* The free Space sleeps when idle — a 5xx usually means it is
      waking up, so retry a few times before falling back. */
-  function cloudCompress(file, levelKey, onUpload, onWake) {
+  function cloudCompress(file, levelKey, onUpload, onWake, onUploaded) {
     var attempt = 0;
     function go() {
       attempt++;
-      return cloudCompressOnce(file, levelKey, onUpload).catch(function (err) {
+      return cloudCompressOnce(file, levelKey, onUpload, onUploaded).catch(function (err) {
         var m = String((err && err.message) || err);
         if (attempt < 4 && (m.indexOf("server error 5") === 0 || m.indexOf("network") === 0)) {
           if (onWake) onWake(attempt);
@@ -206,18 +219,24 @@
       files.forEach(function (f) {
         chain = chain.then(function () {
           if (modeSel.value === "cloud") {
+            var stopProc = null;
             showMsg("Uploading " + f.name + " to the cloud server…", "info");
             return cloudCompress(f, levelSel.value, function (pct) {
               showMsg("Uploading " + f.name + "… " + pct + "%", "info");
             }, function (attempt) {
+              if (stopProc) { stopProc(); stopProc = null; }
               showMsg("Cloud server is waking up (try " + attempt + " of 3) — the first request after idle can take up to a minute.", "info");
+            }, function () {
+              if (!stopProc) stopProc = startProcTimer(f.name);
             }).then(function (res) {
+              if (stopProc) { stopProc(); stopProc = null; }
               outputs.push({
                 name: res.kept ? f.name : baseName(f.name) + "-compressed.pdf",
                 bytes: res.bytes,
                 kept: res.kept
               });
             }).catch(function (err) {
+              if (stopProc) { stopProc(); stopProc = null; }
               showMsg("Cloud unavailable (" + String((err && err.message) || err) + ") — using local processing instead.", "info");
               return tryCompress(f, level, function () {
                 done++;
@@ -351,7 +370,7 @@
   function updateNote() {
     if (!noteEl) return;
     if (modeSel.value === "cloud") {
-      noteEl.textContent = "Cloud mode: your file is uploaded to our free compression server (Hugging Face Space), processed with Ghostscript, and deleted immediately — nothing is stored or logged. If the server is unavailable, the tool falls back to local processing automatically.";
+      noteEl.textContent = "Cloud mode: your file is uploaded to our free processing server (Render), processed with Ghostscript, and deleted immediately — nothing is stored or logged. If the server is unavailable, the tool falls back to local processing automatically.";
     } else {
       noteEl.textContent = "How it works (local): pages are re-rendered as optimized images inside a rebuilt PDF — all on your device, nothing ever leaves it. Scanned/photo PDFs shrink the most; if a PDF is already well-optimized the tool keeps your original.";
     }

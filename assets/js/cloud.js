@@ -14,7 +14,7 @@ window.CloudTools = (function () {
   };
 
   /* One POST attempt. fields: plain object of string/number/File. */
-  function postOnce(path, fields, onUpload) {
+  function postOnce(path, fields, onUpload, onUploaded) {
     return new Promise(function (resolve, reject) {
       var fd = new FormData();
       Object.keys(fields).forEach(function (k) {
@@ -28,6 +28,9 @@ window.CloudTools = (function () {
         xhr.upload.onprogress = function (e) {
           if (e.lengthComputable) onUpload(Math.round((e.loaded / e.total) * 100));
         };
+      }
+      if (xhr.upload && onUploaded) {
+        xhr.upload.onloadend = function () { onUploaded(); };
       }
       xhr.onload = function () {
         if (xhr.status === 200) {
@@ -48,11 +51,11 @@ window.CloudTools = (function () {
 
   /* The free server sleeps when idle — a 5xx usually means it is
      waking up, so retry a few times before giving up. */
-  function post(path, fields, onUpload, onWake) {
+  function post(path, fields, onUpload, onWake, onUploaded) {
     var attempt = 0;
     function go() {
       attempt++;
-      return postOnce(path, fields, onUpload).catch(function (err) {
+      return postOnce(path, fields, onUpload, onUploaded).catch(function (err) {
         var m = String((err && err.message) || err);
         if (attempt < 4 && (m.indexOf("server error 5") === 0 || m.indexOf("network") === 0)) {
           if (onWake) onWake(attempt);
@@ -75,6 +78,25 @@ window.CloudTools = (function () {
       img.src = url;
     });
   }
+
+  /* Live "Processing..." status while the server works on an uploaded
+     file (elapsed seconds + spinner) so a tool never looks stuck.
+     showMsg(text, kind) is the tool's own message updater; msgEl
+     (optional) receives the spinning-dot animation. Returns stop(). */
+  api.trackProcessing = function (showMsg, label, msgEl) {
+    var start = Date.now();
+    function tick() {
+      var s = Math.round((Date.now() - start) / 1000);
+      showMsg("Processing " + label + " on the cloud server… " + s + "s", "info");
+      if (msgEl) msgEl.classList.add("busy");
+    }
+    tick();
+    var timer = setInterval(tick, 1000);
+    return function stop() {
+      clearInterval(timer);
+      if (msgEl) msgEl.classList.remove("busy");
+    };
+  };
 
   api.post = post;
   api.toBlob = toBlob;
