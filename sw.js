@@ -151,7 +151,7 @@ function offlinePage() {
     "<body style='font-family:system-ui,sans-serif;text-align:center;padding:48px 24px;background:#0a0d15;color:#e8ebf4'>" +
     "<h2 style='margin:0 0 8px'>You're offline</h2>" +
     "<p style='color:#98a1b5;margin:0 0 24px'>This page isn't cached yet, but the rest of the tools are.</p>" +
-    "<a href='" + home + "' style='display:inline-block;background:linear-gradient(90deg,#6366f1,#8b5cf6);color:#fff;' +
+    "<a href='" + home + "' style='display:inline-block;background:linear-gradient(90deg,#6366f1,#8b5cf6);color:#fff;" +
     "padding:12px 22px;border-radius:11px;text-decoration:none;font-weight:600'>Go to homepage</a></body>",
     { status: 503, headers: { "Content-Type": "text/html" } }
   );
