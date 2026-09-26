@@ -18,6 +18,24 @@ A privacy-first suite of everyday web tools that run **100% inside your browser*
 | Aa **Text Case Converter** | UPPER, lower, Title, Sentence, camelCase, PascalCase, snake_case, kebab-case |
 | 🔐 **Base64 Encoder/Decoder** | UTF-8 safe text conversion + file-to-Base64 |
 | 📱 **QR Code Generator** | Custom colors, sizes and error-correction levels, PNG download |
+| 🎵 **Audio Trimmer** | Cut songs/recordings on a waveform — Web Audio API |
+| 🎚️ **Audio Speed & Pitch** | Tape-style speed and pitch changer, WAV export |
+| 🎼 **Audio Joiner** | Merge multiple audio files into one |
+| 🎬 **Video to GIF** | Turn a short clip into an animated GIF (gif.js) |
+| 📊 **CSV ↔ JSON** | Convert CSV to JSON and back (PapaParse) |
+| 🧩 **XML ↔ JSON** | Convert XML to JSON and back |
+| 🔍 **File Type Checker** | Detect a file's real format from magic bytes |
+| #️⃣ **File Hash Comparer** | SHA-256 comparison of two files |
+| 🗄️ **SQL Formatter** | Beautify or minify SQL queries |
+| 🖥️ **cURL Converter** | cURL → fetch / Axios / Python requests |
+| ⏰ **Cron Helper** | Plain-English cron explainer + next runs |
+| ⚙️ **Redirect Config Generator** | Nginx / .htaccess redirect & cache generator |
+| 🎨 **Gradient Generator** | Linear & mesh gradients with CSS/Tailwind export |
+| 📏 **Aspect Ratio Calculator** | Compute dimensions for any ratio |
+| 🔤 **Font Pairing** | Curated font combos + Google Fonts embed |
+| 🍅 **Pomodoro Timer** | Clean focus timer with sound alert |
+| 💾 **Data Unit Converter** | Bits/bytes/bandwidth conversion (1024 vs 1000) |
+| 🌍 **Timezone Converter** | Live world clocks + time converter |
 
 ## Why it's different
 

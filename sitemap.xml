@@ -12,6 +12,24 @@
   <url><loc>https://tools.pixelabs.in/tools/text-case.html</loc><priority>0.7</priority></url>
   <url><loc>https://tools.pixelabs.in/tools/base64.html</loc><priority>0.7</priority></url>
   <url><loc>https://tools.pixelabs.in/tools/qr-code.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/audio-trimmer.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/audio-pitch-speed.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/audio-joiner.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/video-to-gif.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/csv-json.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/xml-json.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/file-checker.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/hash-compare.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/sql-formatter.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/curl-converter.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/cron-tool.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/server-config.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/gradient-generator.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/aspect-ratio.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/font-pairing.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/pomodoro.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/unit-converter.html</loc><priority>0.7</priority></url>
+  <url><loc>https://tools.pixelabs.in/tools/timezone.html</loc><priority>0.7</priority></url>
   <url><loc>https://tools.pixelabs.in/terms.html</loc></url>
   <url><loc>https://tools.pixelabs.in/privacy.html</loc></url>
 </urlset>

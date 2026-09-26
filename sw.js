@@ -19,7 +19,7 @@
    ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v24";
+var CACHE_VERSION = "pat-v25";
 
 /* Scope-relative path helper — prefixes paths with the service worker's
    scope. (Avoids new URL(), which would discard the scope's sub-path for
@@ -53,11 +53,32 @@ var PRECACHE_REL = [
   "/assets/js/tools/text-case.js",
   "/assets/js/tools/base64.js",
   "/assets/js/tools/qr-code.js",
+  "/assets/js/tools/audio-trimmer.js",
+  "/assets/js/tools/audio-pitch-speed.js",
+  "/assets/js/tools/audio-joiner.js",
+  "/assets/js/tools/video-to-gif.js",
+  "/assets/js/tools/csv-json.js",
+  "/assets/js/tools/xml-json.js",
+  "/assets/js/tools/file-checker.js",
+  "/assets/js/tools/hash-compare.js",
+  "/assets/js/tools/sql-formatter.js",
+  "/assets/js/tools/curl-converter.js",
+  "/assets/js/tools/cron-tool.js",
+  "/assets/js/tools/server-config.js",
+  "/assets/js/tools/gradient-generator.js",
+  "/assets/js/tools/aspect-ratio.js",
+  "/assets/js/tools/font-pairing.js",
+  "/assets/js/tools/pomodoro.js",
+  "/assets/js/tools/unit-converter.js",
+  "/assets/js/tools/timezone.js",
+  "/assets/js/wav-encoder.js",
   "/assets/vendor/pdf.min.js",
   "/assets/vendor/pdf.worker.min.js",
   "/assets/vendor/pdf-lib.min.js",
   "/assets/vendor/jszip.min.js",
   "/assets/vendor/qrcode.min.js",
+  "/assets/vendor/papaparse.min.js",
+  "/assets/vendor/gif.js",
   "/assets/fonts/InterVariable.woff2",
   "/assets/img/icon-192.png",
   "/assets/img/icon-512.png",
@@ -74,7 +95,25 @@ var PRECACHE_REL = [
   "/tools/pdf-compressor.html",
   "/tools/text-case.html",
   "/tools/base64.html",
-  "/tools/qr-code.html"
+  "/tools/qr-code.html",
+  "/tools/audio-trimmer.html",
+  "/tools/audio-pitch-speed.html",
+  "/tools/audio-joiner.html",
+  "/tools/video-to-gif.html",
+  "/tools/csv-json.html",
+  "/tools/xml-json.html",
+  "/tools/file-checker.html",
+  "/tools/hash-compare.html",
+  "/tools/sql-formatter.html",
+  "/tools/curl-converter.html",
+  "/tools/cron-tool.html",
+  "/tools/server-config.html",
+  "/tools/gradient-generator.html",
+  "/tools/aspect-ratio.html",
+  "/tools/font-pairing.html",
+  "/tools/pomodoro.html",
+  "/tools/unit-converter.html",
+  "/tools/timezone.html"
 ];
 
 var PRECACHE = PRECACHE_REL.map(function (p) { return P(p); });
