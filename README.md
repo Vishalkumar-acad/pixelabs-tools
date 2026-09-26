@@ -18,6 +18,7 @@ A privacy-first suite of everyday web tools that run **100% inside your browser*
 | Aa **Text Case Converter** | UPPER, lower, Title, Sentence, camelCase, PascalCase, snake_case, kebab-case |
 | 🔐 **Base64 Encoder/Decoder** | UTF-8 safe text conversion + file-to-Base64 |
 | 📱 **QR Code Generator** | Custom colors, sizes and error-correction levels, PNG download |
+| 🔗 **URL Shortener** | Turn long links into short, shareable links (with a QR code) — stored in our own database, no accounts |
 
 ## Why it's different
 
@@ -32,9 +33,9 @@ A privacy-first suite of everyday web tools that run **100% inside your browser*
 ## Tech stack
 
 - Plain **HTML5 + CSS3 + vanilla ES6 JavaScript** — no framework, no bundler, no npm install
-- [pdf-lib](https://pdf-lib.js.org/) — PDF creation & manipulation
-- [JSZip](https://stuk.github.io/jszip/) — bulk ZIP downloads
-- [qrcodejs](https://github.com/davidshimjs/qrcodejs) — QR generation
+- pdf-lib — PDF creation & manipulation
+- JSZip — bulk ZIP downloads
+- qrcodejs — QR generation
 
 These libraries (plus the Inter variable font) are **vendored at build time** (`build.sh` downloads pinned, sha256-verified copies into `assets/vendor/` and `assets/fonts/`), so the deployed site serves everything from its own origin — no CDN requests, ever.
 - **Web Workers + OffscreenCanvas** for non-blocking image compression
@@ -67,10 +68,10 @@ These libraries (plus the Inter variable font) are **vendored at build time** (`
 2. In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git**.
 3. Select this repository and click **Begin setup**.
 4. Build settings:
-   - **Framework preset:** `None`
-   - **Build command:** `bash build.sh`
-   - **Build output directory:** `/`
-5. Click **Save and Deploy** — you'll get a free `https://<project>.pages.dev` URL with unlimited bandwidth and a global CDN.
+ - **Framework preset:** `None`
+ - **Build command:** `bash build.sh`
+ - **Build output directory:** `/`
+5. Click **Save and Deploy** — you'll get a free `https://<name>.pages.dev` URL with unlimited bandwidth and a global CDN.
 
 The build command fetches the three vendored JavaScript libraries plus the Inter variable font (pinned versions, checksum-verified) so the live site is fully self-hosted with zero third-party requests. Every push to the main branch auto-deploys.
 
@@ -96,4 +97,4 @@ python3 -m http.server 8000
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Free to use, modify and deploy.
+MIT — see LICENSE. Free to use, modify and deploy.
