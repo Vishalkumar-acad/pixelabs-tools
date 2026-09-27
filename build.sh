@@ -61,4 +61,8 @@ fetch "https://unpkg.com/@fontsource-variable/inter@5.2.5/files/inter-latin-wght
       "assets/fonts/InterVariable.woff2" \
       "f052ee44c3728dfd23aba8a4567150bc314d23903026fbb6ad089422c2df56af"
 
+fetch "https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js" \
+      "assets/vendor/exifr.full.umd.js" \
+      "2bd05117781c12ddd965dee846de3b3f986b5ecb4c7f6a78f2d2ec1db7c65ae7"
+
 echo "Vendor libraries ready."
