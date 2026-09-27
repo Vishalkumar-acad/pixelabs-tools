@@ -19,7 +19,7 @@
    ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v27";
+var CACHE_VERSION = "pat-v28";
 
 /* Scope-relative path helper — prefixes paths with the service worker's
    scope. (Avoids new URL(), which would discard the scope's sub-path for
@@ -71,6 +71,7 @@ var PRECACHE_REL = [
   "/assets/js/tools/pomodoro.js",
   "/assets/js/tools/unit-converter.js",
   "/assets/js/tools/timezone.js",
+  "/assets/js/tools/image-metadata.js",
   "/assets/js/wav-encoder.js",
   "/assets/vendor/pdf.min.js",
   "/assets/vendor/pdf.worker.min.js",
@@ -79,6 +80,7 @@ var PRECACHE_REL = [
   "/assets/vendor/qrcode.min.js",
   "/assets/vendor/papaparse.min.js",
   "/assets/vendor/gif.js",
+  "/assets/vendor/exifr.full.umd.js",
   "/assets/fonts/InterVariable.woff2",
   "/assets/img/icon-192.png",
   "/assets/img/icon-512.png",
@@ -113,7 +115,8 @@ var PRECACHE_REL = [
   "/tools/font-pairing.html",
   "/tools/pomodoro.html",
   "/tools/unit-converter.html",
-  "/tools/timezone.html"
+  "/tools/timezone.html",
+  "/tools/image-metadata.html"
 ];
 
 var PRECACHE = PRECACHE_REL.map(function (p) { return P(p); });

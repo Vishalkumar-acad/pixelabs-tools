@@ -14,6 +14,7 @@ A privacy-first suite of everyday web tools that run **100% inside your browser*
 | 📑 **PDF Merge** | Combine multiple PDFs into one, in any order |
 | ✂️ **PDF Split & Extract** | Extract page ranges (like 3–7) or split every page into its own PDF |
 | 🖼️ **Images to PDF** | Turn photos and scans into a single PDF with page-size and margin options |
+| 🕵️ **Image Metadata (EXIF)** | View camera / date / GPS metadata, then strip it losslessly (JPG, PNG, WEBP) |
 | { } **JSON Formatter** | Beautify, minify and validate JSON with precise error positions |
 | Aa **Text Case Converter** | UPPER, lower, Title, Sentence, camelCase, PascalCase, snake_case, kebab-case |
 | 🔐 **Base64 Encoder/Decoder** | UTF-8 safe text conversion + file-to-Base64 |
