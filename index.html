@@ -35,7 +35,7 @@
 
       <div class="tool-search" style="margin: 0 0 6px; position: relative;">
         <input type="search" id="tool-search" placeholder="Search 29 tools… (e.g. pdf, audio, hash)" autocomplete="off"
-               style="width:100%; padding:14px 46px 14px 18px; border-radius:14px; border:1px solid var(--border); background:var(--card, #12151f); color:var(--text); font-size:1rem; outline:none;" aria-label="Search tools">
+               style="width:100%; padding:14px 46px 14px 18px; border-radius:14px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:1rem; outline:none;" aria-label="Search tools">
         <span style="position:absolute; right:16px; top:50%; transform:translateY(-50%); color:var(--text-2); pointer-events:none;">⌕</span>
       </div>
 
@@ -340,7 +340,7 @@
         empty.className = "muted center";
         empty.style.padding = "30px 0";
         empty.textContent = "No tools match your search.";
-        document.querySelector(".tool-grid").parentNode.appendChild(empty);
+        empty.parentNode = document.querySelector(".tool-grid").parentNode.appendChild(empty);
       }
       empty.style.display = any ? "none" : "block";
     });
