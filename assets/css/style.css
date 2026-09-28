@@ -649,7 +649,7 @@ img.result-preview { max-width: 100%; max-height: 380px; border-radius: 12px; bo
 
 /* footer layout */
 .footer-grid { display: grid; grid-template-columns: 1fr; gap: 36px; }
-@media (min-width: 860px) { .footer-grid { grid-template-columns: 1.5fr 1fr .7fr; gap: 48px; } }
+@media (min-width: 860px) { .footer-grid { grid-template-columns: 1.5fr 1fr .7fr .7fr; gap: 48px; } }
 
 .footer-logo { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; color: var(--text); font-size: .95rem; letter-spacing: -.01em; }
 .footer-mark { width: 22px; height: 22px; border-radius: 7px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px -4px rgba(124, 58, 237, .45); }

@@ -338,6 +338,51 @@ document.addEventListener("DOMContentLoaded", function () {
       slim.appendChild(privacy);
     }
   }
+
+  /* PixelAbs services — links to our other products.
+     One list to extend when a new service launches. */
+  var SERVICES = [
+    { name: "PixelAbs Blog", desc: "Share thoughts, publish stories", url: "https://web.pixelabs.in" }
+  ];
+
+  /* grid footer (homepage): an "Our services" column after Project */
+  var grid = document.querySelector(".footer-grid");
+  if (grid && !grid.querySelector(".footer-col.services")) {
+    var col = document.createElement("nav");
+    col.className = "footer-col services";
+    col.setAttribute("aria-label", "PixelAbs services");
+    var h4 = document.createElement("h4");
+    h4.textContent = "Our services";
+    var ul = document.createElement("ul");
+    SERVICES.forEach(function (s) {
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      a.href = s.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = s.name + " ↗";
+      a.title = s.desc;
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+    col.appendChild(h4);
+    col.appendChild(ul);
+    grid.appendChild(col);
+  }
+
+  /* slim footer (tool pages): services links right after "All tools" */
+  if (slim && !slim.querySelector('a[href*="web.pixelabs.in"]')) {
+    var after = slim.children[1] || null;
+    SERVICES.slice().reverse().forEach(function (s) {
+      var a = document.createElement("a");
+      a.href = s.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = s.name + " ↗";
+      a.title = s.desc;
+      slim.insertBefore(a, after);
+    });
+  }
 });
 
 /* ---------- Scroll reveal (elements pop in from below) ----------
