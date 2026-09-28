@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Video to GIF — Free, No Login | PixelAbs Tools</title>
-  <meta name="description" content="Turn a short video clip into an animated GIF — pick the start, end, size and frame rate. Everything is processed on your device.">
+  <meta name="description" content="Turn a short video clip OR a set of photos into an animated GIF — pick the start, end, size and frame rate. Everything is processed on your device.">
   <meta name="theme-color" content="#6366f1">
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
@@ -31,14 +31,30 @@
       <div class="tool-head">
         <a class="back" href="../index.html">← All tools</a>
         <h1><span class="icon">🎬</span> Video to GIF</h1>
-        <p class="desc">Turn a short video clip into an animated GIF — pick the start, end, size and frame rate. Everything is processed on your device.</p>
+        <p class="desc">Turn a short video clip — or a set of photos — into an animated GIF. Everything is processed on your device.</p>
       </div>
 
-      <div class="dropzone" id="dropzone">
-        <input type="file" id="file-input" accept="video/*" class="hidden">
-        <span class="dz-emoji">🎬</span>
-        <div class="dz-title">Drop a video here, <b>browse</b>, or paste</div>
-        <div class="dz-sub">MP4 · WEBM · MOV — max 15 seconds per GIF</div>
+      <div class="btn-row" style="justify-content:center; margin-bottom:18px;">
+        <button class="btn btn-primary" id="mode-video">🎬 From video</button>
+        <button class="btn btn-secondary" id="mode-photos">🖼️ From photos</button>
+      </div>
+
+      <div id="video-section">
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="file-input" accept="video/*" class="hidden">
+          <span class="dz-emoji">🎬</span>
+          <div class="dz-title">Drop a video here, <b>browse</b>, or paste</div>
+          <div class="dz-sub">MP4 · WEBM · MOV — max 15 seconds per GIF</div>
+        </div>
+      </div>
+
+      <div id="photos-section" class="hidden">
+        <div class="dropzone" id="photo-dropzone">
+          <input type="file" id="photo-input" accept="image/*" multiple class="hidden">
+          <span class="dz-emoji">🖼️</span>
+          <div class="dz-title">Drop your photos here, <b>browse</b>, or paste</div>
+          <div class="dz-sub">JPG · PNG · WEBP — they become the GIF frames, in order</div>
+        </div>
       </div>
 
       <div class="panel hidden" id="editor-panel">
@@ -83,6 +99,41 @@
           <button class="btn btn-primary" id="make-btn">Create GIF</button>
         </div>
         <div class="msg" id="msg"></div>
+      </div>
+
+      <div class="panel hidden" id="photo-panel">
+        <h2>Your photos (in GIF order)</h2>
+        <p class="muted" style="font-size:.8rem; margin:0 0 10px;">The GIF takes the shape of your <b>first photo</b> — every photo is fitted in full, nothing gets cut off. Use the arrows to reorder and the time field to set how long each photo stays on screen.</p>
+        <div class="file-list" id="photo-list"></div>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Width</label>
+            <select id="photo-width">
+              <option value="240">240 px (smallest)</option>
+              <option value="320" selected>320 px</option>
+              <option value="480">480 px</option>
+              <option value="640">640 px (largest)</option>
+            </select>
+          </div>
+          <div class="option">
+            <label class="field">Fit</label>
+            <select id="photo-fit">
+              <option value="fit" selected>Fit whole photo (bars if needed)</option>
+              <option value="fill">Crop to fill (no bars)</option>
+            </select>
+          </div>
+          <div class="option">
+            <label class="field">Bar color</label>
+            <select id="photo-bg">
+              <option value="#ffffff" selected>White bars</option>
+              <option value="#000000">Black bars</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="photo-make">Create GIF from photos</button>
+        </div>
+        <div class="msg" id="photo-msg"></div>
       </div>
 
       <div class="panel center hidden" id="result-panel">
