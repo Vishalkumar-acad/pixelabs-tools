@@ -52,7 +52,8 @@
           <p class="muted" id="proc-note" style="font-size:.8rem; margin-top:8px;"></p>
         </div>
         <canvas id="wave" style="width:100%; height:120px; border-radius:10px; border:1px solid var(--border); background:var(--bg); touch-action:none; cursor:crosshair;"></canvas>
-        <p class="muted" style="font-size:.8rem; margin:8px 0 0;">Drag on the waveform to select the part you want to keep. Drag again to change the selection.</p>
+        <p class="muted" style="font-size:.8rem; margin:8px 0 0;"><b>Tap</b> the waveform to set the start / end point, <b>drag the handles</b> to fine-tune, or <b>drag inside</b> the selection to move it as a whole.</p>
+        <p style="font-size:.85rem; font-weight:600; margin:8px 0 0; color:var(--accent);" id="sel-info"></p>
         <div class="options-grid">
           <div class="option">
             <label class="field">Start (seconds)</label>
