@@ -339,3 +339,41 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 });
+
+/* ---------- Scroll reveal (elements pop in from below) ----------
+   Progressive enhancement: the .reveal class only ever gets added by
+   this script, so with JS off every element stays fully visible. */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce || !("IntersectionObserver" in window)) return;
+
+  var targets = document.querySelectorAll(
+    ".hero, .section-title, .tool-card, .panel, .dropzone, .tool-head, .footer-grid, .footer-slim"
+  );
+  if (!targets.length) return;
+
+  targets.forEach(function (el) { el.classList.add("reveal"); });
+
+  /* stagger siblings inside a grid so cards arrive in a wave */
+  document.querySelectorAll(".tool-grid").forEach(function (grid) {
+    grid.querySelectorAll(".tool-card").forEach(function (card, i) {
+      card.style.setProperty("--rd", Math.min(i, 9) * 55 + "ms");
+    });
+  });
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.add("in");
+        io.unobserve(e.target);
+      }
+    });
+  }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+
+  targets.forEach(function (el) { io.observe(el); });
+
+  /* absolute safety net — nothing may ever stay invisible */
+  setTimeout(function () {
+    targets.forEach(function (el) { el.classList.add("in"); });
+  }, 3000);
+})();
