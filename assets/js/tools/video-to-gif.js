@@ -18,6 +18,9 @@
     img: document.getElementById("gif-img"),
     download: document.getElementById("download-btn"),
 
+    prog: document.getElementById("prog"),
+    progBar: document.getElementById("prog-bar"),
+
     modeVideo: document.getElementById("mode-video"),
     modePhotos: document.getElementById("mode-photos"),
     videoSection: document.getElementById("video-section"),
@@ -29,12 +32,25 @@
     photoFit: document.getElementById("photo-fit"),
     photoBg: document.getElementById("photo-bg"),
     photoMake: document.getElementById("photo-make"),
-    photoMsg: document.getElementById("photo-msg")
+    photoMsg: document.getElementById("photo-msg"),
+    photoProg: document.getElementById("photo-prog"),
+    photoProgBar: document.getElementById("photo-prog-bar")
   };
 
   var lastBlob = null;
   var busy = false;
   var rawFile = null;
+
+  /* ---------- progress helpers ---------- */
+
+  function setBar(wrap, bar, pct) {
+    if (!wrap || !bar) return;
+    wrap.classList.remove("hidden");
+    bar.style.width = Math.max(0, Math.min(100, pct)) + "%";
+  }
+  function endBar(wrap) {
+    if (wrap) wrap.classList.add("hidden");
+  }
 
   /* ---------- mode switching ---------- */
 
@@ -82,26 +98,39 @@
   });
 
   function addPhotos(files) {
-    var loaded = 0, total = 0;
+    var imgs = [];
     files.forEach(function (f) {
-      if (!f || !/^image\//.test(f.type)) return;
-      total++;
+      if (f && /^image\//.test(f.type)) imgs.push(f);
+    });
+    if (!imgs.length) { toast("No image files found.", "err"); return; }
+
+    /* reserve slots so photos land in the order they were picked,
+       no matter which one finishes loading first */
+    var base = photos.length;
+    var loaded = 0;
+    for (var k = 0; k < imgs.length; k++) photos.push(null);
+
+    function allDone() {
+      photos = photos.filter(Boolean); /* drop any that failed to load */
+      renderPhotos();
+      els.photoPanel.classList.remove("hidden");
+      els.photoPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      showPhotoMsg("Added " + photos.length + " photo" + (photos.length > 1 ? "s" : "") + ". Reorder with the arrows, set each duration, then Create GIF.", "ok");
+    }
+
+    imgs.forEach(function (f, idx) {
       var url = URL.createObjectURL(f);
       var img = new Image();
       img.onload = function () {
-        photos.push({ img: img, name: f.name, size: f.size, dur: 0.8, url: url });
-        loaded++;
-        if (loaded === total) {
-          renderPhotos();
-          els.photoPanel.classList.remove("hidden");
-          els.photoPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-          showPhotoMsg("Added " + total + " photo" + (total > 1 ? "s" : "") + ". Reorder with the arrows, set each duration, then Create GIF.", "ok");
-        }
+        photos[base + idx] = { img: img, name: f.name, size: f.size, dur: 0.8, url: url };
+        if (++loaded === imgs.length) allDone();
       };
-      img.onerror = function () { loaded++; if (loaded === total) renderPhotos(); };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        if (++loaded === imgs.length) allDone();
+      };
       img.src = url;
     });
-    if (!total) toast("No image files found.", "err");
   }
 
   function renderPhotos() {
@@ -193,7 +222,9 @@
 
     busy = true;
     els.photoMake.disabled = true;
+    els.photoMake.textContent = "Encoding… 0%";
     showPhotoMsg("Encoding GIF… 0%", "busy");
+    setBar(els.photoProg, els.photoProgBar, 0);
 
     var canvas = document.createElement("canvas");
     canvas.width = gw;
@@ -221,7 +252,12 @@
       gif.addFrame(g, { copy: true, delay: Math.round(p.dur * 1000) });
     });
 
-    gif.on("progress", function (pr) { showPhotoMsg("Encoding GIF… " + Math.round(pr * 100) + "%", "busy"); });
+    gif.on("progress", function (pr) {
+      var pc = Math.round(pr * 100);
+      showPhotoMsg("Encoding GIF… " + pc + "%", "busy");
+      els.photoMake.textContent = "Encoding… " + pc + "%";
+      setBar(els.photoProg, els.photoProgBar, pc);
+    });
     gif.on("finished", function (blob) {
       lastBlob = blob;
       if (els.img.src) URL.revokeObjectURL(els.img.src);
@@ -231,6 +267,8 @@
       showPhotoMsg("Done! GIF ready (" + formatBytes(blob.size) + ", " + photos.length + " photos, " + gw + "×" + gh + ").", "ok");
       busy = false;
       els.photoMake.disabled = false;
+      els.photoMake.textContent = "Create GIF from photos";
+      endBar(els.photoProg);
     });
     gif.render();
   });
@@ -277,7 +315,9 @@
 
     busy = true;
     els.make.disabled = true;
+    els.make.textContent = "Extracting… 0%";
     showMsg("Extracting frames… 0%", "busy");
+    setBar(els.prog, els.progBar, 0);
 
     var canvas = document.createElement("canvas");
     canvas.width = gw;
@@ -298,7 +338,13 @@
     function addNext() {
       if (i >= frames) {
         showMsg("Encoding GIF… 0%", "busy");
-        gif.on("progress", function (p) { showMsg("Encoding GIF… " + Math.round(p * 100) + "%", "busy"); });
+        els.make.textContent = "Encoding… 0%";
+        gif.on("progress", function (p) {
+          var pc = Math.round(p * 100);
+          showMsg("Encoding GIF… " + pc + "%", "busy");
+          els.make.textContent = "Encoding… " + pc + "%";
+          setBar(els.prog, els.progBar, pc);
+        });
         gif.on("finished", function (blob) {
           lastBlob = blob;
           if (els.img.src) URL.revokeObjectURL(els.img.src);
@@ -308,6 +354,8 @@
           showMsg("Done! GIF ready (" + formatBytes(blob.size) + ", " + frames + " frames).", "ok");
           busy = false;
           els.make.disabled = false;
+          els.make.textContent = "Create GIF";
+          endBar(els.prog);
         });
         gif.render();
         return;
@@ -317,12 +365,17 @@
         g.drawImage(els.video, 0, 0, gw, gh);
         gif.addFrame(g, { copy: true, delay: Math.round(1000 / fps) });
         i++;
-        showMsg("Extracting frames… " + Math.round((i / frames) * 100) + "%", "busy");
+        var pc = Math.round((i / frames) * 100);
+        showMsg("Extracting frames… " + pc + "%", "busy");
+        els.make.textContent = "Extracting… " + pc + "%";
+        setBar(els.prog, els.progBar, pc);
         addNext();
       }).catch(function () {
         showMsg("Could not read a frame — try a slightly different range.", "err");
         busy = false;
         els.make.disabled = false;
+        els.make.textContent = "Create GIF";
+        endBar(els.prog);
       });
     }
     addNext();
@@ -337,12 +390,33 @@
     var fps = parseInt(els.fps.value, 10);
     busy = true;
     els.make.disabled = true;
-    var stop = CloudTools.trackProcessing(showMsg, "your video");
+    els.make.textContent = "Uploading… 0%";
+    showMsg("Uploading your video to the cloud server… 0%", "busy");
+    setBar(els.prog, els.progBar, 0);
+    var stop = null;
     CloudTools.post("/video/gif", {
       file: rawFile, start: start.toFixed(3), end: end.toFixed(3),
       width: width, fps: fps
+    },
+    function (p) {
+      /* uploading the file — proof it really goes to the server */
+      if (stop) { stop(); stop = null; }
+      showMsg("Uploading your video to the cloud server… " + p + "%", "busy");
+      els.make.textContent = "Uploading… " + p + "%";
+      setBar(els.prog, els.progBar, p);
+    },
+    function (attempt) {
+      /* free server was asleep — waking it up */
+      showMsg("Cloud server is waking up — retrying (attempt " + attempt + " of 3)…", "info");
+    },
+    function () {
+      /* upload finished — server is now processing */
+      if (stop) stop();
+      stop = CloudTools.trackProcessing(showMsg, "your video");
+      els.make.textContent = "Processing…";
+      setBar(els.prog, els.progBar, 100);
     }).then(function (res) {
-      stop();
+      if (stop) stop();
       lastBlob = new Blob([res.bytes], { type: "image/gif" });
       if (els.img.src) URL.revokeObjectURL(els.img.src);
       els.img.src = URL.createObjectURL(lastBlob);
@@ -351,10 +425,14 @@
       showMsg("Done! GIF ready from the server (" + formatBytes(lastBlob.size) + ", " + Math.round(end - start) + "s).", "ok");
       busy = false;
       els.make.disabled = false;
+      els.make.textContent = "Create GIF";
+      endBar(els.prog);
     }).catch(function () {
-      stop();
+      if (stop) stop();
       busy = false;
       els.make.disabled = false;
+      els.make.textContent = "Create GIF";
+      endBar(els.prog);
       showMsg("Cloud processing failed — switch 'Processing' to Local and try again.", "err");
     });
   }
