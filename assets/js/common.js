@@ -342,7 +342,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /* ---------- Scroll reveal (elements pop in from below) ----------
    Progressive enhancement: the .reveal class only ever gets added by
-   this script, so with JS off every element stays fully visible. */
+   this script, so with JS off every element stays fully visible.
+   An element pops when it ENTERS the viewport and re-arms when it has
+   fully LEFT it, so it pops again on every later visit too. */
 (function () {
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduce || !("IntersectionObserver" in window)) return;
@@ -361,19 +363,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  var ioFired = false;
   var io = new IntersectionObserver(function (entries) {
+    ioFired = true;
     entries.forEach(function (e) {
       if (e.isIntersecting) {
         e.target.classList.add("in");
-        io.unobserve(e.target);
+      } else {
+        /* fully out of view — re-arm so it pops again next time */
+        e.target.classList.remove("in");
       }
     });
   }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
 
   targets.forEach(function (el) { io.observe(el); });
 
-  /* absolute safety net — nothing may ever stay invisible */
+  /* safety net — if the observer never fires at all (broken browser),
+     show everything rather than leaving the page invisible. It only
+     ever runs when the observer is dead: a working observer reveals
+     elements exactly when the user scrolls to them, never early. */
   setTimeout(function () {
-    targets.forEach(function (el) { el.classList.add("in"); });
-  }, 3000);
+    if (!ioFired) targets.forEach(function (el) { el.classList.add("in"); });
+  }, 2500);
 })();
