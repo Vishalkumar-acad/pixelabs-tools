@@ -106,7 +106,18 @@
     var tokens = mergeWords(tokenize(sql));
     var out = "";
     var depth = 0;
-    var i;
+    var needIndent = false;
+    var lastWordTok = "";   /* last WORD token seen (numbers/strings skipped) */
+    var parenBroke = [];   /* per open paren: did we break a line inside it? */
+
+    function trimOut() { out = out.replace(/\s+$/, ""); }
+    /* clause keywords sit at the current paren depth */
+    function clauseIndent() { return new Array(depth + 1).join("  "); }
+    /* clause content (and AND/OR) is one level deeper */
+    function contentIndent() { return new Array(depth + 2).join("  "); }
+    function markParenBroke() {
+      if (parenBroke.length) parenBroke[parenBroke.length - 1] = true;
+    }
 
     function up(tok) {
       var v = tok.v;
@@ -117,40 +128,81 @@
       return v;
     }
 
-    for (i = 0; i < tokens.length; i++) {
+    for (var i = 0; i < tokens.length; i++) {
       var tok = tokens[i];
       if (tok.t === "comment") { out += tok.v; continue; }
       if (tok.t === "clause") {
-        out = out.replace(/\s+$/, "");
-        if (out && out.slice(-1) !== "\n") out += "\n";
-        out += tok.v + " ";
+        /* major keyword on its own line; content on the next line */
+        trimOut();
+        if (out) out += "\n";
+        out += clauseIndent() + tok.v + "\n";
+        needIndent = true;
+        markParenBroke();
         continue;
       }
-      if (tok.v === "(") { depth++; out += " ("; continue; }
-      if (tok.v === ")") { depth = Math.max(0, depth - 1); out = out.replace(/\s+$/, "") + ") "; continue; }
-      if (tok.v === ",") {
-        out = out.replace(/\s+$/, "");
-        out += ",\n" + new Array(depth + 2).join("  ");
+      if (tok.v === "(") {
+        if (needIndent) { out += contentIndent(); needIndent = false; }
+        else { trimOut(); out += " "; }
+        depth++;
+        parenBroke.push(false);
+        out += "(";
         continue;
+      }
+      if (tok.v === ")") {
+        var brokeInside = parenBroke.length ? parenBroke.pop() : false;
+        depth = Math.max(0, depth - 1);
+        trimOut();
+        if (brokeInside) out += "\n" + contentIndent();
+        out += ") ";
+        continue;
+      }
+      if (tok.v === ",") {
+        /* one item per line, aligned under the clause content */
+        trimOut();
+        out += ",\n";
+        markParenBroke();
+        needIndent = true;
+        continue;
+      }
+      if (tok.t === "word") {
+        var uv = tok.v.toUpperCase();
+        if ((uv === "AND" || uv === "OR") && lastWordTok !== "BETWEEN") {
+          /* each condition on its own line; AND/OR aligned with the first */
+          trimOut();
+          out += "\n" + contentIndent() + uv + " ";
+          markParenBroke();
+          continue;
+        }
+        lastWordTok = uv;
       }
       if (tok.v === ";") {
-        out = out.replace(/\s+$/, "") + ";\n";
+        trimOut();
+        out += ";\n";
+        needIndent = false;
         continue;
       }
+      if (needIndent) { out += contentIndent(); needIndent = false; }
       out += up(tok) + " ";
     }
     return out.replace(/\n{3,}/g, "\n\n").split("\n").map(function (l) { return l.replace(/\s+$/, ""); }).join("\n").trim() + "\n";
   }
 
   function minify(sql) {
-    return mergeWords(tokenize(sql)).map(function (t) {
-      if (t.t === "clause") return t.v;
-      if (t.t === "word") {
+    var toks = mergeWords(tokenize(sql));
+    var out = "";
+    toks.forEach(function (t) {
+      var v;
+      if (t.t === "clause") v = t.v;
+      else if (t.t === "word") {
         var upv = t.v.toUpperCase();
-        return KEYWORDS.indexOf(upv) > -1 ? upv : t.v;
-      }
-      return t.v;
-    }).join(" ").replace(/\s+/g, " ").trim();
+        v = KEYWORDS.indexOf(upv) > -1 ? upv : t.v;
+      } else v = t.v;
+      if (!out) { out = v; return; }
+      if (v === "," || v === ")" || v === ";") { out = out.replace(/\s+$/, "") + v; return; }
+      if (out.slice(-1) === "(") { out += v; return; }
+      out += " " + v;
+    });
+    return out.trim();
   }
 
   els.fmt.addEventListener("click", function () {
