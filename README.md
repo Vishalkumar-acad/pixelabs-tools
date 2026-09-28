@@ -22,7 +22,7 @@ A privacy-first suite of everyday web tools that run **100% inside your browser*
 | 🎵 **Audio Trimmer** | Cut songs/recordings on a waveform — Web Audio API |
 | 🎚️ **Audio Speed & Pitch** | Tape-style speed and pitch changer, WAV export |
 | 🎼 **Audio Joiner** | Merge multiple audio files into one |
-| 🎬 **Video to GIF** | Turn a short clip into an animated GIF (gif.js) |
+| 🎬 **Video to GIF** | Turn a short video clip or a set of photos into an animated GIF (gif.js) |
 | 📊 **CSV ↔ JSON** | Convert CSV to JSON and back (PapaParse) |
 | 🧩 **XML ↔ JSON** | Convert XML to JSON and back |
 | 🔍 **File Type Checker** | Detect a file's real format from magic bytes |
