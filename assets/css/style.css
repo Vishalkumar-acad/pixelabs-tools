@@ -20,7 +20,9 @@
   --bg-glow-1: rgba(99, 102, 241, 0.09);
   --bg-glow-2: rgba(139, 92, 246, 0.07);
   --surface: #ffffff;
-  --surface-glass: rgba(255, 255, 255, 0.72);
+  --surface-glass: rgba(255, 255, 255, 0.55);
+  --glass-rim: rgba(255, 255, 255, 0.55);
+  --glass-sheen: rgba(255, 255, 255, 0.30);
   --surface-2: rgba(15, 23, 42, 0.045);
   --border: rgba(15, 23, 42, 0.09);
   --border-strong: rgba(15, 23, 42, 0.16);
@@ -47,7 +49,9 @@ html.dark {
   --bg-glow-1: rgba(99, 102, 241, 0.13);
   --bg-glow-2: rgba(139, 92, 246, 0.09);
   --surface: #12161f;
-  --surface-glass: rgba(255, 255, 255, 0.035);
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --glass-rim: rgba(255, 255, 255, 0.14);
+  --glass-sheen: rgba(255, 255, 255, 0.07);
   --surface-2: rgba(255, 255, 255, 0.055);
   --border: rgba(255, 255, 255, 0.09);
   --border-strong: rgba(255, 255, 255, 0.18);
@@ -73,8 +77,11 @@ body {
   /* ambient corner glows — the "expensive canvas" effect */
   background-image:
     radial-gradient(900px 480px at 8% -12%, var(--bg-glow-1), transparent 62%),
-    radial-gradient(880px 500px at 96% 6%, var(--bg-glow-2), transparent 60%);
+    radial-gradient(880px 500px at 96% 6%, var(--bg-glow-2), transparent 60%),
+    radial-gradient(760px 560px at 24% 108%, var(--bg-glow-1), transparent 58%),
+    radial-gradient(720px 520px at 88% 96%, var(--bg-glow-2), transparent 60%);
   background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text);
   line-height: 1.6;
   font-feature-settings: "cv11", "ss01";
@@ -98,9 +105,9 @@ a:hover { text-decoration: underline; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: color-mix(in srgb, var(--bg) 72%, transparent);
-  backdrop-filter: blur(16px) saturate(1.5);
-  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  backdrop-filter: blur(20px) saturate(1.7);
+  -webkit-backdrop-filter: blur(20px) saturate(1.7);
   border-bottom: 1px solid var(--border);
 }
 
@@ -233,7 +240,7 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--border);
   padding: 6px 14px;
   border-radius: 999px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-rim);
 }
 .hero .badge b { color: var(--text); }
 
@@ -261,13 +268,14 @@ a:hover { text-decoration: underline; }
 .tool-card {
   display: block;
   background: var(--surface-glass);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
   border: 1px solid var(--border);
+  border-top-color: color-mix(in srgb, var(--glass-rim) 70%, var(--border));
   border-radius: var(--radius);
   padding: 22px 20px;
   color: var(--text);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-rim), inset 0 -14px 24px -18px var(--glass-sheen);
   transition: transform .22s cubic-bezier(.2,.7,.3,1.2), box-shadow .22s ease, border-color .22s ease;
   position: relative;
   overflow: hidden;
@@ -281,6 +289,16 @@ a:hover { text-decoration: underline; }
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent), transparent);
   opacity: .5;
   transition: opacity .25s ease;
+}
+.tool-card::before {
+  /* diagonal glass reflection */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(128deg, var(--glass-sheen) 0%, transparent 30%, transparent 64%, color-mix(in srgb, var(--glass-sheen) 55%, transparent) 100%);
+  opacity: .8;
+  pointer-events: none;
 }
 .tool-card:hover {
   transform: translateY(-4px);
@@ -355,13 +373,14 @@ a:hover { text-decoration: underline; }
   border: 1.5px dashed color-mix(in srgb, var(--accent) 45%, var(--border));
   border-radius: var(--radius);
   background: var(--surface-glass);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
   padding: 46px 24px;
   text-align: center;
   cursor: pointer;
   position: relative;
   transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-rim);
 }
 .dropzone:hover { border-color: var(--accent); box-shadow: var(--glow); }
 .dropzone .dz-emoji { font-size: 2.3rem; display: block; margin-bottom: 8px; filter: drop-shadow(0 4px 12px rgba(99,102,241,.4)); }
@@ -385,12 +404,13 @@ a:hover { text-decoration: underline; }
 
 .panel {
   background: var(--surface-glass);
-  backdrop-filter: blur(14px) saturate(1.35);
-  -webkit-backdrop-filter: blur(14px) saturate(1.35);
+  backdrop-filter: blur(18px) saturate(1.55);
+  -webkit-backdrop-filter: blur(18px) saturate(1.55);
   border: 1px solid var(--border);
+  border-top-color: color-mix(in srgb, var(--glass-rim) 70%, var(--border));
   border-radius: var(--radius);
   padding: 22px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-rim);
   margin-bottom: 18px;
 }
 
@@ -504,7 +524,8 @@ input[type="color"] { width: 46px; height: 38px; border: 1px solid var(--border)
   width: 28px; height: 28px;
   cursor: pointer;
   font-size: .8rem;
-  display: grid; place-items: center;
+  display: grid;
+  place-items: center;
   transition: all .15s ease;
 }
 .file-row .controls button:hover { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
@@ -703,5 +724,27 @@ html.low-power .dropzone {
   }
   .site-header {
     background: color-mix(in srgb, var(--bg) 96%, transparent);
+  }
+}
+
+/* ---------- Scroll reveal (pop-in) ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(26px) scale(.97);
+  will-change: transform, opacity;
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity .5s ease, transform .55s cubic-bezier(.17,.78,.28,1.12);
+  transition-delay: var(--rd, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal.in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
