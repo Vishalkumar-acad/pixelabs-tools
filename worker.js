@@ -132,6 +132,20 @@ export default {
       }
     }
 
+    /* ---------- /about — server-side redirect to the About page ----------
+       The request reaches this worker (the server) FIRST, and the
+       server sends the visitor to the real page URL. Clean short
+       address, one canonical page, nothing changes on the page
+       itself. 301 = permanent, so browsers cache the jump. */
+    if (
+      (request.method === "GET" || request.method === "HEAD") &&
+      (url.pathname === "/about" || url.pathname === "/about/")
+    ) {
+      const aboutTarget = new URL("/about.html", url);
+      aboutTarget.search = url.search; /* keep query params, if any */
+      return Response.redirect(aboutTarget.toString(), 301);
+    }
+
     /* ---------- /api — same-origin processing functions ---------- */
     if (url.pathname === "/api" || url.pathname === "/api/") {
       return json({
