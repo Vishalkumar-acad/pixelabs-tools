@@ -27,8 +27,8 @@
       send "Accept: text/markdown" get a clean Markdown rendering
       of the page. Browsers never send this header, so visitors
       always get the normal HTML.
-   6. Declares the site Content-Signal policy (search only,
-      no AI training, no AI input) in robots.txt and as a
+   6. Declares the site Content-Signal policy (search and AI
+      input allowed, NO AI training) in robots.txt and as a
       "Content-Signal" response header on HTML pages.
 
 
@@ -139,7 +139,7 @@ async function proxyToBackend(request, env, backendPath, url) {
    ============================================================ */
 
 /* The site's content policy — also declared in robots.txt. */
-const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=no";
+const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 
 /* Tags whose entire subtree is dropped from the markdown. */
 const MD_SKIP = {

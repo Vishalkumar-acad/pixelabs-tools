@@ -2,9 +2,9 @@
 # Content Signals (https://contentsignals.org/):
 #   search   = yes — search engines may index this site for search results
 #   ai-train = no  — content may NOT be used to train or fine-tune AI models
-#   ai-input = no  — content may NOT be fed into AI models for generated answers
+#   ai-input = yes — AI search engines may use this content to answer questions
 User-agent: *
-Content-Signal: ai-train=no, search=yes, ai-input=no
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 Allow: /
 Disallow: /__log
 
