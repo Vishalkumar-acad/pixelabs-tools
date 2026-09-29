@@ -339,6 +339,39 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  /* About link in the slim footer — separate check so pages that
+     already ship Terms/Privacy statically (terms.html, privacy.html,
+     about.html) still get it. */
+  if (slim && !slim.querySelector('a[href*="about.html"]')) {
+    var afirst = slim.querySelector("a");
+    var abase = afirst && afirst.getAttribute("href").indexOf("..") === 0 ? "../" : "";
+    var about = document.createElement("a");
+    about.href = abase + "about.html";
+    about.textContent = "About";
+    var agh = slim.querySelector('a[href*="github.com"]');
+    var aterm = slim.querySelector('a[href*="terms.html"]');
+    if (aterm) slim.insertBefore(about, aterm);
+    else if (agh) slim.insertBefore(about, agh);
+    else slim.appendChild(about);
+  }
+
+  /* homepage Project column: an About link before GitHub */
+  var proj = document.querySelector('.footer-col[aria-label="Project"]');
+  if (proj && !proj.querySelector('a[href*="about.html"]')) {
+    var pul = proj.querySelector("ul");
+    var pgh = proj.querySelector('a[href*="github.com"]');
+    var pabout = document.createElement("li");
+    var pa = document.createElement("a");
+    pa.href = "about.html";
+    pa.textContent = "About us";
+    pabout.appendChild(pa);
+    if (pgh && pgh.parentNode && pgh.parentNode.parentNode === pul) {
+      pul.insertBefore(pabout, pgh.parentNode);
+    } else if (pul) {
+      pul.appendChild(pabout);
+    }
+  }
+
   /* PixelAbs services — links to our other products.
      One list to extend when a new service launches. */
   var SERVICES = [

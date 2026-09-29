@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us | PixelAbs Tools</title>
+  <meta name="description" content="About PixelAbs Tools — free, open-source, privacy-first browser utilities owned by PixelAbs. No sign-up, no ads, no uploads.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="assets/img/icon-192.png">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="index.html">
+        <img src="assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="index.html">← All tools</a>
+        <h1><span class="icon">💡</span> About Us</h1>
+        <p class="desc">Who we are, why this site exists, and why you can trust it with your files.</p>
+      </div>
+
+      <div class="panel">
+        <h2>What is PixelAbs Tools?</h2>
+        <p>PixelAbs Tools is a growing suite of <b>30+ free online utilities</b> — image compression, PDF merge & split, audio trimming, QR codes, developer helpers and more. Every tool runs <b>entirely inside your browser</b>: there is no sign-up, no ads, no file uploads and no tracking of any kind.</p>
+        <p>We built it because most "free online tools" make you pay with your data. This one doesn't. Your files are processed by your own device, so they never leave your hands — you can even disconnect from the internet and most tools keep working.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Privacy first, by design</h2>
+        <p>Every tool defaults to <b>local processing</b>. A few heavy operations (like large video-to-GIF conversions) optionally offer a cloud mode — it is clearly labelled, off by default, and warns you before your file is sent anywhere. Files sent to our free processing server are deleted immediately after processing. Nothing is ever stored.</p>
+        <p>We don't use cookies for accounts (there are no accounts), no analytics scripts, and no third-party CDNs — even the fonts and libraries are self-hosted. The only data we ever collect is anonymous error messages, so we can fix bugs.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Open source</h2>
+        <p>The entire project is <b>open source under the MIT license</b>. You can read every line of code, verify our privacy claims yourself, and even run your own copy:</p>
+        <p>🔗 <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">github.com/Vishalkumar-acad/pixelabs-tools</a></p>
+        <p>Self-hosting takes about two minutes — clone the repo, run one build script, and deploy it free on Cloudflare Pages. Full instructions are in the README.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Part of the PixelAbs family</h2>
+        <p>PixelAbs Tools is owned and maintained by <b>PixelAbs</b> (pixelabs.in). It is part of a small family of services we are building:</p>
+        <p>✍️ <a href="https://web.pixelabs.in" target="_blank" rel="noopener">PixelAbs Blog</a> — share your thoughts and publish stories: a community platform for articles on business, design, life and technology.</p>
+        <p>🔧 <b>PixelAbs Tools</b> — this site: private, browser-based utilities for everyday tasks.</p>
+        <p>More services are on the way. You will always find the current list in the footer of every page.</p>
+      </div>
+
+      <div class="panel">
+        <h2>How it's built</h2>
+        <p>No frameworks, no bundlers, no build drama — just plain HTML, CSS and vanilla JavaScript, because fast and simple beats fancy. The site is a Progressive Web App (PWA), so it installs on your phone and works offline. All third-party libraries are pinned versions, checksum-verified and served from our own origin.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Contact</h2>
+        <p>Found a bug, or want a new tool? We'd love to hear from you. Email <a href="#" class="email-link" data-email="68656c6c6f40706978656c6162732e696e">hello [at] pixelabs [dot] in</a> — or open an issue on <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="index.html">All tools</a>
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="assets/js/common.js"></script>
+</body>
+</html>

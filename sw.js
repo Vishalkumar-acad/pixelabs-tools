@@ -19,7 +19,7 @@
    ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v36";
+var CACHE_VERSION = "pat-v37";
 
 /* Scope-relative path helper — prefixes paths with the service worker's
    scope. (Avoids new URL(), which would discard the scope's sub-path for
@@ -36,6 +36,7 @@ function P(path) {
 var PRECACHE_REL = [
   "/",
   "/index.html",
+  "/about.html",
   "/terms.html",
   "/privacy.html",
   "/assets/css/style.css",
