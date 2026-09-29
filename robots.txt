@@ -1,4 +1,10 @@
+# PixelAbs Tools — robots.txt
+# Content Signals (https://contentsignals.org/):
+#   search   = yes — search engines may index this site for search results
+#   ai-train = no  — content may NOT be used to train or fine-tune AI models
+#   ai-input = no  — content may NOT be fed into AI models for generated answers
 User-agent: *
+Content-Signal: ai-train=no, search=yes, ai-input=no
 Allow: /
 Disallow: /__log
 

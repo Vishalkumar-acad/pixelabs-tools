@@ -23,6 +23,13 @@
         POST /api/video/gif          -> video to GIF (ffmpeg)
         GET  /api/health             -> backend health check
         GET  /api                    -> tiny service info
+   5. Markdown for Agents (content negotiation): requests that
+      send "Accept: text/markdown" get a clean Markdown rendering
+      of the page. Browsers never send this header, so visitors
+      always get the normal HTML.
+   6. Declares the site Content-Signal policy (search only,
+      no AI training, no AI input) in robots.txt and as a
+      "Content-Signal" response header on HTML pages.
 
 
    Privacy contract: uploaded files STREAM through this worker to
@@ -118,9 +125,362 @@ async function proxyToBackend(request, env, backendPath, url) {
   }
 }
 
+/* ============================================================
+   Markdown for Agents — content negotiation
+   ------------------------------------------------------------
+   When a client asks for "Accept: text/markdown", the worker
+   converts the requested HTML page into clean Markdown on the
+   fly (self-contained tokenizer + converter, no dependencies).
+   Browsers never send this header, so they always get the
+   normal HTML — nothing changes for visitors. Non-content
+   elements (site header, footer, nav, scripts, forms) are
+   stripped; headings, links, lists and emphasis are preserved;
+   YAML frontmatter carries the page title and description.
+   ============================================================ */
+
+/* The site's content policy — also declared in robots.txt. */
+const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=no";
+
+/* Tags whose entire subtree is dropped from the markdown. */
+const MD_SKIP = {
+  script: 1, style: 1, noscript: 1, svg: 1, iframe: 1, form: 1,
+  button: 1, select: 1, textarea: 1, nav: 1, header: 1, footer: 1,
+  template: 1, aside: 1, head: 1
+};
+
+/* Void (self-closing) HTML elements. */
+const MD_VOID = {
+  br: 1, img: 1, hr: 1, meta: 1, link: 1, input: 1, source: 1,
+  area: 1, base: 1, col: 1, embed: 1, track: 1, wbr: 1
+};
+
+const MD_ENTITIES = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " "
+};
+
+function mdDecodeEntities(s) {
+  return s
+    .replace(/&#x([0-9a-fA-F]+);/g, function (m, h) {
+      return String.fromCodePoint(parseInt(h, 16));
+    })
+    .replace(/&#(\d+);/g, function (m, d) {
+      return String.fromCodePoint(parseInt(d, 10));
+    })
+    .replace(/&(amp|lt|gt|quot|apos|nbsp);/g, function (m, name) {
+      return MD_ENTITIES[name];
+    });
+}
+
+/* Parse the attribute section inside a start tag. */
+function mdAttrs(inner) {
+  const attrs = {};
+  const re = /([^\s=/>"']+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g;
+  let m;
+  while ((m = re.exec(inner))) {
+    attrs[m[1].toLowerCase()] = m[2] !== undefined ? m[2]
+      : (m[3] !== undefined ? m[3] : (m[4] !== undefined ? m[4] : ""));
+  }
+  return attrs;
+}
+
+/* Minimal HTML tokenizer: start tags, end tags, text chunks.
+   Comments and doctype are dropped; a "<" that is not really a
+   tag stays as text. */
+function mdTokenize(html) {
+  const toks = [];
+  const n = html.length;
+  let i = 0;
+  let text = "";
+  function flush() {
+    if (text) { toks.push({ t: "text", v: text }); text = ""; }
+  }
+  while (i < n) {
+    const lt = html.indexOf("<", i);
+    if (lt === -1) { text += html.slice(i); break; }
+    if (lt > i) text += html.slice(i, lt);
+    i = lt;
+
+    if (html.startsWith("<!--", i)) {
+      flush();
+      const end = html.indexOf("-->", i);
+      i = end === -1 ? n : end + 3;
+      continue;
+    }
+    if (html.charAt(i + 1) === "!" || html.charAt(i + 1) === "?") {
+      flush();
+      const end = html.indexOf(">", i);
+      i = end === -1 ? n : end + 1;
+      continue;
+    }
+    if (html.charAt(i + 1) === "/") {
+      const end = html.indexOf(">", i);
+      if (end === -1) { i = n; break; }
+      const name = html.slice(i + 2, end).trim().toLowerCase();
+      if (name) { flush(); toks.push({ t: "end", tag: name.split(/[\s\/]/)[0] }); }
+      i = end + 1;
+      continue;
+    }
+
+    const end = html.indexOf(">", i);
+    if (end === -1) { i = n; break; }
+    let inner = html.slice(i + 1, end);
+    let selfClose = false;
+    if (inner.slice(-1) === "/") { selfClose = true; inner = inner.slice(0, -1); }
+    const m = inner.match(/^[a-zA-Z][a-zA-Z0-9-]*/);
+    if (!m) {
+      text += html.slice(i, end + 1);
+      i = end + 1;
+      continue;
+    }
+    flush();
+    const tag = m[0].toLowerCase();
+    toks.push({
+      t: "start",
+      tag: tag,
+      attrs: mdAttrs(inner.slice(m[0].length)),
+      self: selfClose || MD_VOID[tag] === 1
+    });
+    i = end + 1;
+  }
+  flush();
+  return toks;
+}
+
+/* Convert one HTML document to Markdown. */
+function htmlToMarkdown(html, base) {
+  /* ---- metadata (title / description / og:image) ---- */
+  const title = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "";
+  let metaDesc = "", ogTitle = "", ogDesc = "", ogImage = "";
+  const metaRe = /<meta\b[^>]*>/gi;
+  let mm;
+  while ((mm = metaRe.exec(html))) {
+    const a = mdAttrs(mm[0].slice(5, -1));
+    const name = String(a.name || a.property || "").toLowerCase();
+    const content = String(a.content || "");
+    if (name === "description" && !metaDesc) metaDesc = content;
+    else if (name === "og:title" && !ogTitle) ogTitle = content;
+    else if (name === "og:description" && !ogDesc) ogDesc = content;
+    else if (name === "og:image" && !ogImage) ogImage = content;
+  }
+
+  const toks = mdTokenize(html);
+  const out = [];
+  const stack = [];
+  let skipDepth = 0;
+  let preDepth = 0;
+
+  function clean(s) { return s.replace(/\s+/g, " ").trim(); }
+  function abs(u) {
+    u = mdDecodeEntities(String(u || ""));
+    if (!u || u.charAt(0) === "#") return u;
+    try { return new URL(u, base).toString(); } catch (err) { return u; }
+  }
+  function push(s) {
+    if (stack.length) stack[stack.length - 1].buf += s;
+    else out.push(s);
+  }
+
+  function emit(f) {
+    if (f.tag === "pre") preDepth--;
+    let s = "";
+    switch (f.tag) {
+      case "h1": case "h2": case "h3": case "h4": case "h5": case "h6": {
+        const lvl = f.tag.charCodeAt(1) - 48;
+        const t = clean(f.buf);
+        s = t ? "\n\n" + new Array(lvl + 1).join("#") + " " + t + "\n\n" : "";
+        break;
+      }
+      case "p": {
+        const t = clean(f.buf);
+        s = t ? "\n\n" + t + "\n\n" : "";
+        break;
+      }
+      case "strong": case "b": {
+        const t = clean(f.buf);
+        s = t ? "**" + t + "**" : "";
+        break;
+      }
+      case "em": case "i": {
+        const t = clean(f.buf);
+        s = t ? "*" + t + "*" : "";
+        break;
+      }
+      case "a": {
+        const href = abs(f.attrs.href);
+        if (!href) { s = clean(f.buf); break; }
+        if (f.buf.indexOf("\n\n") !== -1) {
+          /* link that wraps block content (e.g. homepage tool
+             cards): the leading inline text becomes the link,
+             the block children follow as normal markdown */
+          const parts = f.buf.split("\n\n");
+          const label = clean(parts.shift());
+          s = (label ? "[" + label + "](" + href + ")\n\n" : "") + parts.join("\n\n");
+        } else {
+          const t = clean(f.buf);
+          s = t ? "[" + t + "](" + href + ")" : "";
+        }
+        break;
+      }
+      case "code": {
+        if (preDepth > 0) {
+          s = f.buf; /* inside <pre> — raw text, no backticks */
+        } else {
+          const t = clean(f.buf);
+          s = t ? "`" + t + "`" : "";
+        }
+        break;
+      }
+      case "pre": {
+        const t = f.buf.replace(/\s+$/, "");
+        s = t ? "\n\n```\n" + t + "\n```\n\n" : "";
+        break;
+      }
+      case "li": {
+        let marker = "- ";
+        for (let k = stack.length - 1; k >= 0; k--) {
+          if (stack[k].tag === "ol" || stack[k].tag === "ul") {
+            if (stack[k].tag === "ol") {
+              stack[k].idx = (stack[k].idx || 0) + 1;
+              marker = stack[k].idx + ". ";
+            }
+            break;
+          }
+        }
+        const t = f.buf.replace(/^\s+|\s+$/g, "");
+        s = t ? "\n" + marker + t.replace(/\n/g, "\n  ") + "\n" : "";
+        break;
+      }
+      case "ul": case "ol": s = "\n\n"; break;
+      case "blockquote": {
+        const t = clean(f.buf);
+        s = t ? "\n\n" + t.split("\n").map(function (l) { return "> " + l; }).join("\n") + "\n\n" : "";
+        break;
+      }
+      default: s = f.buf; /* div, span, section, main … pass through */
+    }
+    if (s) push(s);
+  }
+
+  for (let x = 0; x < toks.length; x++) {
+    const tok = toks[x];
+    if (skipDepth > 0) {
+      if (tok.t === "start" && MD_SKIP[tok.tag]) skipDepth++;
+      else if (tok.t === "end" && MD_SKIP[tok.tag]) skipDepth--;
+      continue;
+    }
+    if (tok.t === "text") { push(mdDecodeEntities(tok.v)); continue; }
+    if (tok.t === "start") {
+      if (MD_SKIP[tok.tag]) { skipDepth = 1; continue; }
+      if (tok.tag === "br") { push("\n"); continue; }
+      if (tok.tag === "hr") { push("\n\n---\n\n"); continue; }
+      if (tok.tag === "img") {
+        const src = abs(tok.attrs.src);
+        if (src) {
+          push("![" + String(tok.attrs.alt || "").replace(/[\[\]]/g, "") + "](" + src + ")");
+        }
+        continue;
+      }
+      const frame = { tag: tok.tag, buf: "", attrs: tok.attrs, idx: 0 };
+      stack.push(frame);
+      if (tok.tag === "pre") preDepth++;
+      if (tok.self) emit(stack.pop());
+      continue;
+    }
+    /* end tag: find the matching open frame, closing anything
+       left unclosed above it (HTML is forgiving, we are too) */
+    let idx = -1;
+    for (let k = stack.length - 1; k >= 0; k--) {
+      if (stack[k].tag === tok.tag) { idx = k; break; }
+    }
+    if (idx === -1) continue; /* stray end tag */
+    while (stack.length > idx) emit(stack.pop());
+  }
+  while (stack.length) emit(stack.pop());
+
+  let body = out.join("").replace(/[ \t]+\n/g, "\n");
+
+  /* strip leading whitespace per line (source indentation), but
+     never inside fenced code blocks */
+  const bodyLines = body.split("\n");
+  let inFence = false;
+  for (let li = 0; li < bodyLines.length; li++) {
+    if (bodyLines[li].slice(0, 3) === "```") { inFence = !inFence; continue; }
+    if (!inFence) bodyLines[li] = bodyLines[li].replace(/^[ \t]+/, "");
+  }
+  body = bodyLines.join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/^\s+/, "");
+
+  const fmTitle = clean(mdDecodeEntities(title || ogTitle));
+  const fmDesc = clean(mdDecodeEntities(metaDesc || ogDesc));
+  const fmImage = abs(ogImage);
+  const lines = [];
+  if (fmTitle) lines.push("title: " + fmTitle);
+  if (fmDesc) lines.push("description: " + fmDesc);
+  if (fmImage) lines.push("image: " + fmImage);
+
+  return (lines.length ? "---\n" + lines.join("\n") + "\n---\n\n" : "") + body + "\n";
+}
+
+/* Serve a page as markdown, or return null to fall through to
+   normal HTML serving. */
+async function serveMarkdown(env, url) {
+  let path = url.pathname;
+  if (path === "/") path = "/index.html";
+  else if (path === "/about" || path === "/about/") path = "/about.html";
+  if (path.slice(-5) !== ".html") return null;
+
+  let res;
+  try {
+    res = await env.ASSETS.fetch(new URL(path, url).toString());
+  } catch (err) {
+    return null;
+  }
+  if (!res || !res.ok) return null;
+
+  const html = await res.text();
+  const markdown = htmlToMarkdown(html, url.toString());
+  const headers = new Headers();
+  headers.set("Content-Type", "text/markdown; charset=utf-8");
+  headers.set("Vary", "Accept");
+  headers.set("Cache-Control", "public, max-age=3600");
+  headers.set("Content-Signal", CONTENT_SIGNAL);
+  headers.set("X-Markdown-Tokens", String(Math.ceil(markdown.length / 4)));
+  headers.set("X-Original-Tokens", String(Math.ceil(html.length / 4)));
+  return new Response(markdown, { status: 200, headers: headers });
+}
+
+/* Attach the Content-Signal policy header to HTML responses. */
+function withContentSignal(res) {
+  try {
+    if (res && res.ok &&
+        (res.headers.get("content-type") || "").indexOf("text/html") !== -1 &&
+        !res.headers.has("content-signal")) {
+      const wrapped = new Response(res.body, res);
+      wrapped.headers.set("Content-Signal", CONTENT_SIGNAL);
+      return wrapped;
+    }
+  } catch (err) {
+    /* fall through to the original response */
+  }
+  return res;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    /* ---------- Markdown for Agents (Accept: text/markdown) ----------
+       Browsers ask for HTML and always get HTML. Agents that ask
+       for markdown get a clean markdown rendering of the page. */
+    if (
+      request.method === "GET" && env && env.ASSETS &&
+      typeof env.ASSETS.fetch === "function" &&
+      (request.headers.get("accept") || "").indexOf("text/markdown") !== -1
+    ) {
+      const mdRes = await serveMarkdown(env, url);
+      if (mdRes) return mdRes;
+    }
 
     /* Serve the homepage at "/" without any redirect.
        html_handling is "none", so the root is not auto-mapped.
@@ -128,7 +488,9 @@ export default {
        navigation request (mode "navigate") throws a TypeError. */
     if (request.method === "GET" && url.pathname === "/") {
       if (env && env.ASSETS && typeof env.ASSETS.fetch === "function") {
-        return env.ASSETS.fetch(new URL("/index.html", url).toString());
+        return withContentSignal(
+          await env.ASSETS.fetch(new URL("/index.html", url).toString())
+        );
       }
     }
 
@@ -213,6 +575,6 @@ export default {
       );
     }
 
-    return env.ASSETS.fetch(request);
+    return withContentSignal(await env.ASSETS.fetch(request));
   }
 };
