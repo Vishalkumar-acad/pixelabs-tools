@@ -342,6 +342,20 @@ document.addEventListener("DOMContentLoaded", function () {
   /* About link in the slim footer — separate check so pages that
      already ship Terms/Privacy statically (terms.html, privacy.html,
      about.html) still get it. */
+  /* Cloud status link in the slim footer — same path-aware logic. */
+  if (slim && !slim.querySelector('a[href*="status.html"]')) {
+    var sfirst = slim.querySelector("a");
+    var sbase = sfirst && sfirst.getAttribute("href").indexOf("..") === 0 ? "../" : "";
+    var stat = document.createElement("a");
+    stat.href = sbase + "status.html";
+    stat.textContent = "Cloud status";
+    var sterm = slim.querySelector('a[href*="terms.html"]');
+    var sgh = slim.querySelector('a[href*="github.com"]');
+    if (sterm) slim.insertBefore(stat, sterm);
+    else if (sgh) slim.insertBefore(stat, sgh);
+    else slim.appendChild(stat);
+  }
+
   if (slim && !slim.querySelector('a[href*="about.html"]')) {
     var afirst = slim.querySelector("a");
     var abase = afirst && afirst.getAttribute("href").indexOf("..") === 0 ? "../" : "";
@@ -369,6 +383,22 @@ document.addEventListener("DOMContentLoaded", function () {
       pul.insertBefore(pabout, pgh.parentNode);
     } else if (pul) {
       pul.appendChild(pabout);
+    }
+  }
+
+  /* homepage Project column: a Cloud status link after About us */
+  if (proj && !proj.querySelector('a[href*="status.html"]')) {
+    var pul2 = proj.querySelector("ul");
+    var paboutli = proj.querySelector('a[href*="about.html"]');
+    var pstat = document.createElement("li");
+    var ps = document.createElement("a");
+    ps.href = "status.html";
+    ps.textContent = "Cloud status";
+    pstat.appendChild(ps);
+    if (paboutli && paboutli.parentNode && paboutli.parentNode.parentNode === pul2) {
+      pul2.insertBefore(pstat, paboutli.parentNode.nextSibling);
+    } else if (pul2) {
+      pul2.appendChild(pstat);
     }
   }
 

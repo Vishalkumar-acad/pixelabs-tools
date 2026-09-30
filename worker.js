@@ -23,6 +23,8 @@
         POST /api/video/gif          -> video to GIF (ffmpeg)
         GET  /api/health             -> backend health check
         GET  /api                    -> tiny service info
+        GET  /api/uptime             -> cloud status (UptimeRobot
+                                        public status page data)
    5. Markdown for Agents (content negotiation): requests that
       send "Accept: text/markdown" get a clean Markdown rendering
       of the page. Browsers never send this header, so visitors
@@ -140,6 +142,16 @@ async function proxyToBackend(request, env, backendPath, url) {
 
 /* The site's content policy — also declared in robots.txt. */
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
+
+/* Short public page addresses -> real pages (301 redirects). */
+const PAGE_ALIASES = {
+  "/about": "/about.html",
+  "/status": "/status.html"
+};
+
+/* UptimeRobot PUBLIC status page id (the /status page proxies its
+   JSON — it is public dashboard data, no API key involved). */
+const UPTIME_PSP = "qyIKoElOfT";
 
 /* Tags whose entire subtree is dropped from the markdown. */
 const MD_SKIP = {
@@ -427,7 +439,8 @@ function htmlToMarkdown(html, base) {
 async function serveMarkdown(env, url) {
   let path = url.pathname;
   if (path === "/") path = "/index.html";
-  else if (path === "/about" || path === "/about/") path = "/about.html";
+  else if (path.slice(-1) === "/") path = path.slice(0, -1);
+  if (PAGE_ALIASES[path]) path = PAGE_ALIASES[path];
   if (path.slice(-5) !== ".html") return null;
 
   let res;
@@ -494,18 +507,45 @@ export default {
       }
     }
 
-    /* ---------- /about — server-side redirect to the About page ----------
+    /* ---------- /about, /status — server-side redirects ----------
        The request reaches this worker (the server) FIRST, and the
        server sends the visitor to the real page URL. Clean short
        address, one canonical page, nothing changes on the page
        itself. 301 = permanent, so browsers cache the jump. */
+    const aliasPath = PAGE_ALIASES[url.pathname.slice(-1) === "/"
+      ? url.pathname.slice(0, -1)
+      : url.pathname];
     if (
       (request.method === "GET" || request.method === "HEAD") &&
-      (url.pathname === "/about" || url.pathname === "/about/")
+      aliasPath
     ) {
-      const aboutTarget = new URL("/about.html", url);
-      aboutTarget.search = url.search; /* keep query params, if any */
-      return Response.redirect(aboutTarget.toString(), 301);
+      const aliasTarget = new URL(aliasPath, url);
+      aliasTarget.search = url.search; /* keep query params, if any */
+      return Response.redirect(aliasTarget.toString(), 301);
+    }
+
+    /* ---------- /api/uptime — cloud status page data ----------
+       Proxies the PUBLIC UptimeRobot status page JSON (no API key,
+       public data) so the browser makes a plain same-origin request.
+       Short cache: the upstream page refreshes every 60 s. */
+    if (request.method === "GET" &&
+        (url.pathname === "/api/uptime" || url.pathname === "/api/uptime/")) {
+      try {
+        const upRes = await fetch(
+          "https://stats.uptimerobot.com/api/getMonitorList/" + UPTIME_PSP,
+          { headers: { "Accept": "application/json" } }
+        );
+        const upBody = await upRes.text();
+        return new Response(upBody, {
+          status: upRes.status,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "public, max-age=30, stale-while-revalidate=60"
+          }
+        });
+      } catch (err) {
+        return json({ ok: false, error: "uptime data unreachable" }, 502);
+      }
     }
 
     /* ---------- /api — same-origin processing functions ---------- */
@@ -515,6 +555,7 @@ export default {
         service: "pixelabs-tools-edge",
         functions: [
           "/api/health",
+          "/api/uptime",
           "/api/compress",
           "/api/image/compress",
           "/api/image/convert",

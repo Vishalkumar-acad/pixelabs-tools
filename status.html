@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Status | PixelAbs Tools</title>
+  <meta name="description" content="Live uptime and health of the optional PixelAbs Tools cloud processing services. Local tools are never affected and always work.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="assets/img/icon-192.png">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .hero-state { display: flex; align-items: center; gap: 16px; }
+    .dot-big {
+      width: 16px; height: 16px; border-radius: 50%; flex: 0 0 auto;
+      background: var(--text-2);
+    }
+    .dot-big.ok { background: var(--success); animation: pulse-dot 2s infinite; }
+    .dot-big.bad { background: var(--danger); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot {
+      0%   { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent); }
+      70%  { box-shadow: 0 0 0 9px color-mix(in srgb, currentColor 0%, transparent); }
+      100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 0%, transparent); }
+    }
+    .hero-title { font-size: 1.15rem; font-weight: 700; letter-spacing: .2px; }
+    .hero-sub { color: var(--text-2); font-size: .85rem; margin-top: 2px; }
+    .mon-card + .mon-card, #monitors + .panel { margin-top: 14px; }
+    .mon-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .mon-name { font-weight: 700; }
+    .mon-host { color: var(--text-2); font-size: .8rem; margin-top: 2px; word-break: break-all; }
+    .badge { font-size: .75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    .badge.up   { color: var(--success); background: color-mix(in srgb, var(--success) 11%, transparent); border: 1px solid color-mix(in srgb, var(--success) 32%, transparent); }
+    .badge.down { color: var(--danger);  background: color-mix(in srgb, var(--danger) 11%, transparent);  border: 1px solid color-mix(in srgb, var(--danger) 32%, transparent); }
+    .badge.off  { color: var(--text-2);  background: var(--surface); border: 1px solid var(--border); }
+    .stats-row { display: flex; gap: 22px; margin: 14px 0 4px; flex-wrap: wrap; }
+    .stat .k { color: var(--text-2); font-size: .72rem; text-transform: uppercase; letter-spacing: .8px; }
+    .stat .v { font-size: 1.05rem; font-weight: 700; }
+    .bars { display: flex; gap: 2px; margin: 14px 0 4px; align-items: stretch; height: 34px; }
+    .bars i { flex: 1; border-radius: 2px; min-width: 2px; background: var(--border); }
+    .bars i.g { background: var(--success); }
+    .bars i.r { background: var(--danger); }
+    .bars i.y { background: #d97706; }
+    .bars-scale { display: flex; justify-content: space-between; color: var(--text-2); font-size: .72rem; }
+    .mon-meta { color: var(--text-2); font-size: .8rem; margin-top: 12px; }
+    .stale-note { margin-top: 10px; color: var(--danger); font-size: .85rem; display: none; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="index.html">
+        <img src="assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="index.html">← All tools</a>
+        <h1><span class="icon">📡</span> Cloud Status</h1>
+        <p class="desc">Live health of our optional cloud processing services. Every local tool on this site keeps working even when a cloud service is down.</p>
+      </div>
+
+      <div class="panel" id="hero-panel">
+        <div class="hero-state">
+          <span class="dot-big" id="hero-dot"></span>
+          <div>
+            <div class="hero-title" id="hero-title">Checking cloud services…</div>
+            <div class="hero-sub" id="hero-sub">Fetching live uptime data</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="monitors"></div>
+
+      <div class="panel">
+        <h2>What this page tracks</h2>
+        <p>PixelAbs Tools runs <b>entirely in your browser</b> — image compression, PDF merge, QR codes and every other local tool work offline and never touch a server. Only a few optional heavy operations (like large video-to-GIF conversions) can use a <b>cloud mode</b>, and that is what this page monitors.</p>
+        <p>If a cloud service shows downtime here, the site still works — only the optional cloud mode of that one operation is affected, and it switches back to local processing automatically.</p>
+        <p class="mon-meta">Live uptime data from <a href="https://stats.uptimerobot.com/qyIKoElOfT" target="_blank" rel="noopener">UptimeRobot ↗</a> · this page auto-refreshes every 60 seconds.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="index.html">All tools</a>
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/status.js"></script>
+</body>
+</html>
