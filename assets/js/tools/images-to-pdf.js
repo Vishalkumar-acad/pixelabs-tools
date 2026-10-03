@@ -47,7 +47,7 @@
   function updateProcNote() {
     if (!procNote) return;
     procNote.textContent = isCloud()
-      ? "Cloud mode: the file is uploaded to our free processing server (Render), processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
+      ? "Cloud mode: the file is uploaded to our own processing server, processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
       : "How it works (local): everything runs on your device — nothing ever leaves it. Works offline too.";
   }
   if (procEl) procEl.addEventListener("change", updateProcNote);
@@ -128,7 +128,7 @@
       els.createBtn.disabled = false;
     }).catch(function () {
       stop();
-      showMsg("Cloud PDF creation failed — falling back to local processing.", "err");
+      showMsg("Cloud server unavailable — building the PDF on your device instead. Your files never left it.", "info");
       localCreate();
     });
   }

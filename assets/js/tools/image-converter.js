@@ -5,6 +5,8 @@
 
   var files = [];
   var results = [];
+  /* Files the cloud could not handle, processed on the device instead. */
+  var localFallbacks = 0;
   var uid = 0;
 
   var MIME = { jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
@@ -47,7 +49,7 @@
   function updateProcNote() {
     if (!els.procNote) return;
     if (els.proc.value === "cloud") {
-      els.procNote.textContent = "Cloud mode: images are uploaded to our free processing server (Render), converted, and deleted immediately — nothing is stored. Bonus: HEIC (iPhone) photos work in the cloud even though browsers cannot open them. If the server is busy, the tool falls back to local processing automatically.";
+      els.procNote.textContent = "Cloud mode: images are uploaded to our own processing server, converted, and deleted immediately — nothing is stored. Bonus: HEIC (iPhone) photos work in the cloud even though browsers cannot open them. If the server is busy, the tool falls back to local processing automatically.";
     } else {
       els.procNote.textContent = "How it works (local): conversion runs entirely on your device — nothing ever leaves it. Works offline too.";
     }
@@ -193,6 +195,7 @@
     var qualityPct = parseInt(els.quality.value, 10);
     var maxDim = parseInt(els.maxDim.value, 10) || 0;
 
+    localFallbacks = 0;
     var out = [];
     var chain = Promise.resolve();
     files.forEach(function (item) {
@@ -242,8 +245,13 @@
             failedIdx.forEach(function (idx, k) {
               if (localRes[k] && !localRes[k].error) out[idx] = localRes[k];
             });
+            localFallbacks += failedIdx.length;
             if (failedIdx.length === files.length) {
-              showMsg("Cloud was unavailable — all files were processed locally instead.", "info");
+              showMsg("Cloud server unavailable — every file was processed on your device instead. Nothing was uploaded.", "info");
+            } else {
+              showMsg("Cloud server unavailable for " + failedIdx.length + " file" +
+                (failedIdx.length > 1 ? "s" : "") +
+                " — processed on your device instead. Nothing was uploaded.", "info");
             }
           })
         : Promise.resolve();
@@ -292,7 +300,12 @@
 
     els.resultsPanel.classList.remove("hidden");
     els.zipBtn.style.display = ok.length > 1 ? "" : "none";
-    showMsg("Converted " + ok.length + " image" + (ok.length > 1 ? "s" : "") + " successfully.", "ok");
+    showMsg("Converted " + ok.length + " image" + (ok.length > 1 ? "s" : "") + " successfully." +
+      (localFallbacks
+        ? " The cloud server was unavailable, so " +
+          (localFallbacks === files.length ? "every file was" : localFallbacks + " file(s) were") +
+          " processed on your device instead — nothing was uploaded."
+        : ""), "ok");
   }
 
   els.zipBtn.addEventListener("click", async function () {

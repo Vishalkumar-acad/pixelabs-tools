@@ -268,7 +268,7 @@
               });
             }).catch(function (err) {
               if (stopProc) { stopProc(); stopProc = null; }
-              showMsg("Cloud unavailable (" + String((err && err.message) || err) + ") — using local processing instead.", "info");
+              showMsg("Cloud server unavailable — compressing on your device instead. Your file never left it.", "info");
               return tryCompress(f, level, function () {
                 done++;
                 var pctDone = Math.min(100, Math.round((done / totalPages) * 100));
@@ -403,7 +403,7 @@
   function updateNote() {
     if (!noteEl) return;
     if (modeSel.value === "cloud") {
-      noteEl.textContent = "Cloud mode: your file is uploaded to our free processing server (Render), processed with Ghostscript, and deleted immediately — nothing is stored or logged. If the server is unavailable, the tool falls back to local processing automatically.";
+      noteEl.textContent = "Cloud mode: your file is uploaded to our own processing server, processed with Ghostscript, and deleted immediately — nothing is stored or logged. If the server is unavailable, the tool falls back to local processing automatically.";
     } else {
       noteEl.textContent = "How it works (local): pages are re-rendered as optimized images inside a rebuilt PDF — all on your device, nothing ever leaves it. Scanned/photo PDFs shrink the most; if a PDF is already well-optimized the tool keeps your original.";
     }

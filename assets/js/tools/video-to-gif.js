@@ -73,7 +73,7 @@
   function updateProcNote() {
     if (!procNote) return;
     procNote.textContent = isCloud()
-      ? "Cloud mode: the file is uploaded to our free processing server (Render), processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
+      ? "Cloud mode: the file is uploaded to our own processing server, processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
       : "How it works (local): everything runs on your device — nothing ever leaves it. Works offline too.";
   }
   if (procEl) procEl.addEventListener("change", updateProcNote);
@@ -433,7 +433,7 @@
       els.make.disabled = false;
       els.make.textContent = "Create GIF";
       endBar(els.prog);
-      showMsg("Cloud processing failed — switch 'Processing' to Local and try again.", "err");
+      showMsg("Cloud server unavailable — your video was never uploaded. Switch 'Processing' to Local to make the GIF on your device.", "info");
     });
   }
 

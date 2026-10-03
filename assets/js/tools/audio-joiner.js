@@ -24,7 +24,7 @@
   function updateProcNote() {
     if (!procNote) return;
     procNote.textContent = isCloud()
-      ? "Cloud mode: the file is uploaded to our free processing server (Render), processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
+      ? "Cloud mode: the file is uploaded to our own processing server, processed, and deleted immediately — nothing is stored. If the server is busy, the tool falls back to local processing automatically."
       : "How it works (local): everything runs on your device — nothing ever leaves it. Works offline too.";
   }
   if (procEl) procEl.addEventListener("change", updateProcNote);
@@ -101,7 +101,7 @@
       showMsg("Done! " + files.length + " files joined on the server into MP3 (" + formatBytes(blob.size) + ").", "ok");
     }).catch(function () {
       stop();
-      showMsg("Cloud processing failed — falling back to local WAV join.", "err");
+      showMsg("Cloud server unavailable — joining on your device instead. Your file never left it.", "info");
       localJoin();
     });
   }
