@@ -190,17 +190,17 @@
     return function () {};
   }
 
-  /* The free Space sleeps when idle — a 5xx usually means it is
-     waking up, so retry a few times before falling back. */
+  /* The server runs 24/7 — one quick retry, then hand over to the
+     on-device path (see cloud.js). */
   function cloudCompress(file, levelKey, onUpload, onWake, onUploaded) {
     var attempt = 0;
     function go() {
       attempt++;
       return cloudCompressOnce(file, levelKey, onUpload, onUploaded).catch(function (err) {
         var m = String((err && err.message) || err);
-        if (attempt < 4 && (m.indexOf("server error 5") === 0 || m.indexOf("network") === 0)) {
+        if (attempt < 2 && (m.indexOf("server error 5") === 0 || m.indexOf("network") === 0)) {
           if (onWake) onWake(attempt);
-          return new Promise(function (r) { setTimeout(r, 4000); }).then(go);
+          return new Promise(function (r) { setTimeout(r, 2000); }).then(go);
         }
         throw err;
       });
@@ -256,7 +256,7 @@
               showMsg("Uploading " + f.name + "… " + pct + "%", "info");
             }, function (attempt) {
               if (stopProc) { stopProc(); stopProc = null; }
-              showMsg("Cloud server is waking up (try " + attempt + " of 3) — the first request after idle can take up to a minute.", "info");
+              showMsg("Cloud server did not respond — retrying once…", "info");
             }, function () {
               if (!stopProc) stopProc = startProcTimer(f.name);
             }).then(function (res) {

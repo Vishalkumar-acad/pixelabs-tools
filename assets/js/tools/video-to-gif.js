@@ -407,7 +407,7 @@
     },
     function (attempt) {
       /* free server was asleep — waking it up */
-      showMsg("Cloud server is waking up — retrying (attempt " + attempt + " of 3)…", "info");
+      showMsg("Cloud server did not respond — retrying once…", "info");
     },
     function () {
       /* upload finished — server is now processing */

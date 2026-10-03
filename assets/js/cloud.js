@@ -55,17 +55,22 @@ window.CloudTools = (function () {
     });
   }
 
-  /* The free server sleeps when idle — a 5xx usually means it is
-     waking up, so retry a few times before giving up. */
+  /* The processing server runs 24/7 (no cold starts any more), so one
+     quick retry is plenty: if the second try also fails, the server is
+     genuinely unreachable and the caller should hand the work to the
+     on-device path straight away instead of making the user wait. */
+  var MAX_ATTEMPTS = 2;
+  var RETRY_DELAY_MS = 2000;
+
   function post(path, fields, onUpload, onWake, onUploaded) {
     var attempt = 0;
     function go() {
       attempt++;
       return postOnce(path, fields, onUpload, onUploaded).catch(function (err) {
         var m = String((err && err.message) || err);
-        if (attempt < 4 && (m.indexOf("server error 5") === 0 || m.indexOf("network") === 0)) {
+        if (attempt < MAX_ATTEMPTS && (m.indexOf("server error 5") === 0 || m.indexOf("network") === 0)) {
           if (onWake) onWake(attempt);
-          return new Promise(function (r) { setTimeout(r, 4000); }).then(go);
+          return new Promise(function (r) { setTimeout(r, RETRY_DELAY_MS); }).then(go);
         }
         throw err;
       });

@@ -258,7 +258,7 @@
           showMsg("Uploading " + f.name + "… " + pct + "%", "info");
         }, function (attempt) {
           if (stopProc) { stopProc(); stopProc = null; }
-          showMsg("Cloud server is waking up (try " + attempt + " of 3) — the first request after idle can take up to a minute.", "info");
+          showMsg("Cloud server did not respond — retrying once…", "info");
         }, function () {
           if (!stopProc) stopProc = window.CloudTools.trackProcessing(showMsg, f.name, els.msg);
         }).then(function (res) {
