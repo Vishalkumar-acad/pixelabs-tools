@@ -19,7 +19,7 @@
    ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v45";
+var CACHE_VERSION = "pat-v46";
 
 /* Scope-relative path helper — prefixes paths with the service worker's
    scope. (Avoids new URL(), which would discard the scope's sub-path for

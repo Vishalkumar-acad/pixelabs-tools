@@ -149,6 +149,25 @@
     });
   }
 
+  /* Why did the cloud path fail? Say it plainly — the reason decides what
+     to do next (shrink the file, retry, or just take the local result).
+     Errors reach us as "server error <code>", "network error" or
+     "timeout" from cloudCompressOnce. */
+  function cloudFallbackReason(err, file) {
+    var m = String((err && err.message) || err);
+    var mb = file && file.size ? Math.round(file.size / 1048576) + " MB" : "this file";
+    if (m.indexOf("413") !== -1) {
+      return "This PDF is about " + mb + " — over the 50 MB cloud limit — so it can only be compressed on your device.";
+    }
+    if (m.indexOf("timeout") === 0) {
+      return "The cloud server took too long on this PDF (" + mb + "), so it is finishing on your device.";
+    }
+    if (m.indexOf("network") === 0) {
+      return "Could not reach the cloud server (connection problem), so it is compressing on your device.";
+    }
+    return "The cloud server was unavailable (" + m + "), so it is compressing on your device.";
+  }
+
   /* ---------- Cloud path ---------- */
   function cloudCompressOnce(file, levelKey, onUpload, onUploaded) {
     return new Promise(function (resolve, reject) {
@@ -268,7 +287,7 @@
               });
             }).catch(function (err) {
               if (stopProc) { stopProc(); stopProc = null; }
-              showMsg("Cloud server unavailable — compressing on your device instead. Your file never left it.", "info");
+              showMsg(cloudFallbackReason(err, f) + " Nothing was stored.", "info");
               return tryCompress(f, level, function () {
                 done++;
                 var pctDone = Math.min(100, Math.round((done / totalPages) * 100));
