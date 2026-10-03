@@ -7,7 +7,7 @@
       but keeps every .html URL redirect-free).
    3. Accepts ANONYMOUS error reports at POST /__log.
    4. Same-origin API functions under /api/* — the site's Cloud
-      mode calls these instead of the Render server directly, so
+      mode calls these instead of the backend server directly, so
       the backend URL never ships in client code and the browser
       makes a plain same-origin request (no CORS at all).
         POST /api/compress           -> PDF compression (Ghostscript)

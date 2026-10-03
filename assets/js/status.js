@@ -22,14 +22,6 @@
     return window.escapeHtml ? window.escapeHtml(String(s)) : String(s);
   }
 
-  /* nicer label for known monitor names */
-  function pretty(name) {
-    if (/onrender\.com$/i.test(name) && /pixelabs-api/i.test(name)) {
-      return "Cloud processing server";
-    }
-    return name;
-  }
-
   function timeStr() {
     return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   }
@@ -72,7 +64,7 @@
     return '' +
       '<div class="panel mon-card">' +
         '<div class="mon-head">' +
-          '<div><div class="mon-name">' + esc(pretty(m.name)) + "</div>" +
+          '<div><div class="mon-name">' + esc(m.name) + "</div>" +
           '<div class="mon-host">' + esc(m.name) + " · " + esc(m.type || "monitor") + since + "</div></div>" +
           badgeFor(m) +
         "</div>" +

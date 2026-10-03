@@ -55,7 +55,7 @@
         <p><b>Local mode (default in every tool):</b> all processing (compression, conversion, merging, splitting, formatting) runs entirely inside your browser using JavaScript and WebAssembly. Your files are not uploaded anywhere. The tools also work offline after your first visit.</p>
         <p><b>Cloud mode (optional, off by default):</b> a few tools offer an opt-in Cloud mode that can produce better results (for example Ghostscript-based PDF compression, or HEIC photo conversion on devices that cannot open HEIC). When you choose Cloud mode:</p>
         <ul>
-          <li>Your file is uploaded over HTTPS to our processing endpoint on our own domain, which forwards it to a small processing server.</li>
+          <li>Your file is uploaded over HTTPS to our processing endpoint on our own domain, which forwards it to a small processing server that we run ourselves.</li>
           <li>The server processes the file <b>in memory only</b>, returns the result, and discards it immediately. Nothing is written to disk, nothing is queued, nothing is logged about your file.</li>
           <li>Files pass through our edge network as a stream and are never stored there either.</li>
           <li>If the server is unavailable, the tool automatically falls back to processing on your device.</li>
@@ -83,7 +83,7 @@
         <h2>Third-party services</h2>
         <ul>
           <li><b>Cloudflare</b> hosts this website and serves its pages. Their handling of network traffic is governed by Cloudflare's own privacy policy.</li>
-          <li><b>Render.com</b> runs the small processing server used by optional Cloud mode. Files sent there are processed in memory and deleted immediately, as described above.</li>
+          <li><b>Our own processing server</b> — optional Cloud mode runs on a small server that we operate ourselves, hosted with <b>Microsoft Azure</b> (Central India region) and reachable only through Cloudflare on our own domain (<code>api.pixelabs.in</code>). No third-party service inspects or processes your files: they are processed in memory and deleted immediately, as described above.</li>
           <li>An uptime monitoring service periodically checks a public health endpoint. It never sees or sends any user data.</li>
         </ul>
       </div>

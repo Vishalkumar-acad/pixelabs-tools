@@ -1,8 +1,8 @@
 /* ============================================================
    PixelAbs Tools — shared cloud (server-side) processing helper.
    Loaded by tools that offer a Local / Cloud toggle. The server
-   (Render.com free tier) processes files and deletes them right
-   after — nothing is stored.
+   (our own self-hosted server, behind Cloudflare) processes
+   files and deletes them right after — nothing is stored.
    ============================================================ */
 "use strict";
 
