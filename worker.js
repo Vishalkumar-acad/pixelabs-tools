@@ -84,10 +84,12 @@ function json(body, status) {
 
 /* Proxy one request to the backend, streaming the body through. */
 async function proxyToBackend(request, env, backendPath, url) {
-  /* Size guard: the backend accepts up to 50 MB. */
+  /* Size guard: a backstop only. The backend is the authority on limits
+     (50 MB for images/audio, 90 MB for PDF compression), and this just
+     stops an absurd upload from ever reaching it. */
   const len = parseInt(request.headers.get("content-length") || "0", 10);
-  if (len > 60000000) {
-    return json({ ok: false, error: "file too large (50 MB limit)" }, 413);
+  if (len > 100000000) {
+    return json({ ok: false, error: "file too large" }, 413);
   }
 
   /* Same-origin guard: browsers always send an Origin header on

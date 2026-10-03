@@ -157,7 +157,7 @@
     var m = String((err && err.message) || err);
     var mb = file && file.size ? Math.round(file.size / 1048576) + " MB" : "this file";
     if (m.indexOf("413") !== -1) {
-      return "This PDF is about " + mb + " — over the 50 MB cloud limit — so it can only be compressed on your device.";
+      return "This PDF is about " + mb + " — over the 90 MB cloud limit — so it can only be compressed on your device.";
     }
     if (m.indexOf("timeout") === 0) {
       return "The cloud server took too long on this PDF (" + mb + "), so it is finishing on your device.";
@@ -177,7 +177,9 @@
       var xhr = new XMLHttpRequest();
       xhr.open("POST", SPACE_URL + "/compress");
       xhr.responseType = "arraybuffer";
-      xhr.timeout = 180000;
+      // generous: an 80 MB PDF on a slow mobile link can take minutes to
+      // upload, and we would rather wait than fall back to the device.
+      xhr.timeout = 300000;
       if (xhr.upload && onUpload) {
         xhr.upload.onprogress = function (e) {
           if (e.lengthComputable) onUpload(Math.round((e.loaded / e.total) * 100));
