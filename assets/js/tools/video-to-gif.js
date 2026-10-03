@@ -68,6 +68,10 @@
 
   /* ---- Local / Cloud toggle ---- */
   var procEl = document.getElementById("proc");
+  /* Set when the cloud attempt failed and we are re-running on the device,
+     so the result can say where the GIF was actually made. */
+  var fellBackFromCloud = false;
+  var fallbackReentry = false;
   var procNote = document.getElementById("proc-note");
   function isCloud() { return procEl && procEl.value === "cloud"; }
   function updateProcNote() {
@@ -301,6 +305,8 @@
 
   els.make.addEventListener("click", function () {
     if (busy) return;
+    if (fallbackReentry) fallbackReentry = false;
+    else fellBackFromCloud = false;
     var start = Math.max(0, parseFloat(els.start.value) || 0);
     if (isCloud() && rawFile) { cloudGif(); return; }
     var end = Math.min(els.video.duration || 15, parseFloat(els.end.value) || 5);
@@ -351,7 +357,11 @@
           els.img.src = URL.createObjectURL(blob);
           els.result.classList.remove("hidden");
           els.result.scrollIntoView({ behavior: "smooth", block: "start" });
-          showMsg("Done! GIF ready (" + formatBytes(blob.size) + ", " + frames + " frames).", "ok");
+          showMsg("Done! GIF ready (" + formatBytes(blob.size) + ", " + frames + " frames)." +
+            (fellBackFromCloud
+              ? " The cloud server was unavailable, so it was made on your device — nothing was uploaded."
+              : ""), "ok");
+          fellBackFromCloud = false;
           busy = false;
           els.make.disabled = false;
           els.make.textContent = "Create GIF";
@@ -433,7 +443,13 @@
       els.make.disabled = false;
       els.make.textContent = "Create GIF";
       endBar(els.prog);
-      showMsg("Cloud server unavailable — your video was never uploaded. Switch 'Processing' to Local to make the GIF on your device.", "info");
+      /* Same promise as every other tool: fall back to on-device
+         processing automatically, and say plainly where it ran. */
+      showMsg("Cloud server unavailable — your video was never uploaded. Making the GIF on your device instead…", "info");
+      fellBackFromCloud = true;
+      fallbackReentry = true;
+      procEl.value = "local";
+      els.make.click();
     });
   }
 
