@@ -50,9 +50,10 @@
 
 const MAX_EVENTS_PER_POST = 25;
 
-/* Backend processing server (Render, free tier). Override with the
-   RENDER_URL environment variable (Workers dashboard or wrangler). */
-const RENDER_DEFAULT = "https://pixelabs-api-e0u3.onrender.com";
+/* Backend processing server — self-hosted on an Azure VM and fronted
+   by Cloudflare (api.pixelabs.in). Override with the RENDER_URL
+   environment variable (Workers dashboard or wrangler). */
+const RENDER_DEFAULT = "https://api.pixelabs.in";
 
 /* Only these backend endpoints may be proxied — keeps the worker
    from being usable as a general-purpose proxy. */
