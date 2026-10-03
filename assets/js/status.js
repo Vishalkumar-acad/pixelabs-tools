@@ -17,7 +17,7 @@
      visitors with a red "down" and no explanation. To end it, flip
      `on` to false (that one word is the whole change). */
   var MAINTENANCE = {
-    on: true,
+    on: false,
     head: "🛠️ Cloud processing is temporarily unavailable",
     body: "We are doing maintenance on the cloud processing server, so <b>Cloud mode will not work right now</b>. Nothing else changes — every tool still runs <b>on your device</b> in Local mode, your files never leave it, and nothing is uploaded.",
     foot: "This page will be updated as soon as cloud processing is back."
