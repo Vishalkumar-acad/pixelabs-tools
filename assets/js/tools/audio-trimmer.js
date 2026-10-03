@@ -341,16 +341,26 @@
   });
 
   function cloudCut(a, b) {
-    var stop = CloudTools.trackProcessing(showMsg, "your audio");
+    /* Upload progress first, "processing" only once the file has arrived —
+       otherwise the user sees "Processing…" while it is still uploading. */
+    var stop = null;
     CloudTools.post("/audio/trim", {
       file: rawFile, start: a.toFixed(3), end: b.toFixed(3)
+    }, function (pct) {
+      if (stop) { stop(); stop = null; }
+      showMsg("Uploading " + fileName + "… " + pct + "%", "info");
+    }, function () {
+      if (stop) { stop(); stop = null; }
+      showMsg("Cloud server did not respond — retrying once…", "info");
+    }, function () {
+      if (!stop) stop = CloudTools.trackProcessing(showMsg, "your audio");
     }).then(function (res) {
-      stop();
+      if (stop) stop();
       var blob = new Blob([res.bytes], { type: "audio/mpeg" });
       downloadBlob(blob, fileName + "-cut.mp3");
       showMsg("Done! Trimmed clip downloaded as MP3 (" + (b - a).toFixed(1) + "s, " + formatBytes(blob.size) + ").", "ok");
     }).catch(function () {
-      stop();
+      if (stop) stop();
       showMsg("Cloud server unavailable — processing on your device instead. Your file never left it.", "info");
       localCut(a, b);
     });

@@ -122,16 +122,24 @@
 
   function cloudExport() {
     var f = factor();
-    var stop = CloudTools.trackProcessing(showMsg, "your audio");
+    var stop = null;
     CloudTools.post("/audio/speed", {
       file: rawFile, factor: f.toFixed(4), mode: els.mode.value
+    }, function (pct) {
+      if (stop) { stop(); stop = null; }
+      showMsg("Uploading " + fileName + "… " + pct + "%", "info");
+    }, function () {
+      if (stop) { stop(); stop = null; }
+      showMsg("Cloud server did not respond — retrying once…", "info");
+    }, function () {
+      if (!stop) stop = CloudTools.trackProcessing(showMsg, "your audio");
     }).then(function (res) {
-      stop();
+      if (stop) stop();
       var blob = new Blob([res.bytes], { type: "audio/mpeg" });
       downloadBlob(blob, fileName + "-changed.mp3");
       showMsg("Done! Downloaded as MP3 (server processed, " + formatBytes(blob.size) + ").", "ok");
     }).catch(function () {
-      stop();
+      if (stop) stop();
       showMsg("Cloud server unavailable — processing on your device instead. Your file never left it.", "info");
       showMsg("Rendering locally…", "busy");
       render(function (out) {

@@ -90,17 +90,25 @@
 
   function cloudJoin() {
     var gap = Math.max(0, Math.min(10, parseFloat(els.gap.value) || 0));
-    var stop = CloudTools.trackProcessing(showMsg, files.length + " files");
+    var stop = null;
     CloudTools.post("/audio/join", {
       files: files.map(function (f) { return f.file; }),
       gap: gap
+    }, function (pct) {
+      if (stop) { stop(); stop = null; }
+      showMsg("Uploading " + files.length + (files.length === 1 ? " file" : " files") + "… " + pct + "%", "info");
+    }, function () {
+      if (stop) { stop(); stop = null; }
+      showMsg("Cloud server did not respond — retrying once…", "info");
+    }, function () {
+      if (!stop) stop = CloudTools.trackProcessing(showMsg, files.length + " files");
     }).then(function (res) {
-      stop();
+      if (stop) stop();
       var blob = new Blob([res.bytes], { type: "audio/mpeg" });
       downloadBlob(blob, "joined.mp3");
       showMsg("Done! " + files.length + " files joined on the server into MP3 (" + formatBytes(blob.size) + ").", "ok");
     }).catch(function () {
-      stop();
+      if (stop) stop();
       showMsg("Cloud server unavailable — joining on your device instead. Your file never left it.", "info");
       localJoin();
     });
