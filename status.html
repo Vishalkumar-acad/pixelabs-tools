@@ -10,6 +10,16 @@
   <link rel="apple-touch-icon" href="assets/img/icon-192.png">
   <link rel="stylesheet" href="assets/css/style.css">
   <style>
+    .panel.maint {
+      border-color: color-mix(in srgb, #d97706 60%, transparent);
+      background: color-mix(in srgb, #d97706 16%, transparent);
+      border-left-width: 4px;
+    }
+    .maint-head { font-weight: 700; font-size: 1.02rem; }
+    .maint p { margin: 8px 0 0; }
+    .maint-sub { color: var(--text-2); font-size: .85rem; }
+    .dot-big.warn { background: #d97706; animation: pulse-dot 2s infinite; }
+
     .hero-state { display: flex; align-items: center; gap: 16px; }
     .dot-big {
       width: 16px; height: 16px; border-radius: 50%; flex: 0 0 auto;
@@ -67,6 +77,12 @@
         <a class="back" href="index.html">← All tools</a>
         <h1><span class="icon">📡</span> Cloud Status</h1>
         <p class="desc">Live health of our optional cloud processing services. Every local tool on this site keeps working even when a cloud service is down.</p>
+      </div>
+
+      <div class="panel maint" id="maint-banner" hidden>
+        <div class="maint-head" id="maint-head"></div>
+        <p id="maint-body"></p>
+        <p class="maint-sub" id="maint-foot"></p>
       </div>
 
       <div class="panel" id="hero-panel">

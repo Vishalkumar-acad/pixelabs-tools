@@ -11,6 +11,32 @@
   var REFRESH_MS = 60000;
   var PSP_URL = "https://stats.uptimerobot.com/qyIKoElOfT";
 
+  /* ---------- maintenance switch ----------
+     While the processing server is being worked on, cloud mode cannot
+     run — so the page says that plainly at the top instead of leaving
+     visitors with a red "down" and no explanation. To end it, flip
+     `on` to false (that one word is the whole change). */
+  var MAINTENANCE = {
+    on: true,
+    head: "🛠️ Cloud processing is temporarily unavailable",
+    body: "We are doing maintenance on the cloud processing server, so <b>Cloud mode will not work right now</b>. Nothing else changes — every tool still runs <b>on your device</b> in Local mode, your files never leave it, and nothing is uploaded.",
+    foot: "This page will be updated as soon as cloud processing is back."
+  };
+
+  /* Show the notice before the live data arrives. */
+  (function showMaintenance() {
+    if (!MAINTENANCE.on) return;
+    var box = document.getElementById("maint-banner");
+    if (!box) return;
+    var head = document.getElementById("maint-head");
+    var body = document.getElementById("maint-body");
+    var foot = document.getElementById("maint-foot");
+    if (head) head.textContent = MAINTENANCE.head;
+    if (body) body.innerHTML = MAINTENANCE.body;
+    if (foot) foot.textContent = MAINTENANCE.foot;
+    box.hidden = false;
+  })();
+
   var heroDot = document.getElementById("hero-dot");
   var heroTitle = document.getElementById("hero-title");
   var heroSub = document.getElementById("hero-sub");
@@ -95,7 +121,10 @@
       else if (m.statusClass === "paused") paused++;
     });
 
-    if (down > 0) {
+    if (MAINTENANCE.on) {
+      hero("warn", "Cloud processing is paused for maintenance",
+        "Local mode is unaffected — every tool still runs on your device. Updated " + timeStr());
+    } else if (down > 0) {
       hero("bad", down + " service" + (down > 1 ? "s" : "") + " down",
         "Some cloud operations may be unavailable. Local tools keep working.");
     } else if (up > 0) {
