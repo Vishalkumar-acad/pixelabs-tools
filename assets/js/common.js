@@ -369,6 +369,19 @@ document.addEventListener("DOMContentLoaded", function () {
     else slim.appendChild(about);
   }
 
+  /* Report-an-issue link in the slim footer — opens the GitHub issue chooser
+     (the categorized report forms live in the repo). */
+  if (slim && !slim.querySelector('a[href*="issues/new"]')) {
+    var report = document.createElement("a");
+    report.href = "https://github.com/Vishalkumar-acad/pixelabs-tools/issues/new/choose";
+    report.target = "_blank";
+    report.rel = "noopener";
+    report.textContent = "Report an issue";
+    var rgh = slim.querySelector('a[href*="github.com"]');
+    if (rgh) slim.insertBefore(report, rgh);
+    else slim.appendChild(report);
+  }
+
   /* homepage Project column: an About link before GitHub */
   var proj = document.querySelector('.footer-col[aria-label="Project"]');
   if (proj && !proj.querySelector('a[href*="about.html"]')) {
@@ -400,6 +413,19 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (pul2) {
       pul2.appendChild(pstat);
     }
+  }
+
+  /* homepage Project column: a Report-an-issue link */
+  if (proj && !proj.querySelector('a[href*="issues/new"]')) {
+    var rpul = proj.querySelector("ul");
+    var rli = document.createElement("li");
+    var ra = document.createElement("a");
+    ra.href = "https://github.com/Vishalkumar-acad/pixelabs-tools/issues/new/choose";
+    ra.target = "_blank";
+    ra.rel = "noopener";
+    ra.textContent = "Report an issue";
+    rli.appendChild(ra);
+    if (rpul) rpul.appendChild(rli);
   }
 
   /* PixelAbs services — links to our other products.
