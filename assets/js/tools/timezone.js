@@ -113,6 +113,13 @@
     convert();
   });
 
+  /* Mobile safety net: if the value is edited while the tab is backgrounded
+     (or an event is missed), re-run the conversion whenever we regain focus,
+     so the results list and the world map can never be left showing a stale
+     moment. */
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) convert(); });
+  window.addEventListener("focus", convert);
+
   /* live clocks */
   function tickClocks() {
     var now = new Date();
