@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to Images — Convert PDF Pages to JPG or PNG | PixelAbs Tools</title>
+  <meta name="description" content="Turn every page of a PDF into a JPG or PNG image — all pages, or just the ones you pick. Runs in your browser by default; no uploads, no login, no ads.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill"><span class="dot"></span><span class="label">100% local processing</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">🖼️</span> PDF to Images</h1>
+        <p class="desc">Turn every page of a PDF into a JPG or PNG — all of them, or just the pages you choose. Runs in your browser by default.</p>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="file-input" accept="application/pdf,.pdf" class="hidden">
+        <span class="dz-emoji">🖼️</span>
+        <div class="dz-title">Drop a PDF here or <b>browse</b></div>
+        <div class="dz-sub">Each page becomes an image — rendered on your device, never uploaded</div>
+      </div>
+
+      <div class="panel mt hidden" id="editor">
+        <h2>Options</h2>
+        <div class="option">
+          <label class="field">Processing</label>
+          <select id="proc">
+            <option value="local" selected>Local — private (default)</option>
+            <option value="cloud">Cloud — file is uploaded</option>
+          </select>
+          <p class="muted" id="proc-note" style="font-size:.8rem; margin-top:8px;"></p>
+        </div>
+        <p class="muted" id="doc-info"></p>
+        <div class="options-grid">
+          <div class="option">
+            <label class="field">Image format</label>
+            <select id="format">
+              <option value="jpg" selected>JPG — photos &amp; scans</option>
+              <option value="png">PNG — sharp text &amp; graphics</option>
+            </select>
+          </div>
+          <div class="option">
+            <label class="field">Quality</label>
+            <select id="level">
+              <option value="medium" selected>Balanced (recommended)</option>
+              <option value="high">High — larger images</option>
+              <option value="low">Small — smaller images</option>
+            </select>
+          </div>
+          <div class="option">
+            <label class="field">Pages <span class="muted">(blank = all)</span></label>
+            <input type="text" id="pages" placeholder="all">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="run-btn" disabled>Convert to images</button>
+          <button class="btn btn-secondary btn-sm" id="clear-btn" disabled>Choose another PDF</button>
+        </div>
+        <div class="progress-track mt hidden" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+        <div class="msg" id="msg"></div>
+      </div>
+
+      <div class="panel hidden" id="results-panel">
+        <h2>Your images</h2>
+        <div class="result-summary" id="summary"></div>
+        <div class="file-list mt" id="results"></div>
+        <div class="btn-row mt">
+          <button class="btn btn-primary" id="zip-btn">Download all (ZIP)</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="../index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">Runs entirely in your browser — nothing is ever uploaded.</p>
+        </div>
+        <div class="links">
+          <a href="../index.html">All tools</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/vendor/pdf.min.js"></script>
+  <script src="../assets/vendor/jszip.min.js"></script>
+  <script src="../assets/js/cloud.js"></script>
+  <script src="../assets/js/tools/pdf-to-images.js"></script>
+</body>
+</html>
