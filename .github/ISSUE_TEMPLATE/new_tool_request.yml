@@ -1,0 +1,31 @@
+name: New tool request
+description: Suggest a brand-new tool for the site.
+title: '[New tool]: '
+labels:
+- new-tool
+body:
+- type: markdown
+  attributes:
+    value: PixelAbs Tools is a set of free, private, browser-based utilities. New tools should be usable **without a server** where possible.
+- type: input
+  id: tool-name
+  attributes:
+    label: What should the tool be called?
+  validations:
+    required: true
+- type: textarea
+  id: does
+  attributes:
+    label: What should it do?
+  validations:
+    required: true
+- type: textarea
+  id: who
+  attributes:
+    label: Who is it for, and what problem does it solve?
+  validations:
+    required: true
+- type: input
+  id: similar
+  attributes:
+    label: Any similar tools you've seen? (optional)

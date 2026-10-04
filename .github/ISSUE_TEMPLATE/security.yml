@@ -1,0 +1,40 @@
+name: Security vulnerability
+description: Privately report a security vulnerability.
+title: '[Security]: '
+labels:
+- security
+body:
+- type: markdown
+  attributes:
+    value: '## Please report security issues privately
+
+
+      Do **not** post exploit details in a public issue. Use GitHub''s private reporting instead:
+
+
+      **[Report a vulnerability](https://github.com/Vishalkumar-acad/pixelabs-tools/security/advisories/new)**
+
+
+      If you can only use this form, share a **short, non-sensitive** summary below and we''ll move it to a private channel.'
+- type: input
+  id: summary
+  attributes:
+    label: Short summary (no exploit details)
+  validations:
+    required: true
+- type: input
+  id: area
+  attributes:
+    label: Affected page / tool / endpoint
+- type: input
+  id: impact
+  attributes:
+    label: Potential impact
+- type: checkboxes
+  id: ack
+  attributes:
+    label: Acknowledgement
+    options:
+    - I understand I should not disclose this publicly before it's fixed
+  validations:
+    required: true

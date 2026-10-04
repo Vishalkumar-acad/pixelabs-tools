@@ -1,0 +1,62 @@
+name: Privacy concern
+description: Report a privacy question or concern about how the site handles data.
+title: '[Privacy]: '
+labels:
+- privacy
+body:
+- type: markdown
+  attributes:
+    value: PixelAbs Tools is built to run entirely in your browser. See the [Privacy Policy](https://tools.pixelabs.in/privacy.html). For anything sensitive, please don't include personal data in this public issue.
+- type: dropdown
+  id: tool
+  attributes:
+    label: Which tool is this about?
+    options:
+    - Image Compressor
+    - Image Converter
+    - Image Resizer
+    - Image Metadata (EXIF)
+    - PDF Merge
+    - PDF Split & Extract
+    - PDF Compressor
+    - Images to PDF
+    - PDF to Images
+    - JSON Formatter
+    - Text Case Converter
+    - Base64 Encoder/Decoder
+    - QR Code Generator
+    - CSV <-> JSON
+    - XML <-> JSON
+    - SQL Formatter
+    - cURL Converter
+    - Cron Helper
+    - Redirect Config Generator
+    - Gradient Generator
+    - Aspect Ratio Calculator
+    - Font Pairing
+    - Pomodoro Timer
+    - Data Unit Converter
+    - Timezone Converter
+    - Audio Trimmer
+    - Audio Speed & Pitch
+    - Audio Joiner
+    - Video to GIF
+    - File Type Checker
+    - File Hash Comparer
+    - Site-wide / not tool-specific
+  validations:
+    required: true
+- type: textarea
+  id: concern
+  attributes:
+    label: What is the concern?
+  validations:
+    required: true
+- type: input
+  id: where
+  attributes:
+    label: Where did you notice it? (page / tool / request)
+- type: textarea
+  id: expected
+  attributes:
+    label: What would you expect instead?

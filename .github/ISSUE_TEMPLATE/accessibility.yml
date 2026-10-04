@@ -1,0 +1,66 @@
+name: Accessibility issue
+description: Report a barrier for people with disabilities (screen reader, keyboard, contrast...).
+title: '[Accessibility]: '
+labels:
+- accessibility
+body:
+- type: dropdown
+  id: tool
+  attributes:
+    label: Which tool is this about?
+    options:
+    - Image Compressor
+    - Image Converter
+    - Image Resizer
+    - Image Metadata (EXIF)
+    - PDF Merge
+    - PDF Split & Extract
+    - PDF Compressor
+    - Images to PDF
+    - PDF to Images
+    - JSON Formatter
+    - Text Case Converter
+    - Base64 Encoder/Decoder
+    - QR Code Generator
+    - CSV <-> JSON
+    - XML <-> JSON
+    - SQL Formatter
+    - cURL Converter
+    - Cron Helper
+    - Redirect Config Generator
+    - Gradient Generator
+    - Aspect Ratio Calculator
+    - Font Pairing
+    - Pomodoro Timer
+    - Data Unit Converter
+    - Timezone Converter
+    - Audio Trimmer
+    - Audio Speed & Pitch
+    - Audio Joiner
+    - Video to GIF
+    - File Type Checker
+    - File Hash Comparer
+    - Site-wide / not tool-specific
+  validations:
+    required: true
+- type: input
+  id: assistive
+  attributes:
+    label: Assistive technology / setup (optional)
+    placeholder: e.g. NVDA, VoiceOver, keyboard only, 200% zoom
+- type: textarea
+  id: issue
+  attributes:
+    label: Describe the barrier
+  validations:
+    required: true
+- type: textarea
+  id: steps
+  attributes:
+    label: How can it be reproduced?
+  validations:
+    required: true
+- type: textarea
+  id: expected
+  attributes:
+    label: What would make it accessible for you?

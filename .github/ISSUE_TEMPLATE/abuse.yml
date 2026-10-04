@@ -1,0 +1,25 @@
+name: Abuse or harmful content
+description: Report abusive, harmful, or inappropriate content or behaviour.
+title: '[Abuse]: '
+labels:
+- abuse
+body:
+- type: markdown
+  attributes:
+    value: If this is urgent or involves a risk to a person, please also contact the maintainer directly. Avoid including unnecessary personal details.
+- type: input
+  id: where
+  attributes:
+    label: Where did this happen?
+  validations:
+    required: true
+- type: textarea
+  id: description
+  attributes:
+    label: What is the issue?
+  validations:
+    required: true
+- type: input
+  id: contact
+  attributes:
+    label: How can we reach you? (optional)

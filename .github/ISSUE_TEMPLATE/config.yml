@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+- name: Report a security vulnerability (private)
+  url: https://github.com/Vishalkumar-acad/pixelabs-tools/security/advisories/new
+  about: Please report security issues privately, not as a public issue.
+- name: About PixelAbs Tools
+  url: https://tools.pixelabs.in/about.html
+  about: How the tools work, and why everything runs in your browser.
+- name: Privacy policy
+  url: https://tools.pixelabs.in/privacy.html
+  about: What we do (and don't do) with your data.

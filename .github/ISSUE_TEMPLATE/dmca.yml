@@ -1,0 +1,31 @@
+name: Copyright / DMCA
+description: Report a copyright or intellectual-property concern.
+title: '[Copyright]: '
+labels:
+- dmca
+body:
+- type: markdown
+  attributes:
+    value: Please describe the material and your relationship to it. We may ask for more detail before acting.
+- type: input
+  id: relationship
+  attributes:
+    label: Your relationship to the work
+  validations:
+    required: true
+- type: input
+  id: material
+  attributes:
+    label: The material concerned (URL / description)
+  validations:
+    required: true
+- type: textarea
+  id: details
+  attributes:
+    label: Details and any supporting links
+  validations:
+    required: true
+- type: input
+  id: contact
+  attributes:
+    label: Contact email

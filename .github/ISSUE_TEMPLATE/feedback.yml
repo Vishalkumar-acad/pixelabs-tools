@@ -1,0 +1,55 @@
+name: General feedback
+description: Share general feedback, praise, or ideas.
+title: '[Feedback]: '
+labels:
+- feedback
+body:
+- type: textarea
+  id: feedback
+  attributes:
+    label: Your feedback
+  validations:
+    required: true
+- type: dropdown
+  id: tool
+  attributes:
+    label: Which tool is this about?
+    options:
+    - Image Compressor
+    - Image Converter
+    - Image Resizer
+    - Image Metadata (EXIF)
+    - PDF Merge
+    - PDF Split & Extract
+    - PDF Compressor
+    - Images to PDF
+    - PDF to Images
+    - JSON Formatter
+    - Text Case Converter
+    - Base64 Encoder/Decoder
+    - QR Code Generator
+    - CSV <-> JSON
+    - XML <-> JSON
+    - SQL Formatter
+    - cURL Converter
+    - Cron Helper
+    - Redirect Config Generator
+    - Gradient Generator
+    - Aspect Ratio Calculator
+    - Font Pairing
+    - Pomodoro Timer
+    - Data Unit Converter
+    - Timezone Converter
+    - Audio Trimmer
+    - Audio Speed & Pitch
+    - Audio Joiner
+    - Video to GIF
+    - File Type Checker
+    - File Hash Comparer
+    - Site-wide / not tool-specific
+  validations:
+    required: true
+- type: textarea
+  id: extra
+  attributes:
+    label: Anything else? (optional)

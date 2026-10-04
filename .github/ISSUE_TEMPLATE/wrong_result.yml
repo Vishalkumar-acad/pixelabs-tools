@@ -1,0 +1,82 @@
+name: Wrong result / incorrect output
+description: A tool produced an incorrect or unexpected result.
+title: '[Wrong result]: '
+labels:
+- bug
+- wrong-result
+body:
+- type: markdown
+  attributes:
+    value: '> PixelAbs Tools runs in your browser and never uploads your files. Please **do not** paste private file contents, personal data, or anything confidential here.'
+- type: dropdown
+  id: tool
+  attributes:
+    label: Which tool is this about?
+    options:
+    - Image Compressor
+    - Image Converter
+    - Image Resizer
+    - Image Metadata (EXIF)
+    - PDF Merge
+    - PDF Split & Extract
+    - PDF Compressor
+    - Images to PDF
+    - PDF to Images
+    - JSON Formatter
+    - Text Case Converter
+    - Base64 Encoder/Decoder
+    - QR Code Generator
+    - CSV <-> JSON
+    - XML <-> JSON
+    - SQL Formatter
+    - cURL Converter
+    - Cron Helper
+    - Redirect Config Generator
+    - Gradient Generator
+    - Aspect Ratio Calculator
+    - Font Pairing
+    - Pomodoro Timer
+    - Data Unit Converter
+    - Timezone Converter
+    - Audio Trimmer
+    - Audio Speed & Pitch
+    - Audio Joiner
+    - Video to GIF
+    - File Type Checker
+    - File Hash Comparer
+    - Site-wide / not tool-specific
+  validations:
+    required: true
+- type: textarea
+  id: input
+  attributes:
+    label: What did you enter?
+    description: The value/settings you used (don't paste private data).
+  validations:
+    required: true
+- type: textarea
+  id: expected
+  attributes:
+    label: What did you expect?
+  validations:
+    required: true
+- type: textarea
+  id: actual
+  attributes:
+    label: What did you actually get?
+  validations:
+    required: true
+- type: input
+  id: env
+  attributes:
+    label: Browser & device
+  validations:
+    required: true
+- type: checkboxes
+  id: confirm
+  attributes:
+    label: Before submitting
+    options:
+    - I checked this isn't expected behaviour
+  validations:
+    required: true

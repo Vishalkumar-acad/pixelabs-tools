@@ -1,0 +1,29 @@
+name: Translation / language issue
+description: A translation, wording, or locale problem.
+title: '[Translation]: '
+labels:
+- translation
+body:
+- type: input
+  id: language
+  attributes:
+    label: Language / locale
+    placeholder: e.g. Hindi (hi-IN), Tamil (ta-IN)
+  validations:
+    required: true
+- type: input
+  id: where
+  attributes:
+    label: Page or tool
+  validations:
+    required: true
+- type: textarea
+  id: problem
+  attributes:
+    label: What's wrong?
+  validations:
+    required: true
+- type: textarea
+  id: suggestion
+  attributes:
+    label: Suggested wording (optional)
