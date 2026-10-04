@@ -105,6 +105,9 @@
   });
 
   els.dt.addEventListener("input", convert);
+  /* Some mobile date/time pickers fire only "change", never "input" — listen
+     to both so the results list and the world map never go stale. */
+  els.dt.addEventListener("change", convert);
   els.from.addEventListener("change", function () {
     if (window.TZMap) TZMap.highlight(ZONES[parseInt(els.from.value, 10)][1]);
     convert();
