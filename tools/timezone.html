@@ -34,6 +34,19 @@
         <p class="desc">Compare times across the world — live clocks plus a converter for any moment, computed locally with no network.</p>
       </div>
 
+      <div class="panel map-panel">
+        <h2>Day &amp; night around the world</h2>
+        <div class="map-wrap">
+          <canvas id="tzmap" role="img" aria-label="World map showing which regions are in daylight and which are in night, with a dot for each clock city and a sun marker where the sun is directly overhead."></canvas>
+        </div>
+        <div class="map-legend">
+          <span><span class="lg lg-day"></span>Daylight</span>
+          <span><span class="lg lg-night"></span>Night</span>
+          <span><span class="lg lg-dot"></span>Clock city</span>
+        </div>
+        <p class="muted" id="tzmap-status" style="margin-top:8px;"></p>
+      </div>
+
       <div class="panel">
         <h2>Convert a time</h2>
         <div class="options-grid">
@@ -78,6 +91,7 @@
 
   <div id="toast-root"></div>
   <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/timezone-map.js"></script>
   <script src="../assets/js/tools/timezone.js"></script>
 </body>
 </html>

@@ -748,3 +748,62 @@ html.low-power .dropzone {
     transition: none !important;
   }
 }
+
+/* ---------- Timezone world map ---------- */
+
+/* Map palette — kept beside the site theme so the canvas (which cannot use
+   CSS variables directly) can read real colours for both themes. */
+:root {
+  --map-ocean: #f2f4fc;
+  --map-land: #aab6d6;
+  --map-night-a: 0.58;
+  --map-night-swatch: #1b2544;
+  --map-day: #ffe9b0;
+  --map-day-a: 0.16;
+  --map-edge: rgba(31, 41, 74, 0.38);
+  --map-dot: #2b3556;
+  --map-dot-sel: #6366f1;
+  --map-sun: #f59e0b;
+}
+html.dark {
+  --map-ocean: #0b111e;
+  --map-land: #35415f;
+  --map-night-a: 0.55;
+  --map-night-swatch: #05070f;
+  --map-day: #5b6a9c;
+  --map-day-a: 0.16;
+  --map-edge: rgba(0, 0, 0, 0.5);
+  --map-dot: #b6c1dc;
+  --map-dot-sel: #818cf8;
+  --map-sun: #fbbf24;
+}
+
+.map-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--map-ocean);
+}
+.map-wrap canvas { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; }
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  align-items: center;
+  margin-top: 14px;
+  font-size: .8rem;
+  color: var(--text-2);
+}
+.map-legend .lg {
+  width: 11px; height: 11px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-right: 7px;
+  vertical-align: -1px;
+}
+.map-legend .lg-day { background: var(--map-day); border: 1px solid var(--map-sun); }
+.map-legend .lg-night { background: var(--map-night-swatch); }
+.map-legend .lg-dot { border-radius: 50%; background: var(--map-dot-sel); }

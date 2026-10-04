@@ -32,6 +32,7 @@
     els.from.appendChild(opt);
     if (z[1] === "Asia/Kolkata") els.from.value = String(i);
   });
+  if (window.TZMap) TZMap.highlight(ZONES[parseInt(els.from.value, 10)][1]);
 
   /* --- time math: interpret a local wall-clock time in a zone --- */
   function zonedTimeToUTC(wall, zone) {
@@ -73,11 +74,12 @@
 
   function convert() {
     var val = els.dt.value;
-    if (!val) { els.results.innerHTML = ""; return; }
+    if (!val) { els.results.innerHTML = ""; if (window.TZMap) TZMap.setMoment(null); return; }
     var wall = new Date(val);
-    if (isNaN(wall.getTime())) { els.results.innerHTML = ""; return; }
+    if (isNaN(wall.getTime())) { els.results.innerHTML = ""; if (window.TZMap) TZMap.setMoment(null); return; }
     var fromZone = ZONES[parseInt(els.from.value, 10)][1];
     var utc = zonedTimeToUTC(wall, fromZone);
+    if (window.TZMap) TZMap.setMoment(utc);
 
     els.results.innerHTML = "";
     ZONES.forEach(function (z) {
@@ -103,7 +105,10 @@
   });
 
   els.dt.addEventListener("input", convert);
-  els.from.addEventListener("change", convert);
+  els.from.addEventListener("change", function () {
+    if (window.TZMap) TZMap.highlight(ZONES[parseInt(els.from.value, 10)][1]);
+    convert();
+  });
 
   /* live clocks */
   function tickClocks() {

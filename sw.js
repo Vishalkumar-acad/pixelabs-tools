@@ -19,7 +19,7 @@
    ============================================================ */
 "use strict";
 
-var CACHE_VERSION = "pat-v48";
+var CACHE_VERSION = "pat-v49";
 
 /* Scope-relative path helper — prefixes paths with the service worker's
    scope. (Avoids new URL(), which would discard the scope's sub-path for
@@ -75,6 +75,7 @@ var PRECACHE_REL = [
   "/assets/js/tools/pomodoro.js",
   "/assets/js/tools/unit-converter.js",
   "/assets/js/tools/timezone.js",
+  "/assets/js/tools/timezone-map.js",
   "/assets/js/tools/image-metadata.js",
   "/assets/js/wav-encoder.js",
   "/assets/vendor/pdf.min.js",
@@ -88,6 +89,7 @@ var PRECACHE_REL = [
   "/assets/fonts/InterVariable.woff2",
   "/assets/img/icon-192.png",
   "/assets/img/icon-512.png",
+  "/assets/img/world-land.png",
   "/manifest.json",
   "/robots.txt",
   "/sitemap.xml",
