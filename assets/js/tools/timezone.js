@@ -75,8 +75,13 @@
   function convert() {
     var val = els.dt.value;
     if (!val) { els.results.innerHTML = ""; if (window.TZMap) TZMap.setMoment(null); return; }
-    var wall = new Date(val);
-    if (isNaN(wall.getTime())) { els.results.innerHTML = ""; if (window.TZMap) TZMap.setMoment(null); return; }
+    /* Parse the wall-clock value straight from the field (YYYY-MM-DDTHH:MM)
+       and build a UTC-based Date, so the result never depends on the
+       browser's own timezone (which previously shifted every conversion by
+       the local UTC offset). */
+    var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(val);
+    if (!m) { els.results.innerHTML = ""; if (window.TZMap) TZMap.setMoment(null); return; }
+    var wall = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]));
     var fromZone = ZONES[parseInt(els.from.value, 10)][1];
     var utc = zonedTimeToUTC(wall, fromZone);
     if (window.TZMap) TZMap.setMoment(utc);
@@ -99,8 +104,8 @@
     var fromZone = ZONES[parseInt(els.from.value, 10)][1];
     var off = zoneOffsetMs(now, fromZone);
     var local = new Date(now.getTime() + off);
-    els.dt.value = local.getFullYear() + "-" + pad(local.getMonth() + 1) + "-" + pad(local.getDate()) +
-      "T" + pad(local.getHours()) + ":" + pad(local.getMinutes());
+    els.dt.value = local.getUTCFullYear() + "-" + pad(local.getUTCMonth() + 1) + "-" + pad(local.getUTCDate()) +
+      "T" + pad(local.getUTCHours()) + ":" + pad(local.getUTCMinutes());
     convert();
   });
 
