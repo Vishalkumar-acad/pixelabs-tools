@@ -1,41 +1,15 @@
 /* ============================================================
    Cloud Status — live uptime of the optional cloud services
    ------------------------------------------------------------
-   Fetches /api/uptime (our worker proxies the public
-   UptimeRobot status page JSON — no API key, public data) and
+   Fetches /api/uptime (our worker proxies + reshapes the public
+   Better Stack status page JSON — no API key, public data) and
    renders a branded status page. Auto-refreshes every 60 s.
+   Source of truth: https://status.pixelabs.in/
    ============================================================ */
 (function () {
   "use strict";
 
   var REFRESH_MS = 60000;
-  var PSP_URL = "https://stats.uptimerobot.com/qyIKoElOfT";
-
-  /* ---------- maintenance switch ----------
-     While the processing server is being worked on, cloud mode cannot
-     run — so the page says that plainly at the top instead of leaving
-     visitors with a red "down" and no explanation. To end it, flip
-     `on` to false (that one word is the whole change). */
-  var MAINTENANCE = {
-    on: false,
-    head: "🛠️ Cloud processing is temporarily unavailable",
-    body: "We are doing maintenance on the cloud processing server, so <b>Cloud mode will not work right now</b>. Nothing else changes — every tool still runs <b>on your device</b> in Local mode, your files never leave it, and nothing is uploaded.",
-    foot: "This page will be updated as soon as cloud processing is back."
-  };
-
-  /* Show the notice before the live data arrives. */
-  (function showMaintenance() {
-    if (!MAINTENANCE.on) return;
-    var box = document.getElementById("maint-banner");
-    if (!box) return;
-    var head = document.getElementById("maint-head");
-    var body = document.getElementById("maint-body");
-    var foot = document.getElementById("maint-foot");
-    if (head) head.textContent = MAINTENANCE.head;
-    if (body) body.innerHTML = MAINTENANCE.body;
-    if (foot) foot.textContent = MAINTENANCE.foot;
-    box.hidden = false;
-  })();
 
   var heroDot = document.getElementById("hero-dot");
   var heroTitle = document.getElementById("hero-title");
@@ -47,97 +21,95 @@
   function esc(s) {
     return window.escapeHtml ? window.escapeHtml(String(s)) : String(s);
   }
-
   function timeStr() {
     return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   }
-
   function hero(state, title, sub) {
     heroDot.className = "dot-big " + state;
     heroTitle.textContent = title;
     heroSub.textContent = sub;
   }
 
-  function badgeFor(m) {
-    if (m.statusClass === "success") return '<span class="badge up">Operational</span>';
-    if (m.statusClass === "danger") return '<span class="badge down">Down</span>';
-    if (m.statusClass === "paused") return '<span class="badge off">Paused</span>';
-    return '<span class="badge off">Unknown</span>';
+  /* How each Better Stack status maps to a label, badge class and bar colour. */
+  var STATUS_META = {
+    operational:   { label: "Operational",   cls: "up",   bar: "g" },
+    degraded:      { label: "Degraded",      cls: "down", bar: "y" },
+    downtime:      { label: "Down",          cls: "down", bar: "r" },
+    maintenance:   { label: "Maintenance",   cls: "off",  bar: "y" },
+    not_monitored: { label: "Not monitored", cls: "off",  bar: "" }
+  };
+  function meta(s) { return STATUS_META[s] || STATUS_META.not_monitored; }
+
+  function badge(s) {
+    var m = meta(s);
+    return '<span class="badge ' + m.cls + '">' + m.label + "</span>";
   }
 
-  function barsHtml(dailyRatios) {
-    if (!dailyRatios || !dailyRatios.length) return "";
-    var bars = dailyRatios.map(function (d) {
-      var cls = d.color === "green" ? "g" : (d.color === "red" ? "r" : (d.color === "yellow" ? "y" : ""));
-      var ratio = parseFloat(d.ratio) || 0;
-      var label = (d.label === "black" ? "no data" : ratio.toFixed(2) + "% uptime");
-      return '<i class="' + cls + '" title="' + d.date + " — " + label + '"></i>';
+  function bars(history) {
+    if (!history || !history.length) return "";
+    var days = history.slice(-90);
+    var html = days.map(function (h) {
+      var m = meta(h.status);
+      return '<i class="' + m.bar + '" title="' + h.day + " \u2014 " + m.label + '"></i>';
     }).join("");
-    return '<div class="bars" aria-hidden="true">' + bars + "</div>" +
-      '<div class="bars-scale"><span>' +
-      dailyRatios.length + " days ago</span><span>today</span></div>";
+    return '<div class="bars" aria-hidden="true">' + html + "</div>" +
+      '<div class="bars-scale"><span>' + days.length + " days ago</span><span>today</span></div>";
   }
 
-  function monHtml(m) {
-    var ratio = m.ratio && m.ratio.ratio ? m.ratio.ratio : "—";
-    var r30 = m["30dRatio"] && m["30dRatio"].ratio ? m["30dRatio"].ratio : "—";
-    var r90 = m["90dRatio"] && m["90dRatio"].ratio ? m["90dRatio"].ratio : "—";
-    var lastDown = "No downtime on record";
-    if (m.lastDowntime && m.lastDowntime.datetime) {
-      lastDown = "Last downtime: " + m.lastDowntime.datetime;
-    }
-    var since = m.createdAt ? " · monitored since " + m.createdAt.split(" ")[0] : "";
-    return '' +
-      '<div class="panel mon-card">' +
-        '<div class="mon-head">' +
-          '<div><div class="mon-name">' + esc(m.name) + "</div>" +
-          '<div class="mon-host">' + esc(m.name) + " · " + esc(m.type || "monitor") + since + "</div></div>" +
-          badgeFor(m) +
-        "</div>" +
-        '<div class="stats-row">' +
-          '<div class="stat"><div class="k">Now</div><div class="v">' +
-            (m.statusClass === "success" ? "Up" : (m.statusClass === "danger" ? "Down" : (m.statusClass === "paused" ? "Paused" : "?"))) + "</div></div>" +
-          '<div class="stat"><div class="k">30-day uptime</div><div class="v">' + r30 + "%</div></div>" +
-          '<div class="stat"><div class="k">90-day uptime</div><div class="v">' + r90 + "%</div></div>" +
-          '<div class="stat"><div class="k">All-time</div><div class="v">' + ratio + "%</div></div>" +
-        "</div>" +
-        barsHtml(m.dailyRatios) +
-        '<div class="mon-meta">' + lastDown + "</div>" +
+  function serviceHtml(sv) {
+    var upt = (sv.availability === null || sv.availability === undefined)
+      ? "\u2014" : sv.availability.toFixed(3) + "%";
+    return '<div class="panel mon-card">' +
+      '<div class="mon-head">' +
+        "<div><div class=\"mon-name\">" + esc(sv.name) + "</div>" +
+        (sv.note ? '<div class="mon-host">' + esc(sv.note) + "</div>" : "") +
+        "</div>" + badge(sv.status) +
+      "</div>" +
+      '<div class="stats-row">' +
+        '<div class="stat"><div class="k">Now</div><div class="v">' + meta(sv.status).label + "</div></div>" +
+        '<div class="stat"><div class="k">Uptime (90 days)</div><div class="v">' + upt + "</div></div>" +
+      "</div>" +
+      bars(sv.history) +
       "</div>";
   }
 
   function render(j) {
-    var monitors = (j && j.data) || [];
-    if (!monitors.length) {
-      hero("off", "No cloud services tracked yet",
-        "UptimeRobot has no monitors on this status page right now.");
+    var banner = document.getElementById("maint-banner");
+    if (banner && j && j.announcement) {
+      document.getElementById("maint-head").textContent = "\uD83D\uDCE3 " + (j.company || "Service status");
+      document.getElementById("maint-body").textContent = j.announcement;
+      document.getElementById("maint-foot").textContent = "";
+      banner.hidden = false;
+    }
+
+    var sections = (j && j.sections) || [];
+    if (!sections.length) {
+      hero("off", "No cloud services tracked yet", "The status page has no services yet.");
       monitorsEl.innerHTML = "";
       return;
     }
-    var up = 0, down = 0, paused = 0;
-    monitors.forEach(function (m) {
-      if (m.statusClass === "success") up++;
-      else if (m.statusClass === "danger") down++;
-      else if (m.statusClass === "paused") paused++;
+
+    var total = 0, bad = 0;
+    sections.forEach(function (sec) {
+      (sec.services || []).forEach(function (sv) {
+        total++;
+        if (sv.status === "downtime" || sv.status === "degraded") bad++;
+      });
     });
 
-    if (MAINTENANCE.on) {
-      hero("warn", "Cloud processing is paused for maintenance",
-        "Local mode is unaffected — every tool still runs on your device. Updated " + timeStr());
-    } else if (down > 0) {
-      hero("bad", down + " service" + (down > 1 ? "s" : "") + " down",
-        "Some cloud operations may be unavailable. Local tools keep working.");
-    } else if (up > 0) {
-      hero("ok", "All cloud services operational",
-        up + " monitored service" + (up > 1 ? "s" : "") + " up · updated " + timeStr());
+    var when = " \u00B7 updated " + timeStr();
+    if (bad > 0) {
+      hero("bad", bad + " service" + (bad > 1 ? "s" : "") + " affected",
+        "Some cloud operations may be unavailable. Local tools keep working." + when);
     } else {
-      hero("off", "All services paused", "Monitoring is paused · updated " + timeStr());
+      hero("ok", "All cloud services operational",
+        total + " monitored service" + (total > 1 ? "s" : "") + " up" + when);
     }
 
-    monitorsEl.innerHTML = monitors.map(monHtml).join("");
-
-    var stale = document.getElementById("stale-note");
-    if (stale) stale.style.display = "none";
+    monitorsEl.innerHTML = sections.map(function (sec) {
+      return '<h2 class="sec-title">' + esc(sec.name) + "</h2>" +
+        (sec.services || []).map(serviceHtml).join("");
+    }).join("");
   }
 
   function load() {
@@ -156,10 +128,10 @@
         if (lastGood) {
           render(lastGood);
           var sub = document.getElementById("hero-sub");
-          if (sub) sub.textContent = "Can't reach the status feed — showing last known data";
+          if (sub) sub.textContent = "Can't reach the status feed \u2014 showing last known data";
         } else if (failCount > 1) {
           hero("off", "Status unavailable",
-            "Can't reach the uptime feed right now. Local tools are unaffected.");
+            "Can't reach the status feed right now. Local tools are unaffected.");
         }
       });
   }

@@ -155,7 +155,8 @@ const PAGE_ALIASES = {
 
 /* UptimeRobot PUBLIC status page id (the /status page proxies its
    JSON — it is public dashboard data, no API key involved). */
-const UPTIME_PSP = "qyIKoElOfT";
+const STATUS_PAGE_JSON = "https://status.pixelabs.in/index.json";
+const STATUS_PAGE_URL = "https://status.pixelabs.in/";
 
 /* Tags whose entire subtree is dropped from the markdown. */
 const MD_SKIP = {
@@ -483,6 +484,59 @@ function withContentSignal(res) {
   return res;
 }
 
+/* Reshape a Better Stack status page (JSON:API) into a compact object:
+   { state, updated, announcement, sections:[{name, services:[...]}] }.
+   Each service carries its current status, uptime % and daily history. */
+function normaliseStatusPage(j) {
+  const attrs = (j && j.data && j.data.attributes) || {};
+  const inc = (j && j.included) || [];
+
+  const sections = inc
+    .filter((x) => x.type === "status_page_section")
+    .map((x) => ({
+      id: String(x.id),
+      name: (x.attributes && x.attributes.name) || "Services",
+      position: (x.attributes && x.attributes.position) || 0
+    }))
+    .sort((a, b) => a.position - b.position);
+
+  const resources = inc
+    .filter((x) => x.type === "status_page_resource")
+    .map((x) => {
+      const a = x.attributes || {};
+      return {
+        sectionId: String(a.status_page_section_id),
+        name: a.public_name || "Service",
+        note: a.explanation || "",
+        status: a.status || "not_monitored",
+        availability: typeof a.availability === "number"
+          ? Math.round(a.availability * 100000) / 1000
+          : null,
+        position: a.position || 0,
+        history: (a.status_history || []).map((h) => ({ day: h.day, status: h.status }))
+      };
+    })
+    .sort((a, b) => a.position - b.position);
+
+  const groups = sections
+    .map((s) => ({ name: s.name, services: resources.filter((r) => r.sectionId === s.id) }))
+    .filter((g) => g.services.length);
+
+  const known = new Set(sections.map((s) => s.id));
+  const orphans = resources.filter((r) => !known.has(r.sectionId));
+  if (orphans.length) groups.push({ name: "Other services", services: orphans });
+
+  return {
+    provider: "Better Stack",
+    page: STATUS_PAGE_URL,
+    company: attrs.company_name || "Service Status",
+    state: attrs.aggregate_state || "unknown",
+    updated: attrs.updated_at || null,
+    announcement: attrs.announcement || null,
+    sections: groups
+  };
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -529,26 +583,31 @@ export default {
     }
 
     /* ---------- /api/uptime — cloud status page data ----------
-       Proxies the PUBLIC UptimeRobot status page JSON (no API key,
-       public data) so the browser makes a plain same-origin request.
-       Short cache: the upstream page refreshes every 60 s. */
+       Proxies the PUBLIC Better Stack status page JSON
+       (status.pixelabs.in/index.json — no API key, public data) so the
+       browser makes a plain same-origin request, and reshapes it into a
+       compact form the status page renders. Short cache: the upstream
+       page refreshes every 60 s. */
     if (request.method === "GET" &&
         (url.pathname === "/api/uptime" || url.pathname === "/api/uptime/")) {
       try {
-        const upRes = await fetch(
-          "https://stats.uptimerobot.com/api/getMonitorList/" + UPTIME_PSP,
-          { headers: { "Accept": "application/json" } }
-        );
-        const upBody = await upRes.text();
-        return new Response(upBody, {
-          status: upRes.status,
+        const upRes = await fetch(STATUS_PAGE_JSON, {
+          headers: { "Accept": "application/json" },
+          cf: { cacheTtl: 30, cacheEverything: true }
+        });
+        if (!upRes.ok) {
+          return json({ ok: false, error: "status page returned " + upRes.status }, 502);
+        }
+        const j = await upRes.json();
+        return new Response(JSON.stringify(normaliseStatusPage(j)), {
+          status: 200,
           headers: {
             "Content-Type": "application/json",
             "Cache-Control": "public, max-age=30, stale-while-revalidate=60"
           }
         });
       } catch (err) {
-        return json({ ok: false, error: "uptime data unreachable" }, 502);
+        return json({ ok: false, error: "status feed unreachable" }, 502);
       }
     }
 
