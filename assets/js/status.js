@@ -1,15 +1,17 @@
 /* ============================================================
    Cloud Status — live uptime of the optional cloud services
    ------------------------------------------------------------
-   Fetches /api/uptime (our worker proxies + reshapes the public
-   Better Stack status page JSON — no API key, public data) and
-   renders a branded status page. Auto-refreshes every 60 s.
-   Source of truth: https://status.pixelabs.in/
+   Source of truth: https://status.pixelabs.in/ (Better Stack).
+   Reads the public status-page JSON and renders a branded page.
+   It first asks our worker (/api/uptime, same-origin), and if that
+   comes back empty or unreachable it fetches the public JSON
+   directly. Auto-refreshes every 60 s.
    ============================================================ */
 (function () {
   "use strict";
 
   var REFRESH_MS = 60000;
+  var DIRECT_JSON = "https://status.pixelabs.in/index.json?include=resources";
 
   var heroDot = document.getElementById("hero-dot");
   var heroTitle = document.getElementById("hero-title");
@@ -30,7 +32,6 @@
     heroSub.textContent = sub;
   }
 
-  /* How each Better Stack status maps to a label, badge class and bar colour. */
   var STATUS_META = {
     operational:   { label: "Operational",   cls: "up",   bar: "g" },
     degraded:      { label: "Degraded",      cls: "down", bar: "y" },
@@ -39,12 +40,88 @@
     not_monitored: { label: "Not monitored", cls: "off",  bar: "" }
   };
   function meta(s) { return STATUS_META[s] || STATUS_META.not_monitored; }
-
   function badge(s) {
     var m = meta(s);
     return '<span class="badge ' + m.cls + '">' + m.label + "</span>";
   }
 
+  /* ---- data: accept either our worker's compact shape or the raw
+          Better Stack JSON:API, and normalise to { state, sections }. ---- */
+  function fromJsonApi(j) {
+    var attrs = (j && j.data && j.data.attributes) || {};
+    var inc = (j && j.included) || [];
+    var sections = inc
+      .filter(function (x) { return x.type === "status_page_section"; })
+      .map(function (x) {
+        return { id: String(x.id), name: (x.attributes && x.attributes.name) || "Services",
+                 position: (x.attributes && x.attributes.position) || 0 };
+      })
+      .sort(function (a, b) { return a.position - b.position; });
+
+    var seen = {};
+    var resources = inc
+      .filter(function (x) { return x.type === "status_page_resource" && !seen[x.id] && (seen[x.id] = 1); })
+      .map(function (x) {
+        var a = x.attributes || {};
+        return {
+          sectionId: String(a.status_page_section_id),
+          name: a.public_name || "Service",
+          note: a.explanation || "",
+          status: a.status || "not_monitored",
+          availability: typeof a.availability === "number"
+            ? Math.round(a.availability * 100000) / 1000 : null,
+          position: a.position || 0,
+          history: (a.status_history || []).map(function (h) { return { day: h.day, status: h.status }; })
+        };
+      })
+      .sort(function (a, b) { return a.position - b.position; });
+
+    var groups = sections
+      .map(function (s) { return { name: s.name, services: resources.filter(function (r) { return r.sectionId === s.id; }) }; })
+      .filter(function (g) { return g.services.length; });
+    var known = {};
+    sections.forEach(function (s) { known[s.id] = 1; });
+    var orphans = resources.filter(function (r) { return !known[r.sectionId]; });
+    if (orphans.length) groups.push({ name: "Other services", services: orphans });
+
+    return {
+      provider: "Better Stack",
+      page: "https://status.pixelabs.in/",
+      company: attrs.company_name || "Service Status",
+      state: attrs.aggregate_state || "unknown",
+      updated: attrs.updated_at || null,
+      announcement: attrs.announcement || null,
+      sections: groups
+    };
+  }
+  function normalise(p) {
+    if (p && Array.isArray(p.sections)) return p;
+    return fromJsonApi(p);
+  }
+  function hasSections(p) {
+    return p && Array.isArray(p.sections) && p.sections.length > 0;
+  }
+  function hasResources(p) {
+    return p && Array.isArray(p.included) &&
+      p.included.some(function (x) { return x.type === "status_page_resource"; });
+  }
+
+  function fetchJson(url) {
+    return fetch(url, { cache: "no-store", headers: { "Accept": "application/json" } })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+  }
+  function loadData() {
+    return fetchJson("/api/uptime")
+      .then(function (p) {
+        if (hasSections(p) || hasResources(p)) return normalise(p);
+        return fetchJson(DIRECT_JSON).then(normalise);
+      })
+      .catch(function () {
+        return fetchJson(DIRECT_JSON).then(normalise);
+      });
+  }
+
+  /* ---- rendering ---- */
   function bars(history) {
     if (!history || !history.length) return "";
     var days = history.slice(-90);
@@ -55,7 +132,6 @@
     return '<div class="bars" aria-hidden="true">' + html + "</div>" +
       '<div class="bars-scale"><span>' + days.length + " days ago</span><span>today</span></div>";
   }
-
   function serviceHtml(sv) {
     var upt = (sv.availability === null || sv.availability === undefined)
       ? "\u2014" : sv.availability.toFixed(3) + "%";
@@ -68,8 +144,7 @@
       '<div class="stats-row">' +
         '<div class="stat"><div class="k">Now</div><div class="v">' + meta(sv.status).label + "</div></div>" +
         '<div class="stat"><div class="k">Uptime (90 days)</div><div class="v">' + upt + "</div></div>" +
-      "</div>" +
-      bars(sv.history) +
+      "</div>" + bars(sv.history) +
       "</div>";
   }
 
@@ -84,7 +159,7 @@
 
     var sections = (j && j.sections) || [];
     if (!sections.length) {
-      hero("off", "No cloud services tracked yet", "The status page has no services yet.");
+      hero("off", "No cloud services tracked yet", "The status feed returned no services.");
       monitorsEl.innerHTML = "";
       return;
     }
@@ -113,16 +188,8 @@
   }
 
   function load() {
-    fetch("/api/uptime", { cache: "no-store" })
-      .then(function (r) {
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.json();
-      })
-      .then(function (j) {
-        lastGood = j;
-        failCount = 0;
-        render(j);
-      })
+    loadData()
+      .then(function (j) { lastGood = j; failCount = 0; render(j); })
       .catch(function () {
         failCount++;
         if (lastGood) {

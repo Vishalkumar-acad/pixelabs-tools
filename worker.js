@@ -155,7 +155,7 @@ const PAGE_ALIASES = {
 
 /* UptimeRobot PUBLIC status page id (the /status page proxies its
    JSON — it is public dashboard data, no API key involved). */
-const STATUS_PAGE_JSON = "https://status.pixelabs.in/index.json";
+const STATUS_PAGE_JSON = "https://status.pixelabs.in/index.json?include=resources";
 const STATUS_PAGE_URL = "https://status.pixelabs.in/";
 
 /* Tags whose entire subtree is dropped from the markdown. */
@@ -592,8 +592,7 @@ export default {
         (url.pathname === "/api/uptime" || url.pathname === "/api/uptime/")) {
       try {
         const upRes = await fetch(STATUS_PAGE_JSON, {
-          headers: { "Accept": "application/json" },
-          cf: { cacheTtl: 30, cacheEverything: true }
+          headers: { "Accept": "application/json" }
         });
         if (!upRes.ok) {
           return json({ ok: false, error: "status page returned " + upRes.status }, 502);
