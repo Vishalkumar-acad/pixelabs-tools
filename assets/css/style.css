@@ -794,11 +794,20 @@ html.dark {
   position: relative;
   width: 100%;
   border-radius: var(--radius-sm);
-  overflow: hidden;
+  /* deliberately NOT hidden: the little city card is anchored to a dot and has
+     to be able to sit slightly outside the map. The canvas rounds its own
+     corners instead, so the map still looks clipped. */
+  overflow: visible;
   border: 1px solid var(--border);
   background: var(--map-ocean);
 }
-.map-wrap canvas { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; }
+.map-wrap canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  border-radius: calc(var(--radius-sm) - 1px);
+}
 
 .map-legend {
   display: flex;
@@ -825,7 +834,8 @@ html.dark {
 /* the hover / tap card that follows a city dot on the map */
 .map-tip {
   position: absolute;
-  transform: translate(-50%, -118%);
+  transform: translate(-50%, -118%);   /* above the dot (default) */
+  z-index: 4;
   padding: 6px 10px 7px;
   border-radius: 10px;
   background: var(--surface);
@@ -837,6 +847,7 @@ html.dark {
   pointer-events: none;
   z-index: 4;
 }
+.map-tip.below { transform: translate(-50%, 18%); }   /* dot near the top */
 .map-tip[hidden] { display: none; }
 .map-tip b { display: block; font-weight: 700; letter-spacing: -0.01em; }
 .map-tip .t { display: block; margin-top: 1px; }

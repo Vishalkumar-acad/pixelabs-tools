@@ -329,11 +329,17 @@
     tipEl.innerHTML = "<b>" + shortName(zone) + "</b>" +
       "<span class='t'>" + (day ? "\u2600\uFE0F " : "\uD83C\uDF19 ") + timeIn(zone, when) + "</span>" +
       "<span class='sub'>" + (day ? "daylight" : "night") + "</span>";
-    tipEl.hidden = false;
     var x = pt.x / canvas.width * rect.width;
     var y = pt.y / canvas.height * rect.height;
+    /* The card is ~80px tall and sits above the dot by default. If the dot is
+       too near the top of the map for that, put the card below it instead —
+       on a phone the map is short, so this matters for most cities. */
+    var roomAbove = y, roomBelow = rect.height - y;
+    var below = roomAbove < 84 && roomBelow > roomAbove;
+    tipEl.className = "map-tip" + (below ? " below" : "");
+    tipEl.hidden = false;
     tipEl.style.left = Math.max(52, Math.min(rect.width - 52, x)) + "px";
-    tipEl.style.top = Math.max(34, y) + "px";
+    tipEl.style.top = Math.max(6, Math.min(rect.height - 6, y)) + "px";
   }
   function hideTip() { if (tipEl) tipEl.hidden = true; }
 
