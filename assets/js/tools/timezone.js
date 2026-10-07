@@ -125,6 +125,20 @@
   document.addEventListener("visibilitychange", function () { if (!document.hidden) convert(); });
   window.addEventListener("focus", convert);
 
+  /* A sun/moon badge, so "is it day or night there?" reads at a glance,
+     without reading a single number. It comes from the same solar maths the
+     map uses, so the list and the map can never disagree. */
+  function dayBadge(zone, when) {
+    var span = document.createElement("span");
+    span.className = "dn";
+    var day = (window.TZMap && TZMap.isDayAt) ? TZMap.isDayAt(zone, when) : null;
+    if (day === null) return span;
+    span.textContent = day ? "\u2600\uFE0F" : "🌙";
+    span.title = day ? "Daytime there" : "Night there";
+    span.setAttribute("aria-label", day ? "daytime" : "night");
+    return span;
+  }
+
   /* live clocks */
   function tickClocks() {
     var now = new Date();
@@ -132,15 +146,29 @@
     ZONES.forEach(function (z) {
       var row = document.createElement("div");
       row.className = "file-row";
+      row.setAttribute("data-zone", z[1]);
       row.innerHTML = '<div class="meta"><div class="name"></div><div class="size"></div></div>';
-      row.querySelector(".name").textContent = z[0];
+      var nameEl = row.querySelector(".name");
+      nameEl.textContent = z[0];
+      nameEl.appendChild(dayBadge(z[1], now));
       var t = fmt(now, z[1], false);
       var d = new Intl.DateTimeFormat(undefined, { timeZone: z[1], month: "short", day: "numeric" }).format(now);
-      row.querySelector(".size").textContent = d + " · " + t;
+      row.querySelector(".size").textContent = d + " \u00B7 " + t;
       els.clocks.appendChild(row);
     });
   }
   tickClocks();
   setInterval(tickClocks, 30000);
+
+  /* Pointing at a city on the map lights up its row here, so the two halves
+     of the page read as one thing. */
+  if (window.TZMap && TZMap.onHover) {
+    TZMap.onHover(function (zone) {
+      var rows = els.clocks.querySelectorAll(".file-row");
+      for (var k = 0; k < rows.length; k++) {
+        rows[k].classList.toggle("hover", !!zone && rows[k].getAttribute("data-zone") === zone);
+      }
+    });
+  }
 
 })();

@@ -754,28 +754,40 @@ html.low-power .dropzone {
 /* Map palette — kept beside the site theme so the canvas (which cannot use
    CSS variables directly) can read real colours for both themes. */
 :root {
-  --map-ocean: #f2f4fc;
-  --map-land: #aab6d6;
-  --map-night-a: 0.58;
-  --map-night-swatch: #1b2544;
-  --map-day: #ffe9b0;
-  --map-day-a: 0.16;
+  --map-ocean: #dfe7f7;
+  --map-land: #9fb0d6;
+  --map-night: #141d45;
+  --map-night-a: 0.76;
+  --map-night-swatch: #1d2750;
+  --map-day: #fff3cd;
+  --map-day-a: 0.46;
   --map-edge: rgba(31, 41, 74, 0.38);
-  --map-dot: #2b3556;
+  --map-dot: #2f3fc4;
+  --map-dot-ring: rgba(255, 255, 255, 0.95);
   --map-dot-sel: #6366f1;
   --map-sun: #f59e0b;
+  --map-label: #101527;
+  --map-label-halo: rgba(255,255,255,0.96);
+  --map-label-night: #f0f4ff;
+  --map-label-night-halo: rgba(2,5,12,0.92);
 }
 html.dark {
   --map-ocean: #0b111e;
-  --map-land: #35415f;
-  --map-night-a: 0.55;
-  --map-night-swatch: #05070f;
-  --map-day: #5b6a9c;
-  --map-day-a: 0.16;
+  --map-land: #3b4768;
+  --map-night: #03050c;
+  --map-night-a: 0.84;
+  --map-night-swatch: #0a1020;
+  --map-day: #93a8d8;
+  --map-day-a: 0.62;
   --map-edge: rgba(0, 0, 0, 0.5);
-  --map-dot: #b6c1dc;
-  --map-dot-sel: #818cf8;
+  --map-dot: #e4e9fb;
+  --map-dot-ring: rgba(4, 8, 18, 0.85);
+  --map-dot-sel: #a5b4fc;
   --map-sun: #fbbf24;
+  --map-label: #0a0f1e;
+  --map-label-halo: rgba(232,238,252,0.92);
+  --map-label-night: #eef2ff;
+  --map-label-night-halo: rgba(2,5,12,0.94);
 }
 
 .map-wrap {
@@ -804,6 +816,32 @@ html.dark {
   margin-right: 7px;
   vertical-align: -1px;
 }
-.map-legend .lg-day { background: var(--map-day); border: 1px solid var(--map-sun); }
+.map-legend .lg-day { background: var(--map-day); border: 1px solid var(--border-strong); }
 .map-legend .lg-night { background: var(--map-night-swatch); }
 .map-legend .lg-dot { border-radius: 50%; background: var(--map-dot-sel); }
+
+.map-legend .lg-sun { border-radius: 50%; background: var(--map-sun); }
+
+/* the hover / tap card that follows a city dot on the map */
+.map-tip {
+  position: absolute;
+  transform: translate(-50%, -118%);
+  padding: 6px 10px 7px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow);
+  font-size: .78rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 4;
+}
+.map-tip[hidden] { display: none; }
+.map-tip b { display: block; font-weight: 700; letter-spacing: -0.01em; }
+.map-tip .t { display: block; margin-top: 1px; }
+.map-tip .sub { display: block; color: var(--text-2); font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; }
+
+/* sun / moon badge beside each clock, and the row the map is pointing at */
+.file-row .name .dn { margin-left: 6px; font-size: .85em; }
+.file-row.hover { border-color: var(--accent); }

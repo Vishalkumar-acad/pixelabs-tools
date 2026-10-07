@@ -38,11 +38,13 @@
         <h2>Day &amp; night around the world</h2>
         <div class="map-wrap">
           <canvas id="tzmap" role="img" aria-label="World map showing which regions are in daylight and which are in night, with a dot for each clock city and a sun marker where the sun is directly overhead."></canvas>
+          <div class="map-tip" id="tzmap-tip" hidden></div>
         </div>
         <div class="map-legend">
           <span><span class="lg lg-day"></span>Daylight</span>
           <span><span class="lg lg-night"></span>Night</span>
-          <span><span class="lg lg-dot"></span>Clock city</span>
+          <span><span class="lg lg-sun"></span>Sun overhead</span>
+          <span><span class="lg lg-dot"></span>City &mdash; hover or tap for its local time</span>
         </div>
         <p class="muted" id="tzmap-status" style="margin-top:8px;"></p>
       </div>
