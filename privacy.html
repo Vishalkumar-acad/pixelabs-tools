@@ -31,12 +31,12 @@
       <div class="tool-head">
         <a class="back" href="index.html">← All tools</a>
         <h1><span class="icon">🔒</span> Privacy Policy</h1>
-        <p class="desc">Effective date: 26 September 2026 &middot; Applies to tools.pixelabs.in</p>
+        <p class="desc">Effective date: 8 October 2026 &middot; Applies to tools.pixelabs.in</p>
       </div>
 
       <div class="panel">
         <h2>The short version</h2>
-        <p>PixelAbs Tools has no user accounts, no sign-up, no cookies, no analytics, no ads and no third-party trackers. Your files are processed <b>on your own device, inside your browser</b>, by default — they never leave your device unless you explicitly choose the optional <b>Cloud</b> mode in a tool that offers it. We do not build profiles of visitors and we have nothing to sell.</p>
+        <p>PixelAbs Tools has no user accounts, no sign-up, no cookies, no analytics, no ads and no third-party trackers. Your files are processed <b>on your own device, inside your browser</b>, by default — they never leave your device unless you explicitly choose the optional <b>Cloud</b> mode in a tool that offers it. We do not build profiles of visitors and we have nothing to sell. There is one exception worth knowing about up front: the <b>Toxicity Checker</b> needs a language model far too large to run on a phone, so it scores your text on our own server instead — that is described in full below.</p>
       </div>
 
       <div class="panel">
@@ -45,7 +45,7 @@
           <li><b>No accounts or sign-ups</b> — we never ask for your name, email or any identifier to use the tools.</li>
           <li><b>No cookies</b> — the site sets no tracking cookies of any kind.</li>
           <li><b>No analytics or ads</b> — there is no Google Analytics, ad network, fingerprinting or social pixel on this site.</li>
-          <li><b>No file retention</b> — files are never saved, backed up, or shared by us, in Local or Cloud mode (see below).</li>
+          <li><b>No file or text retention</b> — files are never saved, backed up, or shared by us, in Local or Cloud mode (see below). The same is true of the text you send to the Toxicity Checker.</li>
           <li><b>No IP address storage by the application</b> — the app itself does not record your IP address or store it anywhere.</li>
         </ul>
       </div>
@@ -61,6 +61,18 @@
           <li>If the server is unavailable, the tool automatically falls back to processing on your device.</li>
         </ul>
         <p>If you do not want a particular file transmitted anywhere at all, simply keep the mode set to Local — that is always the default.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Where your text is processed (Toxicity Checker)</h2>
+        <p>Every other tool here works on files. The <b>Toxicity Checker</b> is different: it needs a language model that is far too large to run inside a phone browser, so it cannot work on your device the way the rest of the site does.</p>
+        <p>When you use that tool:</p>
+        <ul>
+          <li>The text you paste is sent over HTTPS to our own server, which scores it and returns the result.</li>
+          <li>The text is held <b>in memory only</b> while it is scored, and discarded the moment the score comes back. It is not written to disk, not stored, and the text itself is not logged.</li>
+          <li>It is never used to train anything, never shared with anyone, and never linked to you.</li>
+        </ul>
+        <p>Because this one tool genuinely cannot run locally, there is no Local mode to switch to — the server always does the scoring. If you would rather not send a piece of text anywhere, simply do not paste it into this tool.</p>
       </div>
 
       <div class="panel">
@@ -84,6 +96,7 @@
         <ul>
           <li><b>Cloudflare</b> hosts this website and serves its pages. Their handling of network traffic is governed by Cloudflare's own privacy policy.</li>
           <li><b>Our own processing server</b> — optional Cloud mode runs on a small server that we operate ourselves, hosted with <b>Microsoft Azure</b> (Central India region) and reachable only through Cloudflare on our own domain (<code>api.pixelabs.in</code>). No third-party service inspects or processes your files: they are processed in memory and deleted immediately, as described above.</li>
+          <li><b>Our own moderation server</b> — the Toxicity Checker runs on a second small server that we operate ourselves, hosted with <b>Amazon Web Services</b> and reachable only through Cloudflare on our own domain (<code>moderation.pixelabs.in</code>). It is our own server, not a third-party API: your text is scored in memory and discarded immediately, exactly as described above.</li>
           <li>An uptime monitoring service periodically checks a public health endpoint. It never sees or sends any user data.</li>
         </ul>
       </div>
