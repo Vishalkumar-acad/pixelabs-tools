@@ -8,7 +8,12 @@
     "binding": "ASSETS",
     "html_handling": "none",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/", "/about", "/status"]
+    /* Paths the Worker must handle itself. Everything NOT listed here is
+       served from the static assets first, so every route the Worker
+       implements has to be named — otherwise the request never reaches the
+       Worker. Without "/api/*" the API routes fall through to the assets
+       layer: a GET lands on the 404 page and a POST gets 405. */
+    "run_worker_first": ["/", "/about", "/status", "/api", "/api/*", "/__log"]
   },
   "observability": {
     "enabled": true
