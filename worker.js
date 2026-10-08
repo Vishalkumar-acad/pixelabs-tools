@@ -55,10 +55,12 @@ const MAX_EVENTS_PER_POST = 25;
    environment variable (Workers dashboard or wrangler). */
 const RENDER_DEFAULT = "https://api.pixelabs.in";
 
-/* The content-moderation model runs as its own service (it loads a 64 MB
-   ONNX model, so it does not belong in the main API's process). Point
-   MODERATION_URL at a different host to move it — nothing else changes. */
-const MODERATION_DEFAULT = "https://content-moderation-model.onrender.com";
+/* The content-moderation model runs as its own service (it loads a 67 MB
+   ONNX model, so it does not belong in the main API's process). It is
+   self-hosted and fronted by Cloudflare (moderation.pixelabs.in), with the
+   Render deployment kept as a spare. Point the MODERATION_URL environment
+   variable at a different host to move it — nothing else changes. */
+const MODERATION_DEFAULT = "https://moderation.pixelabs.in";
 
 /* Only these backend endpoints may be proxied — keeps the worker
    from being usable as a general-purpose proxy. */
@@ -638,6 +640,9 @@ export default {
       return json({
         ok: true,
         service: "pixelabs-tools-edge",
+        /* Which moderation host this deployment actually talks to — handy for
+           checking that MODERATION_URL (if set) or the default took effect. */
+        moderation: (env && env.MODERATION_URL) || MODERATION_DEFAULT,
         functions: [
           "/api/health",
           "/api/uptime",
