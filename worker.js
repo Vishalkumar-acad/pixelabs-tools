@@ -55,6 +55,11 @@ const MAX_EVENTS_PER_POST = 25;
    environment variable (Workers dashboard or wrangler). */
 const RENDER_DEFAULT = "https://api.pixelabs.in";
 
+/* The content-moderation model runs as its own service (it loads a 64 MB
+   ONNX model, so it does not belong in the main API's process). Point
+   MODERATION_URL at a different host to move it — nothing else changes. */
+const MODERATION_DEFAULT = "https://content-moderation-model.onrender.com";
+
 /* Only these backend endpoints may be proxied — keeps the worker
    from being usable as a general-purpose proxy. */
 const BACKEND_PATHS = [
@@ -610,6 +615,24 @@ export default {
       }
     }
 
+    /* ---------- /api/moderate — content-moderation model ---------- */
+    if (url.pathname === "/api/moderate") {
+      let base = (env && env.MODERATION_URL) || MODERATION_DEFAULT;
+      while (base.length && base.slice(-1) === "/") base = base.slice(0, -1);
+      const mHeaders = new Headers();
+      mHeaders.set("Content-Type", "application/json");
+      const mInit = { method: request.method, headers: mHeaders };
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        mInit.body = request.body;
+        mInit.duplex = "half";
+      }
+      try {
+        return await fetch(base + "/moderate", mInit);
+      } catch (err) {
+        return json({ ok: false, error: "moderation service unreachable" }, 502);
+      }
+    }
+
     /* ---------- /api — same-origin processing functions ---------- */
     if (url.pathname === "/api" || url.pathname === "/api/") {
       return json({
@@ -626,6 +649,7 @@ export default {
           "/api/pdf/split",
           "/api/pdf/from-images",
           "/api/pdf/to-images",
+          "/api/moderate",
           "/api/audio/trim",
           "/api/audio/speed",
           "/api/audio/join",

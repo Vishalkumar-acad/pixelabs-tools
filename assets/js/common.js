@@ -313,7 +313,10 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
   var y = document.getElementById("year");
   if (y) y.textContent = new Date().getFullYear();
+  /* A page that does send data to a server marks its pill .warn and writes
+     its own wording — leave those alone. */
   document.querySelectorAll(".privacy-pill .label").forEach(function (el) {
+    if (el.closest && el.closest(".privacy-pill.warn")) return;
     el.textContent = "100% Client-Side Engine Active";
   });
 

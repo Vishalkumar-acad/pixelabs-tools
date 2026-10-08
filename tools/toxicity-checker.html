@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toxicity Checker — Score Text for Abuse | PixelAbs Tools</title>
+  <meta name="description" content="Check a comment or post for abusive language. A profanity list, harassment-phrase rules and a DistilBERT model score the text and show you the raw number.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/icon-192.png" alt="PixelAbs Tools logo">
+        <span>PixelAbs&nbsp;Tools</span>
+      </a>
+      <div class="header-actions">
+        <span class="privacy-pill warn"><span class="dot"></span><span class="label">Scored on our server</span></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="tool-page">
+    <div class="container">
+
+      <div class="tool-head">
+        <a class="back" href="../index.html">← All tools</a>
+        <h1><span class="icon">🛡️</span> Toxicity Checker</h1>
+        <p class="desc">Paste a comment or post and see how abusive it reads — with the raw score, not just a yes or no.</p>
+      </div>
+
+      <div class="panel">
+        <div class="tc-notice">
+          <b>This tool is different.</b> Every other tool here runs entirely on your device. Checking toxicity needs a 64&nbsp;MB
+          language model, which cannot run on every phone — so this one sends the text you paste to our own server, where the
+          model runs. It is not stored or logged, and it is discarded as soon as the score comes back.
+        </div>
+
+        <label class="field" for="tc-input">Text to check</label>
+        <textarea id="tc-input" class="tc-input" rows="6" maxlength="5000"
+          placeholder="Paste a comment, a message, a caption…"></textarea>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="run-btn">Check text</button>
+          <button class="btn btn-secondary btn-sm" id="clear-btn">Clear</button>
+        </div>
+        <p class="muted" style="font-size:.78rem; margin:10px 0 0;">Up to 5,000 characters. Tip: <b>Ctrl/⌘ + Enter</b> to check.</p>
+        <div class="msg" id="msg"></div>
+      </div>
+
+      <div class="panel hidden" id="result-panel">
+        <h2>Result</h2>
+        <div class="tc-verdict" id="verdict"></div>
+        <div class="tc-track"><div class="tc-fill" id="score-bar"></div></div>
+        <div class="tc-facts">
+          <div><span class="k">Score</span><span class="v" id="score-val"></span></div>
+          <div><span class="k">Decided by</span><span class="v" id="rule-val"></span></div>
+          <div><span class="k">Input</span><span class="v" id="meta"></span></div>
+        </div>
+        <p class="muted" style="font-size:.78rem; margin:12px 0 0;">
+          This is a reading of the text, not a verdict. Very short messages, sarcasm, reclaimed words and
+          languages the model never saw can all be wrong in both directions — treat it as one opinion, and
+          let a human make the call.
+        </p>
+      </div>
+
+      <div class="panel">
+        <h2>How the score is decided</h2>
+        <div class="tc-how">
+          <div><b>1. Abusive words</b><span>Common English and Hindi slurs and swearing are caught outright, even when written as <code>sh1t</code> or <code>f u c k</code>.</span></div>
+          <div><b>2. Harassment phrases</b><span>Politely-worded attacks such as "nobody likes you" are matched as phrases.</span></div>
+          <div><b>3. The model</b><span>Everything else is scored by a DistilBERT classifier fine-tuned on 1.75M public comments. Clean text usually lands near 0.000, clearly abusive text near 0.95.</span></div>
+        </div>
+        <div class="btn-row" style="margin-top:14px;">
+          <p class="muted" style="font-size:.8rem; margin:14px 0 8px;">See it in action — this fills the box above:</p>
+          <button class="btn btn-secondary btn-sm" data-sample="Thanks for the detailed write-up — this actually helped a lot.">Example: a friendly comment</button>
+          <button class="btn btn-secondary btn-sm" data-sample="This is the worst take I have seen all week.">Example: blunt criticism</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-slim">
+        <div class="footer-brand">
+          <a class="footer-logo" href="../index.html" aria-label="PixelAbs Tools — home"><span class="footer-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>PixelAbs Tools</a>
+          <p class="footer-tagline">The text you paste here is sent to our server to be scored — never stored.</p>
+        </div>
+        <div class="links">
+          <a href="../index.html">All tools</a>
+          <a href="https://github.com/Vishalkumar-acad/pixelabs-tools" target="_blank" rel="noopener">GitHub</a>
+          <span>© <span id="year"></span></span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span class="saved-note" id="savings-note"></span></div>
+    </div>
+  </footer>
+
+  <div id="toast-root"></div>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/tools/toxicity-checker.js"></script>
+</body>
+</html>

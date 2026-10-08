@@ -829,6 +829,70 @@ html.dark {
 .map-legend .lg-night { background: var(--map-night-swatch); }
 .map-legend .lg-dot { border-radius: 50%; background: var(--map-dot-sel); }
 
+/* ---------- Toxicity checker ---------- */
+.privacy-pill.warn {
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  border-color: color-mix(in srgb, var(--warning) 34%, transparent);
+}
+.privacy-pill.warn .dot { background: var(--warning); animation: none; box-shadow: none; }
+
+.tc-notice {
+  border: 1px solid color-mix(in srgb, var(--warning) 34%, transparent);
+  background: color-mix(in srgb, var(--warning) 9%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: .84rem;
+  line-height: 1.55;
+  color: var(--text);
+  margin-bottom: 18px;
+}
+.tc-notice b { color: var(--warning); }
+
+.tc-input {
+  width: 100%;
+  min-height: 132px;
+  resize: vertical;
+  font: inherit;
+  font-size: .92rem;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 13px;
+  margin: 6px 0 14px;
+}
+.tc-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.tc-verdict { font-size: 1.12rem; font-weight: 750; letter-spacing: -0.02em; margin-bottom: 12px; }
+.tc-verdict.good { color: var(--success); }
+.tc-verdict.warn { color: var(--warning); }
+.tc-verdict.bad  { color: var(--danger); }
+
+.tc-track { height: 9px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.tc-fill { height: 100%; width: 3%; border-radius: 999px; transition: width .35s ease; }
+.tc-fill.good { background: var(--success); }
+.tc-fill.warn { background: var(--warning); }
+.tc-fill.bad  { background: var(--danger); }
+
+.tc-facts { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 14px; }
+.tc-facts > div { display: flex; flex-direction: column; gap: 2px; }
+.tc-facts .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-2); }
+.tc-facts .v { font-weight: 650; font-variant-numeric: tabular-nums; }
+
+.tc-how { display: grid; gap: 12px; }
+.tc-how > div { display: grid; gap: 3px; font-size: .86rem; color: var(--text-2); }
+.tc-how b { color: var(--text); }
+.tc-how code {
+  font-family: var(--mono);
+  font-size: .82em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
 .map-legend .lg-sun { border-radius: 50%; background: var(--map-sun); }
 
 /* the hover / tap card that follows a city dot on the map */
