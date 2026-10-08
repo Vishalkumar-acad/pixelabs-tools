@@ -76,6 +76,16 @@
           <div><b>2. Harassment phrases</b><span>Politely-worded attacks such as "nobody likes you" are matched as phrases.</span></div>
           <div><b>3. The model</b><span>Everything else is scored by a DistilBERT classifier fine-tuned on 1.75M public comments. Clean text usually lands near 0.000, clearly abusive text near 0.95.</span></div>
         </div>
+        <p class="muted" style="font-size:.8rem; margin:14px 0 0;">
+          <b>Open source.</b> This model is ours, and it is public. It is a
+          <code>distilbert-base-uncased</code> checkpoint fine-tuned on the
+          <a href="https://huggingface.co/datasets/SetFit/toxic_conversations" target="_blank" rel="noopener">SetFit/toxic_conversations</a>
+          dataset (1.75M comments) and quantized to int8. The weights, the training
+          code and the exact sha256 hashes are all in the
+          <a href="https://github.com/Vishalkumar-acad/Content-Moderation-Model" target="_blank" rel="noopener">model repository on GitHub</a>
+          under the MIT licence — download it and run it yourself if you like.
+          This page is, in effect, a live preview of it.
+        </p>
         <div class="btn-row" style="margin-top:14px;">
           <p class="muted" style="font-size:.8rem; margin:14px 0 8px;">See it in action — this fills the box above:</p>
           <button class="btn btn-secondary btn-sm" data-sample="Thanks for the detailed write-up — this actually helped a lot.">Example: a friendly comment</button>
